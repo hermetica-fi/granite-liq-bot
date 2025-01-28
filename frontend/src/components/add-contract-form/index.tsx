@@ -16,9 +16,12 @@ const AddContractForm = () => {
     setInProgress(true);
     try {
       await addContract(contractAddress, contractOwnerSecretKey);
-    } catch (error) {
-      console.error();
-      showMessage(error.message, 'error');
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        showMessage(error.message, 'error');
+      } else {
+        showMessage('An unknown error occurred', 'error');
+      }
     }
     setInProgress(false);
   };

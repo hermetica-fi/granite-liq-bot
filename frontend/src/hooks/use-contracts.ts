@@ -22,11 +22,11 @@ export const useContracts = () => {
 
     const addContract = async (contractAddress: string, contractOwnerSecretKey: string) => {
         return postAddContract(contractAddress, contractOwnerSecretKey).then(resp => {
-            if(resp.error) {
+            if (resp.error) {
                 throw new Error(resp.error);
             }
-        })
-        /// setContracts(prev => ({ ...prev, list: data }));
+            setContracts(prev => ({ ...prev, list: resp }));
+        });
     }
 
     return { contracts, loadContracts, addContract };
