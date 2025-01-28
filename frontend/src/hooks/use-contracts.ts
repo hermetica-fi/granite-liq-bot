@@ -25,7 +25,7 @@ export const useContracts = () => {
             if (resp.error) {
                 throw new Error(resp.error);
             }
-            //setContracts(prev => ({ ...prev, list: resp }));
+            setContracts(prev => ({ ...prev, list: resp }));
         });
     }
 

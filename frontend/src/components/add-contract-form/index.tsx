@@ -12,7 +12,6 @@ const AddContractForm = () => {
   const [, showMessage] = useToast();
 
   const handleSubmit = async () => {
-
     setInProgress(true);
     try {
       await addContract(contractAddress, contractOwnerSecretKey);
@@ -40,7 +39,7 @@ const AddContractForm = () => {
 
   return (
     <ThemedBox>
-      <Typography variant="h5">Add Liqudiation Contract</Typography>
+      <Typography variant="h5" sx={{ mb: "20px"}}>Add Liqudiation Contract</Typography>
       <Box sx={{ mb: "12px", mt: "12px" }}>
         <TextField
           label="Contract Address"
