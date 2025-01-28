@@ -1,7 +1,8 @@
 import { useContracts } from "./hooks/use-contracts";
 import { useEffect } from "react";
+import Layout from "./layout";
 import HomePage from "./views/home";
-import Layout from "./Layout";
+
 import "./App.css";
 
 function App() {
