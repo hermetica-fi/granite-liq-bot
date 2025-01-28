@@ -2,7 +2,7 @@ import { generateWallet } from "@stacks/wallet-sdk";
 import { cvToJSON, fetchCallReadOnlyFunction, getAddressFromPrivateKey } from "@stacks/transactions";
 import { getNetworkNameFromAddress } from "../helper";
 import { getContractInfo } from "../hiro-api";
-import { networkFromName, type StacksNetworkName } from "@stacks/network";
+import { networkFromName } from "@stacks/network";
 import { pool } from "../db";
 
 const getContracts = async (req: Request) => {
@@ -24,6 +24,22 @@ const errorResponse = (error: any) => {
 const addContract = async (req: Request) => {
     const body = await req.json();
     const { address, mnemonic } = body;
+
+    if (address.trim() === '') {
+        return errorResponse('Enter an address');
+    }
+
+    if (mnemonic.trim() === '') {
+        return errorResponse('Enter a mnemonic');
+    }
+
+    let dbClient = await pool.connect();
+    if (await dbClient.query('SELECT * FROM contracts WHERE address = $1', [address]).then(r => r.rows.length > 0)) {
+        dbClient.release();
+        return errorResponse('Contract already exists');
+    }
+    dbClient.release();
+
     let networkName;
 
     try {
@@ -75,9 +91,12 @@ const addContract = async (req: Request) => {
         return errorResponse('Contract owner does not match');
     }
 
-    return Response.json({
-
-    });
+    dbClient = await pool.connect();
+    await dbClient.query('INSERT INTO contracts (address, network, owner_address, owner_priv) VALUES ($1, $2, $3, $4)', [address, networkName, ownerAddress, owner.stxPrivateKey]);
+    const contracts = await dbClient.query('SELECT address, network, owner_address FROM contracts').then(r => r.rows);
+    dbClient.release();
+    
+    return Response.json(contracts);
 }
 
 
