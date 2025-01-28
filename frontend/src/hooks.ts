@@ -6,16 +6,18 @@ export const useContracts = () => {
     const [contracts, setContracts] = useAtom(contractsAtom);
 
     const loadContracts = async () => {
-        if (!contracts.loading) {
-            setContracts({ ...contracts, loading: true });
+        if (contracts.loading) return;
 
-            fetchContracts().then(data => {
-                setContracts({ ...contracts, contracts: data, loading: false });
-            }).catch(() => {
-                setContracts({ ...contracts, loading: false });
-            });
+        setContracts(prev => ({ ...prev, loading: true, initialized: true }));
+
+        try {
+            const data = await fetchContracts();
+            setContracts(prev => ({ ...prev, contracts: data, loading: false }));
+        } catch (error) {
+            console.error(error);
+            setContracts(prev => ({ ...prev, loading: false }));
         }
     }
 
-    return { loadContracts };
+    return { contracts, loadContracts };
 }

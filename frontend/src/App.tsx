@@ -1,10 +1,22 @@
-import { Button } from '@mui/material';
+import { Button } from "@mui/material";
+import { useContracts } from "./hooks";
+import { useEffect } from "react";
 
 function App() {
-  return <>
+  const {contracts, loadContracts } = useContracts();
   
-  <Button variant="contained">Hello World</Button>  
-  </>;
+  useEffect(() => {
+    if (!contracts.initialized) {
+      const timer = setTimeout(loadContracts);
+      return () => clearTimeout(timer); 
+    }
+  }, [contracts.initialized, loadContracts]);
+
+  return (
+    <>
+      <Button variant="contained">Hello World</Button>
+    </>
+  );
 }
 
 export default App;
