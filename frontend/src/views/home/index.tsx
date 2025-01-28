@@ -1,3 +1,4 @@
+import AddContractForm from "../../components/add-contract-form";
 import { useContracts } from "../../hooks/use-contracts";
 
 const Home = () => {
@@ -5,7 +6,7 @@ const Home = () => {
 
     console.log("contracts", contracts);
 
-    if(contracts.list.length === 0) return <div>No contracts found</div>;
+    if(contracts.list.length === 0) return <AddContractForm />;
   
 
     return <div>Contracts</div>;
