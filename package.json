@@ -12,6 +12,10 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@stacks/network": "^7.0.2",
+    "@stacks/stacks-blockchain-api-types": "^7.14.1",
+    "@stacks/transactions": "^7.0.2",
+    "@stacks/wallet-sdk": "^7.0.2",
     "@types/pg": "^8.11.11",
     "dotenv": "^16.4.7",
     "pg": "^8.13.1"

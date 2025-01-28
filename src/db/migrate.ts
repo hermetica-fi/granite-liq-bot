@@ -10,8 +10,10 @@ export const createDb = async (client: PoolClient) => {
 
     CREATE += "CREATE TABLE IF NOT EXISTS public.contracts(" +
         "address VARCHAR PRIMARY KEY NOT NULL," +
-        "private_key VARCHAR NOT NULL," +
-        "network VARCHAR NOT NULL" +
+        "network VARCHAR NOT NULL," +
+        "owner_address VARCHAR NOT NULL," +
+        "owner_priv VARCHAR NOT NULL," +
+        "created_at TIMESTAMP NOT NULL DEFAULT NOW()" +
         ");";
 
     CREATE += "CREATE TABLE IF NOT EXISTS public.transactions(" +
