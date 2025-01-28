@@ -1,5 +1,5 @@
 import { useAtom } from "jotai";
-import { contractsAtom } from "./state";
+import { contractsAtom } from "./state/contracts";
 import { fetchContracts } from "./api";
 
 export const useContracts = () => {
