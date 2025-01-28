@@ -1,7 +1,7 @@
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8081';
 
-export const getContracts = () => fetch(`${API_BASE}/contracts`).then(r => r.json())
+export const fetchContracts = () => fetch(`${API_BASE}/contracts`).then(r => r.json())
 
 export const addContract = (address: string, mnemonic: string) => fetch(`${API_BASE}/add-contract`, {
     method: 'POST',
