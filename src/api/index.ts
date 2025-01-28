@@ -1,5 +1,5 @@
 import { generateWallet } from "@stacks/wallet-sdk";
-import { fetchCallReadOnlyFunction, getAddressFromPrivateKey } from "@stacks/transactions";
+import { cvToJSON, fetchCallReadOnlyFunction, getAddressFromPrivateKey } from "@stacks/transactions";
 import { getNetworkNameFromAddress } from "../helper";
 import { getContractInfo } from "../hiro-api";
 import { networkFromName, type StacksNetworkName } from "@stacks/network";
@@ -13,6 +13,10 @@ const getContracts = async (req: Request) => {
 }
 
 const errorResponse = (error: any) => {
+    if (typeof error === 'string') {
+        return Response.json({ error: error }, { status: 400 });
+    };
+
     const message = error instanceof Error ? error.message : 'Server error';
     return Response.json({ error: message }, { status: 400 });
 }
@@ -20,30 +24,56 @@ const errorResponse = (error: any) => {
 const addContract = async (req: Request) => {
     const body = await req.json();
     const { address, mnemonic } = body;
-    let networkName = 'mainnet';
+    let networkName;
 
     try {
-        const networkName = getNetworkNameFromAddress(address);
+        networkName = getNetworkNameFromAddress(address);
     } catch (error) {
         return errorResponse(error);
     }
 
-    let network = networkFromName(networkName as StacksNetworkName);
+    const network = networkFromName(networkName);
 
-    const contractInfo = await getContractInfo(address, network);
+    let wallet;
+    try {
+        wallet = await generateWallet({ secretKey: mnemonic, password: "", });
+    } catch (error) {
+        return errorResponse(error);
+    }
 
-    const wallet = await generateWallet({ secretKey: mnemonic, password: "", });
-    const [account] = wallet.accounts;
-    const ownerAddress = getAddressFromPrivateKey(account.stxPrivateKey, network);
+    const [owner] = wallet.accounts;
+    const ownerAddress = getAddressFromPrivateKey(owner.stxPrivateKey, network);
 
-    const owner = await fetchCallReadOnlyFunction({
-        contractAddress: address.split('.')[0],
-        contractName: address.split('.')[1],
-        functionName: 'get-owner',
-        functionArgs: [],
-        senderAddress: ownerAddress,
-        network,
-    });
+    let contractInfo;
+    try {
+        contractInfo = await getContractInfo(address, network);
+    } catch (error) {
+        return errorResponse('Could not fetch contract info');
+    }
+
+    if (contractInfo.error && contractInfo.message) {
+        return errorResponse(contractInfo.message);
+    }
+
+    let onChainOwnerAddress;
+    try {
+        onChainOwnerAddress = await fetchCallReadOnlyFunction({
+            contractAddress: address.split('.')[0],
+            contractName: address.split('.')[1],
+            functionName: 'get-owner',
+            functionArgs: [],
+            senderAddress: ownerAddress,
+            network,
+        }).then(r => cvToJSON(r).value);
+    } catch (error) {
+        return errorResponse('Could not fetch contract owner');
+    }
+
+    console.log(onChainOwnerAddress, ownerAddress)
+
+    if (onChainOwnerAddress !== ownerAddress) {
+        return errorResponse('Contract owner does not match');
+    }
 
     return Response.json({
 
