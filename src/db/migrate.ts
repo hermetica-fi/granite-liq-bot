@@ -29,7 +29,7 @@ export const createDb = async (client: PoolClient) => {
     CREATE += "INSERT INTO kv_store VALUES ('db_ver', 1);";
 
     return client.query(CREATE, []).then(() => {
-        console.error("db created")
+        console.log("db created")
     }).catch(e => {
         console.log(e);
     });
