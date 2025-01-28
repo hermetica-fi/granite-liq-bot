@@ -43,7 +43,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           Liquidation Bot
         </Typography>
       </Box>
-      <Box sx={{ ml: '12px', mr: '12px', background: 'red' }}>{children}</Box>
+      <Box sx={{ ml: '12px', mr: '12px' }}>{children}</Box>
     </Box>
   );
 };
