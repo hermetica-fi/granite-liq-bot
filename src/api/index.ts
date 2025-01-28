@@ -1,13 +1,15 @@
-import { generateWallet, randomSeedPhrase } from "@stacks/wallet-sdk";
+import { generateWallet } from "@stacks/wallet-sdk";
 import { fetchCallReadOnlyFunction, getAddressFromPrivateKey } from "@stacks/transactions";
 import { getNetworkNameFromAddress } from "../helper";
 import { getContractInfo } from "../hiro-api";
 import { networkFromName } from "@stacks/network";
+import { pool } from "../db";
 
 const getContracts = async (req: Request) => {
-
-
-    return Response.json({});
+    const dbClient = await pool.connect();
+    const contracts = await dbClient.query('SELECT address, network, owner_address FROM contracts').then(r => r.rows);
+    dbClient.release();
+    return Response.json(contracts);
 }
 
 const addContract = async (req: Request) => {
@@ -43,7 +45,9 @@ export const main = async () => {
             const url = new URL(req.url);
             let res: Response;
 
-            if (req.method === "POST" && url.pathname === "/add-contract") {
+            if (req.method === "GET" && url.pathname === "/get-contracts") {
+                res = await getContracts(req);
+            } else if (req.method === "POST" && url.pathname === "/add-contract") {
                 res = await addContract(req);
             } else {
                 res = new Response("Not found", { status: 404 });
