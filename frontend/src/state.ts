@@ -4,5 +4,5 @@ import { ContractState } from './types';
 export const contractsAtom = atom<ContractState>({
     initialized: false,
     loading: false,
-    contracts: []
+    list: []
 });

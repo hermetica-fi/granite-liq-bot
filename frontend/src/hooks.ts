@@ -12,7 +12,7 @@ export const useContracts = () => {
 
         try {
             const data = await fetchContracts();
-            setContracts(prev => ({ ...prev, contracts: data, loading: false }));
+            setContracts(prev => ({ ...prev, list: data, loading: false }));
         } catch (error) {
             console.error(error);
             setContracts(prev => ({ ...prev, loading: false }));

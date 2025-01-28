@@ -9,5 +9,5 @@ export type Contract = {
 export type ContractState = {
     initialized: boolean,
     loading: boolean,
-    contracts: Contract[]
+    list: Contract[]
 }
