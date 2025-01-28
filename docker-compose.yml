@@ -47,7 +47,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres-pwd
-      POSTGRES_DB: leather_db
+      POSTGRES_DB: granite_liq_bot
     networks:
       - internal
 networks:
