@@ -1,3 +1,4 @@
+import { Box } from "@mui/material";
 import AddContractForm from "../../components/add-contract-form";
 import { useContracts } from "../../hooks/use-contracts";
 
@@ -6,7 +7,11 @@ const Home = () => {
 
     console.log("contracts", contracts);
 
-    if(contracts.list.length === 0) return <AddContractForm />;
+    if(contracts.list.length === 0) {
+        return <Box sx={{ maxWidth: '600px' }}>
+            <AddContractForm />
+        </Box>
+    };
   
 
     return <div>Contracts</div>;
