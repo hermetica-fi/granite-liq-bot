@@ -45,7 +45,7 @@ export const main = async () => {
             const url = new URL(req.url);
             let res: Response;
 
-            if (req.method === "GET" && url.pathname === "/get-contracts") {
+            if (req.method === "GET" && url.pathname === "/contracts") {
                 res = await getContracts(req);
             } else if (req.method === "POST" && url.pathname === "/add-contract") {
                 res = await addContract(req);
