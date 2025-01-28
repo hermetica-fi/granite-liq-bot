@@ -10,5 +10,5 @@ export const getNetworkNameFromAddress = (address: string): StacksNetworkName =>
         return 'mainnet';
     }
 
-    throw new Error('Invalid principal');
+    throw new Error('Invalid address');
 }

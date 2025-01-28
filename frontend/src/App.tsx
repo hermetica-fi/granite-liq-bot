@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import Layout from "./layout";
 import HomePage from "./views/home";
 import "./App.css";
+import Providers from "./providers";
 
 function App() {
   const { contracts, loadContracts } = useContracts();
@@ -19,9 +20,11 @@ function App() {
   if (loading) return null;
 
   return (
-    <Layout>
-      <HomePage />
-    </Layout>
+    <Providers>
+      <Layout>
+        <HomePage />
+      </Layout>
+    </Providers>
   );
 }
 

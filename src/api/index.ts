@@ -2,7 +2,7 @@ import { generateWallet } from "@stacks/wallet-sdk";
 import { fetchCallReadOnlyFunction, getAddressFromPrivateKey } from "@stacks/transactions";
 import { getNetworkNameFromAddress } from "../helper";
 import { getContractInfo } from "../hiro-api";
-import { networkFromName } from "@stacks/network";
+import { networkFromName, type StacksNetworkName } from "@stacks/network";
 import { pool } from "../db";
 
 const getContracts = async (req: Request) => {
@@ -12,11 +12,24 @@ const getContracts = async (req: Request) => {
     return Response.json(contracts);
 }
 
+const errorResponse = (error: any) => {
+    const message = error instanceof Error ? error.message : 'Server error';
+    return Response.json({ error: message }, { status: 400 });
+}
+
 const addContract = async (req: Request) => {
     const body = await req.json();
     const { address, mnemonic } = body;
-    const networkName = getNetworkNameFromAddress(address);
-    const network = networkFromName(networkName);
+    let networkName = 'mainnet';
+
+    try {
+        const networkName = getNetworkNameFromAddress(address);
+    } catch (error) {
+        return errorResponse(error);
+    }
+
+    let network = networkFromName(networkName as StacksNetworkName);
+
     const contractInfo = await getContractInfo(address, network);
 
     const wallet = await generateWallet({ secretKey: mnemonic, password: "", });
