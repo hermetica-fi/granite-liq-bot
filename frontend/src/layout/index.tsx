@@ -16,7 +16,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
         color: theme.palette.mode === "light" ? grey[900] : grey[300],
         bgcolor: theme.palette.mode === "light" ? grey[50] : grey[900],
       }}
@@ -44,7 +43,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           Liquidation Bot
         </Typography>
       </Box>
-      {children}
+      <Box sx={{ ml: '12px', mr: '12px', background: 'red' }}>{children}</Box>
     </Box>
   );
 };
