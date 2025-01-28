@@ -1,6 +1,6 @@
 import { useAtom } from "jotai";
 import { contractsAtom } from "../state/contracts";
-import { fetchContracts } from "../api";
+import { fetchContracts, postAddContract } from "../api";
 
 export const useContracts = () => {
     const [contracts, setContracts] = useAtom(contractsAtom);
@@ -19,5 +19,10 @@ export const useContracts = () => {
         }
     }
 
-    return { contracts, loadContracts };
+    const addContract = async (contractAddress: string, contractOwnerSecretKey: string) => {
+        const data = await postAddContract(contractAddress, contractOwnerSecretKey);
+        setContracts(prev => ({ ...prev, list: data }));
+    }
+
+    return { contracts, loadContracts, addContract };
 }

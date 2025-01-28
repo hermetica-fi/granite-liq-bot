@@ -14,7 +14,7 @@ const getContracts = async (req: Request) => {
 
 const addContract = async (req: Request) => {
     const body = await req.json();
-    const { address, mnemonic } = body.contract;
+    const { address, mnemonic } = body;
     const networkName = getNetworkNameFromAddress(address);
     const network = networkFromName(networkName);
     const contractInfo = await getContractInfo(address, network);

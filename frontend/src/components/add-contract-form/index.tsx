@@ -1,14 +1,22 @@
 import { Box, Typography, TextField, Button } from "@mui/material";
 import { useState } from "react";
 import ThemedBox from "../themed-box";
+import { useContracts } from "../../hooks/use-contracts";
 
 const AddContractForm = () => {
   const [contractAddress, setContractAddress] = useState("");
   const [contractOwnerSecretKey, setContractOwnerSecretKey] = useState("");
+  const [inProgress, setInProgress] = useState(false);
+  const { addContract } = useContracts();   
 
-  const handleSubmit = () => {
-    console.log("contractAddress", contractAddress);
-    console.log("contractOwnerSecretKey", contractOwnerSecretKey);
+  const handleSubmit = async () => {
+    setInProgress(true);
+    try {
+      await addContract(contractAddress, contractOwnerSecretKey);
+    } catch (error) {
+      console.error(error);
+    }
+    setInProgress(false);
   };
 
   const handleContractAddressChange = (
@@ -45,7 +53,7 @@ const AddContractForm = () => {
         />
       </Box>
       <Box>
-        <Button variant="contained" onClick={handleSubmit}>
+        <Button variant="contained" onClick={handleSubmit} disabled={inProgress}>
           Submit
         </Button>
       </Box>
