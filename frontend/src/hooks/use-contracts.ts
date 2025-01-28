@@ -1,6 +1,6 @@
 import { useAtom } from "jotai";
-import { contractsAtom } from "./state/contracts";
-import { fetchContracts } from "./api";
+import { contractsAtom } from "../state/contracts";
+import { fetchContracts } from "../api";
 
 export const useContracts = () => {
     const [contracts, setContracts] = useAtom(contractsAtom);

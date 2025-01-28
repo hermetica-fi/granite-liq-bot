@@ -1,4 +1,4 @@
-import { useContracts } from "./hooks";
+import { useContracts } from "./hooks/use-contracts";
 import { useEffect } from "react";
 import HomePage from "./views/home";
 import Layout from "./Layout";

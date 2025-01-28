@@ -1,4 +1,4 @@
-import { useContracts } from "../../hooks";
+import { useContracts } from "../../hooks/use-contracts";
 
 const Home = () => {
     const { contracts } = useContracts();
