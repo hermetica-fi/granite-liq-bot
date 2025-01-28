@@ -1,6 +1,6 @@
 import { useContracts } from "./hooks";
 import { useEffect } from "react";
-import ContractsPage from "./pages/Contracts";
+import HomePage from "./views/home";
 import Layout from "./Layout";
 import "./App.css";
 
@@ -20,7 +20,7 @@ function App() {
 
   return (
     <Layout>
-      <ContractsPage />
+      <HomePage />
     </Layout>
   );
 }
