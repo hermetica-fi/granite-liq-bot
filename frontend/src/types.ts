@@ -6,8 +6,3 @@ export type Contract = {
     owner_address: string
 }
 
-export type ContractState = {
-    initialized: boolean,
-    loading: boolean,
-    list: Contract[]
-}

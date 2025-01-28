@@ -1,18 +1,19 @@
 import { Box } from "@mui/material";
 import AddContractForm from "../../components/add-contract-form";
-import { useContracts } from "../../hooks/use-contracts";
+import { useContractsStore } from "../../state/contracts";
 
 const Home = () => {
-    const { contracts } = useContracts();
+  const { items } = useContractsStore((state) => state);
 
-    if(contracts.list.length === 0) {
-        return <Box sx={{ maxWidth: '600px' }}>
-            <AddContractForm />
-        </Box>
-    };
-  
+  if (items.length === 0) {
+    return (
+      <Box sx={{ maxWidth: "600px" }}>
+        <AddContractForm />
+      </Box>
+    );
+  }
 
-    return <div>Contracts</div>;
-}
+  return <div>Contracts</div>;
+};
 
 export default Home;

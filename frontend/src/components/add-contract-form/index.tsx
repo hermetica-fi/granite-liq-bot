@@ -1,15 +1,17 @@
 import { Box, Typography, TextField, Button } from "@mui/material";
 import { useState } from "react";
 import ThemedBox from "../themed-box";
-import { useContracts } from "../../hooks/use-contracts";
 import useToast from "../../hooks/use-toast";
+import { useContractsStore } from "../../state/contracts";
 
 const AddContractForm = () => {
   const [contractAddress, setContractAddress] = useState("");
   const [contractOwnerSecretKey, setContractOwnerSecretKey] = useState("");
   const [inProgress, setInProgress] = useState(false);
-  const { addContract } = useContracts();   
+
   const [, showMessage] = useToast();
+
+  const { addContract } = useContractsStore()
 
   const handleSubmit = async () => {
     setInProgress(true);
@@ -17,9 +19,9 @@ const AddContractForm = () => {
       await addContract(contractAddress, contractOwnerSecretKey);
     } catch (error: unknown) {
       if (error instanceof Error) {
-        showMessage(error.message, 'error');
+        showMessage(error.message, "error");
       } else {
-        showMessage('An unknown error occurred', 'error');
+        showMessage("An unknown error occurred", "error");
       }
     }
     setInProgress(false);
@@ -39,7 +41,9 @@ const AddContractForm = () => {
 
   return (
     <ThemedBox>
-      <Typography variant="h5" sx={{ mb: "20px"}}>Add Liqudiation Contract</Typography>
+      <Typography variant="h5" sx={{ mb: "20px" }}>
+        Add Liqudiation Contract
+      </Typography>
       <Box sx={{ mb: "12px", mt: "12px" }}>
         <TextField
           label="Contract Address"
@@ -59,7 +63,12 @@ const AddContractForm = () => {
         />
       </Box>
       <Box>
-        <Button variant="contained" role="button" onClick={handleSubmit} disabled={inProgress}>
+        <Button
+          variant="contained"
+          role="button"
+          onClick={handleSubmit}
+          disabled={inProgress}
+        >
           Submit
         </Button>
       </Box>
