@@ -1,10 +1,12 @@
-import { Button } from "@mui/material";
 import { useContracts } from "./hooks";
 import { useEffect } from "react";
+import ContractsPage from "./pages/Contracts";
+import Layout from "./Layout";
+import "./App.css";
 
 function App() {
   const {contracts, loadContracts } = useContracts();
-  
+
   useEffect(() => {
     if (!contracts.initialized) {
       const timer = setTimeout(loadContracts);
@@ -12,10 +14,14 @@ function App() {
     }
   }, [contracts.initialized, loadContracts]);
 
+  const loading = contracts.loading || !contracts.initialized;
+
+  if(loading) return null;
+
   return (
-    <>
-      <Button variant="contained">Hello World</Button>
-    </>
+    <Layout>
+      <ContractsPage />
+    </Layout>
   );
 }
 
