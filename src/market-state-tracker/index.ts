@@ -1,12 +1,13 @@
 import { sleep } from "bun";
 import { cvToJSON, fetchCallReadOnlyFunction } from "@stacks/transactions";
-import { CONTRACTS } from "../constants";
+import { CONTRACTS, PRICE_FEED_IDS } from "../constants";
 import { getNetworkNameFromAddress } from "../helper";
-import type { AccrueInterestParams, InterestRateParams, LpParams, NetworkName } from "../types";
+import type { AccrueInterestParams, DebtParams, InterestRateParams, LpParams, MarketState, NetworkName, PriceFeed } from "../types";
 import type { PoolClient } from "pg";
 import { kvStoreSet } from "../db/helper";
 import { pool } from "../db";
 import { createLogger } from "../logger";
+import { setMarketState } from "./lib";
 
 const logger = createLogger("state-tracker");
 
@@ -48,6 +49,25 @@ const getLpParams = async (contract: string, network: NetworkName): Promise<LpPa
     })
 };
 
+const getDebtParams = async (contract: string, network: NetworkName): Promise<DebtParams> => {
+    const [contractAddress, contractName] = contract.split(".");
+    return fetchCallReadOnlyFunction({
+        contractAddress,
+        contractName,
+        functionName: "get-debt-params",
+        functionArgs: [],
+        senderAddress: contractAddress,
+        network,
+    }).then(r => {
+        const json = cvToJSON(r);
+
+        return {
+            openInterest: Number(json.value["open-interest"].value),
+            totalDebtShares: Number(json.value["total-debt-shares"].value),
+        }
+    })
+};
+
 const getAccrueInterestParams = async (contract: string, network: NetworkName): Promise<AccrueInterestParams> => {
     const [contractAddress, contractName] = contract.split(".");
     return fetchCallReadOnlyFunction({
@@ -66,23 +86,34 @@ const getAccrueInterestParams = async (contract: string, network: NetworkName): 
     })
 }
 
+
+const getPriceFeed = async (feedId: string): Promise<any> => {
+    return fetch(`https://hermes.pyth.network/v2/updates/price/latest?ids[]=${feedId}`).then(r => r.json()).then(r => Number(r.parsed[0].price.price))
+}
+
+
+
 const syncMarketState = async (dbClient: PoolClient) => {
-    for (const contract of [CONTRACTS.mainnet.ir, CONTRACTS.testnet.ir]) {
-        const network = getNetworkNameFromAddress(contract);
-        const params = await getIrParams(contract, network);
-        await kvStoreSet(dbClient, `ir-params-${network}`, JSON.stringify(params));
-    }
+    for (const network of ["mainnet", "testnet"] as NetworkName[]) {
+        const irParams = await getIrParams(CONTRACTS[network].ir, network);
+        const lpParams = await getLpParams(CONTRACTS[network].state, network);
+        const accrueInterestParams = await getAccrueInterestParams(CONTRACTS[network].state, network);
+        const debtParams = await getDebtParams(CONTRACTS[network].state, network);
+        const priceFeed: PriceFeed = {
+            btc: await getPriceFeed(PRICE_FEED_IDS.btc),
+            eth: await getPriceFeed(PRICE_FEED_IDS.eth),
+            usdc: await getPriceFeed(PRICE_FEED_IDS.usdc),
+        }
 
-    for (const contract of [CONTRACTS.mainnet.state, CONTRACTS.testnet.state]) {
-        const network = getNetworkNameFromAddress(contract);
-        const params = await getLpParams(contract, network);
-        await kvStoreSet(dbClient, `lp-params-${network}`, JSON.stringify(params));
-    }
+        const marketState: MarketState = {
+            irParams,
+            lpParams,
+            accrueInterestParams,
+            debtParams,
+            priceFeed
+        }
 
-    for (const contract of [CONTRACTS.mainnet.state, CONTRACTS.testnet.state]) {
-        const network = getNetworkNameFromAddress(contract);
-        const params = await getAccrueInterestParams(contract, network);
-        await kvStoreSet(dbClient, `accrue-interest-params-${network}`, JSON.stringify(params));
+        await setMarketState(dbClient, network, marketState);
     }
 }
 
@@ -96,9 +127,10 @@ const worker = async () => {
 
 export const main = async () => {
     await worker();
+    await sleep(5000);
 
     while (true) {
         await worker();
-        await sleep(10000);
+        await sleep(5000);
     }
 };
