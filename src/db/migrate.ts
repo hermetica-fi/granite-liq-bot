@@ -25,6 +25,23 @@ export const createDb = async (client: PoolClient) => {
         "check_flag INTEGER NOT NULL DEFAULT 0" +
         ");";
 
+    CREATE += "CREATE TABLE IF NOT EXISTS public.user_positions(" +
+        "address VARCHAR PRIMARY KEY NOT NULL," +
+        "borrowed_amount VARCHAR NOT NULL," +
+        "borrowed_block VARCHAR NOT NULL," +
+        "debt_shares VARCHAR NOT NULL," +
+        "collaterals VARCHAR[] NOT NULL" +
+        ");";
+
+    CREATE += "CREATE TABLE IF NOT EXISTS public.user_collaterals(" +
+        "id SERIAL PRIMARY KEY NOT NULL," +
+        "address VARCHAR NOT NULL," +
+        "collateral VARCHAR NOT NULL," +
+        "amount VARCHAR NOT NULL" +
+        ");";
+
+    CREATE += "CREATE UNIQUE INDEX IF NOT EXISTS user_collateral_address_idx ON user_collaterals (address, collateral);";
+
     CREATE += "CREATE TABLE IF NOT EXISTS public.transactions(" +
         "tx_id VARCHAR PRIMARY KEY NOT NULL," +
         "contract_address VARCHAR NOT NULL," +

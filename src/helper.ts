@@ -1,7 +1,7 @@
-import type { StacksNetworkName } from "@stacks/network";
+import type { NetworkName } from "./types";
 
 
-export const getNetworkNameFromAddress = (address: string): StacksNetworkName => {
+export const getNetworkNameFromAddress = (address: string): NetworkName => {
     if (address.startsWith('ST')) {
         return 'testnet';
     }

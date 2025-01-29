@@ -2,12 +2,12 @@ import { sleep } from "bun";
 import { cvToJSON, hexToCV } from "@stacks/transactions";
 import type { TransactionEventSmartContractLog } from "@stacks/stacks-blockchain-api-types";
 import type { PoolClient } from "pg";
-import type { StacksNetworkName } from "@stacks/network";
 import { getNetworkNameFromAddress } from "../helper";
 import { getContractEvents } from "../hiro-api";
 import { pool } from "../db";
 import { createLogger } from "../logger";
 import { kvStoreGet, kvStoreSet } from "../db/helper";
+import type { NetworkName } from "../types";
 
 const logger = createLogger("event-tracker");
 
@@ -16,7 +16,7 @@ const BORROWER_CONTRACTS = [
   "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.borrower-v1",
 ];
 
-const upsertBorrower = async (dbClient: PoolClient, network: StacksNetworkName, address: string) => {
+const upsertBorrower = async (dbClient: PoolClient, network: NetworkName, address: string) => {
   const rec = await dbClient.query("SELECT check_flag FROM borrowers WHERE address = $1", [address]).then((r) => r.rows[0]);
   if (!rec) {
     await dbClient.query("INSERT INTO borrowers (address, network) VALUES ($1, $2)", [
@@ -32,7 +32,7 @@ const upsertBorrower = async (dbClient: PoolClient, network: StacksNetworkName, 
   }
 }
 
-const processEvents = async (dbClient: PoolClient, network: StacksNetworkName, event: TransactionEventSmartContractLog) => {
+const processEvents = async (dbClient: PoolClient, network: NetworkName, event: TransactionEventSmartContractLog) => {
   const decoded = hexToCV(event.contract_log.value.hex);
   const json = cvToJSON(decoded);
   const action = json?.value?.action?.value;
