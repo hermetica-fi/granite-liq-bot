@@ -6,7 +6,7 @@ export const getNetworkNameFromAddress = (address: string): NetworkName => {
         return 'testnet';
     }
 
-    if (address.startsWith('SP')) {
+    if (address.startsWith('SP') || address.startsWith('SM')) {
         return 'mainnet';
     }
 
