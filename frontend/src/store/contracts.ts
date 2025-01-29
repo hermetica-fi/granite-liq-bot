@@ -8,13 +8,18 @@ export const useContractsStore = create<ContractState>((set, get) => ({
     items: [],
     loadContracts: async () => {
         if (get().loading) return;
-        set({ loading: true, initialized: true });
-        const data = await fetchContracts();
-        set({ items: data, loading: false, initialized: true });
+        set({ initialized: true, loading: true });
+        return fetchContracts().then(data => {
+            set({ items: data, loading: false });
+        }).catch((error) => {
+            set({ loading: false });
+            throw error;
+        })
     },
     addContract: async (address: string, mnemonic: string) => {
-        const resp = await postAddContract(address, mnemonic);
-        set({ items: resp, loading: false, initialized: true });
+        return postAddContract(address, mnemonic).then(data => {
+            set({ items: data });
+        });
     }
 }))
 

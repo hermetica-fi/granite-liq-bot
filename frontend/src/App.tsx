@@ -4,15 +4,19 @@ import HomePage from "./views/home";
 import "./App.css";
 import Providers from "./providers";
 import { useContractsStore } from "./store/contracts";
+import useToast from "./hooks/use-toast";
 
 function App() {
   const { initialized, loading: contractsLoading, loadContracts } = useContractsStore();
+  const [showMessage] = useToast();
 
   useEffect(() => {
     if (!initialized) {
-      loadContracts();
+      loadContracts().catch((error) => {
+        showMessage(error.message, 'error');
+      });
     }
-  }, [loadContracts, initialized]);
+  }, [loadContracts, initialized, showMessage]);
 
   const loading = contractsLoading || !initialized;
 

@@ -9,7 +9,7 @@ export type ContractState = {
     initialized: boolean,
     loading: boolean,
     items: Contract[],
-    loadContracts: () => void,
+    loadContracts: () => Promise<void>,
     addContract: (address: string, mnemonic: string) => Promise<void>
 }
 export type ToastType = null | 'error' | 'warning' | 'info' | 'success';
