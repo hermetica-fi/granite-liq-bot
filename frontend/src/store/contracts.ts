@@ -1,14 +1,6 @@
-import { fetchContracts, postAddContract } from '../api';
-import { Contract } from '../types';
 import { create } from 'zustand';
-
-export type ContractState = {
-    initialized: boolean,
-    loading: boolean,
-    items: Contract[],
-    loadContracts: () => void,
-    addContract: (address: string, mnemonic: string) => Promise<void>
-}
+import { fetchContracts, postAddContract } from '../api';
+import { ContractState } from '../types';
 
 export const useContractsStore = create<ContractState>((set, get) => ({
     initialized: false,

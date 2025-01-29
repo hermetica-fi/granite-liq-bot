@@ -1,6 +1,6 @@
 import { useRef } from 'react';
-import { ToastType, useToastStore } from '../store/ui';
-
+import { useToastStore } from '../store/ui';
+import { ToastType } from '../types';
 
 const useToast = (): [(message: string, type: ToastType, timeout?: number) => void, () => void] => {
     const { setToast } = useToastStore();
