@@ -1,10 +1,13 @@
-import { cvToJSON, hexToCV } from "@stacks/transactions";
-import type { TransactionEvent } from "@stacks/stacks-blockchain-api-types";
 import { sleep } from "bun";
+import { cvToJSON, hexToCV } from "@stacks/transactions";
+import type { TransactionEventSmartContractLog } from "@stacks/stacks-blockchain-api-types";
+import type { PoolClient } from "pg";
+import type { StacksNetworkName } from "@stacks/network";
 import { getNetworkNameFromAddress } from "../helper";
 import { getContractEvents } from "../hiro-api";
 import { pool } from "../db";
 import { createLogger } from "../logger";
+import { kvStoreGet, kvStoreSet } from "../db/helper";
 
 const logger = createLogger("borrower-finder");
 
@@ -13,96 +16,101 @@ const BORROWER_CONTRACTS = [
   "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.borrower-v1",
 ];
 
-const syncBorrowers = async (borrowers: string[]) => {
-  let dbClient = await pool.connect();
-  await dbClient.query("BEGIN");
-  for (const address of borrowers) {
-    if (
-      await dbClient
-        .query("SELECT * FROM borrowers WHERE address = $1", [address])
-        .then((r) => r.rows.length === 0)
-    ) {
-      await dbClient.query("INSERT INTO borrowers (address, network) VALUES ($1, $2)", [
-        address,
-        getNetworkNameFromAddress(address),
-      ]);
-      logger.info(`New borrower ${address}`);
+const upsertBorrower = async (dbClient: PoolClient, network: StacksNetworkName, address: string) => {
+  const rec = await dbClient.query("SELECT check_flag FROM borrowers WHERE address = $1", [address]).then((r) => r.rows[0]);
+  if (!rec) {
+    await dbClient.query("INSERT INTO borrowers (address, network) VALUES ($1, $2)", [
+      address,
+      network,
+    ]);
+    logger.info(`New borrower ${address}`);
+  } else {
+    if (rec.check_flag === 0) {
+      await dbClient.query("UPDATE borrowers SET check_flag = 1 WHERE address = $1", [address]);
+      logger.info(`Borrower ${address} check flag activated`);
     }
   }
-  await dbClient.query("COMMIT");
-  dbClient.release();
-};
+}
 
-const getAllEvents = async (contract: string) => {
+const processEvents = async (dbClient: PoolClient, network: StacksNetworkName, event: TransactionEventSmartContractLog) => {
+  const decoded = hexToCV(event.contract_log.value.hex);
+  const json = cvToJSON(decoded);
+  const action = json?.value?.action?.value;
+
+  if (["borrow", "add-collateral", "remove-collateral"].includes(action)) {
+    const user = json.value.user.value;
+    await upsertBorrower(dbClient, network, user);
+  }
+
+  if (action === "repay") {
+    const user = json.value["on-behalf-of"].value || json.value.sender.value;
+    await upsertBorrower(dbClient, network, user);
+  }
+
+  if (["deposit", "withdraw"].includes(action)) {
+
+  }
+
+  if (["update-ir-params", "update-collateral-settings", "liquidate-collateral"].includes(action)) {
+
+  }
+}
+
+const syncContract = async (contract: string) => {
+  let dbClient = await pool.connect();
+  await dbClient.query("BEGIN");
+  const key = `borrower-sync-last-tx-seen-${contract}`;
+  const lastSeenTx = await kvStoreGet(dbClient, key);
+  const network = getNetworkNameFromAddress(contract);
+
   const limit = 50;
   let offset = 0;
-  const allEvents: TransactionEvent[] = [];
+  let lastSeenTxRemote = null;
 
   while (true) {
     const events = await getContractEvents(
       contract,
       limit,
       offset,
-      getNetworkNameFromAddress(contract)
+      network
     );
-    if (events.results.length === 0) {
-      break;
+
+    if (!lastSeenTxRemote && events.results[0]) {
+      // The first transaction from the first response
+      lastSeenTxRemote = events.results[0].tx_id;
     }
 
+    let breakFlag = false;
+
     for (const event of events.results) {
-      allEvents.push(event);
+      if (event.tx_id === lastSeenTx || breakFlag) {
+        breakFlag = true;
+        continue;
+      }
+
+      if ("contract_log" in event) {
+        await processEvents(dbClient, network, event);
+      }
+    }
+
+    if (events.results.length < limit || breakFlag) {
+      break;
     }
 
     offset += limit;
   }
 
-  return allEvents;
-};
-
-const getRecentEvents = async (contract: string) =>
-  getContractEvents(contract, 0, 50, getNetworkNameFromAddress(contract)).then(
-    (r) => r.results
-  );
-
-const eventsToBorrowers = (events: TransactionEvent[]) => {
-  const users: string[] = [];
-  for (const event of events) {
-    if ("contract_log" in event) {
-      const decoded = hexToCV(event.contract_log.value.hex);
-      const json = cvToJSON(decoded);
-      if (json?.value?.action?.value === "borrow") {
-        const user = json?.value?.user?.value;
-        if (users.indexOf(user) === -1) {
-          users.push(user);
-        }
-      }
-    }
+  if (lastSeenTxRemote) {
+    await kvStoreSet(dbClient, key, lastSeenTxRemote);
   }
-
-  return users;
-};
-
-const fullSync = async (contract: string) => {
-  const events = await getAllEvents(contract);
-  const borrowers = eventsToBorrowers(events);
-  await syncBorrowers(borrowers);
-};
-
-const partialSync = async (contract: string) => {
-  const recentEvents = await getRecentEvents(contract);
-  const borrowers = eventsToBorrowers(recentEvents);
-  await syncBorrowers(borrowers);
-  await sleep(5000);
-};
+  await dbClient.query("COMMIT");
+  dbClient.release();
+}
 
 export const main = async () => {
-  for (const contract of BORROWER_CONTRACTS) {
-    await fullSync(contract);
-  }
-
   while (true) {
     for (const contract of BORROWER_CONTRACTS) {
-      await partialSync(contract);
+      await syncContract(contract);
     }
     await sleep(5000);
   }
