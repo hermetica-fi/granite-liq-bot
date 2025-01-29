@@ -49,6 +49,24 @@ const getLpParams = async (contract: string, network: NetworkName) => {
     })
 };
 
+const getAccrueInterestParams = async (contract: string, network: NetworkName) => {
+    const [contractAddress, contractName] = contract.split(".");
+    return fetchCallReadOnlyFunction({
+        contractAddress,
+        contractName,
+        functionName: "get-accrue-interest-params",
+        functionArgs: [],
+        senderAddress: contractAddress,
+        network,
+    }).then(r => {
+        const json = cvToJSON(r);
+
+        return {
+            ["last-accrued-block-time"]: json.value.value["last-accrued-block-time"].value
+        }
+    })
+}
+
 const syncMarketState = async (dbClient: PoolClient) => {
     for (const contract of [CONTRACTS.mainnet.ir, CONTRACTS.testnet.ir]) {
         const network = getNetworkNameFromAddress(contract);
@@ -60,6 +78,12 @@ const syncMarketState = async (dbClient: PoolClient) => {
         const network = getNetworkNameFromAddress(contract);
         const params = await getLpParams(contract, network);
         await kvStoreSet(dbClient, `lp-params-${network}`, JSON.stringify(params));
+    }
+
+    for (const contract of [CONTRACTS.mainnet.state, CONTRACTS.testnet.state]) {
+        const network = getNetworkNameFromAddress(contract);
+        const params = await getAccrueInterestParams(contract, network);
+        await kvStoreSet(dbClient, `accrue-interest-params-${network}`, JSON.stringify(params));
     }
 }
 

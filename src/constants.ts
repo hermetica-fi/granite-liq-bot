@@ -1,3 +1,7 @@
+
+export const SCALING_FACTOR = 8;
+export const IR_PARAMS_SCALING_FACTOR = 12;
+
 export const CONTRACTS = {
     "mainnet": {
         "borrower": "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.borrower-v1",
