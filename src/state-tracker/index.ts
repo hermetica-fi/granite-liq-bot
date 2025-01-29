@@ -1,3 +1,4 @@
+import { sleep } from "bun";
 import { cvToJSON, fetchCallReadOnlyFunction } from "@stacks/transactions";
 import { CONTRACTS } from "../constants";
 import { getNetworkNameFromAddress } from "../helper";
@@ -5,7 +6,9 @@ import type { NetworkName } from "../types";
 import type { PoolClient } from "pg";
 import { kvStoreSet } from "../db/helper";
 import { pool } from "../db";
-import { sleep } from "bun";
+import { createLogger } from "../logger";
+
+const logger = createLogger("state-tracker");
 
 const getIrParams = async (contract: string, network: NetworkName) => {
     const [contractAddress, contractName] = contract.split(".");
