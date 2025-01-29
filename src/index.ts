@@ -2,6 +2,7 @@
 import { main as apiMain } from './api';
 import { migrateDb } from './db/migrate';
 import { main as borrowerFinderMain } from './borrower-finder';
+import { main as borrowerSyncMain } from './borrower-sync';
 import { createLogger } from './logger';
 import { waitForDb } from './db';
 
@@ -16,6 +17,8 @@ const main = async () => {
         prms = apiMain;
     } else if (cmd === "borrower-finder") {
         prms = borrowerFinderMain;
+    } else if (cmd === "borrower-sync") {
+        prms = borrowerSyncMain;
     } else {
         throw new Error("Invalid command");
     }
