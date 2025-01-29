@@ -1,13 +1,19 @@
 import { generateWallet } from "@stacks/wallet-sdk";
+import type { PoolClient } from "pg";
 import { cvToJSON, fetchCallReadOnlyFunction, getAddressFromPrivateKey } from "@stacks/transactions";
 import { getNetworkNameFromAddress } from "../helper";
 import { getContractInfo } from "../hiro-api";
 import { networkFromName } from "@stacks/network";
 import { pool } from "../db";
 
+
+const getContractList = async (dbClient: PoolClient) => {
+    return dbClient.query('SELECT id, address, name, network, owner_address FROM contracts ORDER BY created_at DESC').then(r => r.rows);
+}
+
 const getContracts = async (req: Request) => {
     const dbClient = await pool.connect();
-    const contracts = await dbClient.query('SELECT id, address, name, network, owner_address FROM contracts').then(r => r.rows);
+    const contracts = await getContractList(dbClient);
     dbClient.release();
     return Response.json(contracts);
 }
@@ -94,7 +100,7 @@ const addContract = async (req: Request) => {
     dbClient = await pool.connect();
     await dbClient.query('INSERT INTO contracts (id, address, name, network, owner_address, owner_priv) VALUES ($1, $2, $3, $4, $5, $6)',
         [address, contractAddress, contractName, networkName, ownerAddress, owner.stxPrivateKey]);
-    const contracts = await dbClient.query('SELECT id, address, name, network, owner_address FROM contracts').then(r => r.rows);
+    const contracts =  await getContractList(dbClient);
     dbClient.release();
     return Response.json(contracts);
 }
