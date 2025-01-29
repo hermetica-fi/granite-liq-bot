@@ -1,15 +1,16 @@
 import { Box, Typography, useTheme } from "@mui/material";
 import { grey } from "@mui/material/colors";
+import { useMemo, useCallback } from "react";
+import {navigate} from '@reach/router';
 import ThemedBox from "../../components/themed-box";
 import useTranslation from "../../hooks/use-translation";
 import NetworkChip from "../../components/network-chip";
-import { useMemo, useCallback } from "react";
 import { Contract } from "../../types";
 
 const ContractList = ({ contracts }: { contracts: Contract[] }) => {
   const [t] = useTranslation();
   const theme = useTheme();
-
+  
   const itemClicked = useCallback((id: string) => {
     console.log(id);
   }, []);
@@ -28,7 +29,9 @@ const ContractList = ({ contracts }: { contracts: Contract[] }) => {
             bgcolor: "transparent",
           },
         }}
-        onClick={() => itemClicked(c.id)}
+        onClick={() => {
+            navigate(`/contract/${c.id}`).then();
+        }}
       >
         <Box
           sx={{

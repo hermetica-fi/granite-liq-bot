@@ -1,9 +1,11 @@
 import { Box } from "@mui/material";
+import { RouteComponentProps } from "@reach/router";
 import AddContractForm from "../../components/add-contract-form";
 import { useContractsStore } from "../../store/contracts";
 import ContractList from "../../components/contract-list";
 
-const Home = () => {
+
+const Home = (_: RouteComponentProps) => {
   const { contracts } = useContractsStore();
   if (contracts.length === 0) {
     return (
