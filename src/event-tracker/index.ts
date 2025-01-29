@@ -8,15 +8,16 @@ import { pool } from "../db";
 import { createLogger } from "../logger";
 import { kvStoreGet, kvStoreSet } from "../db/helper";
 import type { NetworkName } from "../types";
+import { CONTRACTS } from "../constants";
 
 const logger = createLogger("event-tracker");
 
-const CONTRACTS = [
-  "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.borrower-v1",
-  "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.state-v1",
-  "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.borrower-v1",
-  "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.state-v1",
-];
+const TRACKED_CONTRACTS = [
+  CONTRACTS.mainnet.borrower,
+  CONTRACTS.mainnet.state,
+  CONTRACTS.testnet.borrower,
+  CONTRACTS.testnet.state,
+]
 
 const upsertBorrower = async (dbClient: PoolClient, network: NetworkName, address: string) => {
   const rec = await dbClient.query("SELECT check_flag FROM borrowers WHERE address = $1", [address]).then((r) => r.rows[0]);
@@ -111,7 +112,7 @@ const syncContract = async (contract: string) => {
 
 export const main = async () => {
   while (true) {
-    for (const contract of CONTRACTS) {
+    for (const contract of TRACKED_CONTRACTS) {
       await syncContract(contract);
     }
     await sleep(5000);

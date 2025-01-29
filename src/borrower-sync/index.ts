@@ -5,16 +5,12 @@ import { pool } from "../db";
 import { createLogger } from "../logger";
 
 import type { NetworkName } from "../types";
+import { CONTRACTS } from "../constants";
 
 const logger = createLogger("borrower-sync");
 
-const STATE_CONTRACTS = {
-  "mainnet": "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.state-v1",
-  "testnet": "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.state-v1",
-}
-
 const getLpShares = async (address: string, network: NetworkName) => {
-  const [contractAddress, contractName] = STATE_CONTRACTS[network].split(".");
+  const [contractAddress, contractName] = CONTRACTS[network].borrower.split(".");
   return fetchCallReadOnlyFunction({
     contractAddress,
     contractName,
@@ -30,7 +26,7 @@ const getLpShares = async (address: string, network: NetworkName) => {
 }
 
 const getUserPosition = async (address: string, network: NetworkName) => {
-  const [contractAddress, contractName] = STATE_CONTRACTS[network].split(".");
+  const [contractAddress, contractName] = CONTRACTS[network].borrower.split(".");
   return fetchCallReadOnlyFunction({
     contractAddress,
     contractName,
@@ -62,7 +58,7 @@ const getUserPosition = async (address: string, network: NetworkName) => {
 }
 
 const getUserCollateral = async (address: string, collateral: string, network: NetworkName,) => {
-  const [contractAddress, contractName] = STATE_CONTRACTS[network].split(".");
+  const [contractAddress, contractName] = CONTRACTS[network].borrower.split(".");
   return fetchCallReadOnlyFunction({
     contractAddress,
     contractName,
