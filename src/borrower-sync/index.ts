@@ -43,6 +43,15 @@ const getUserPosition = async (address: string, network: NetworkName) => {
   }).then(r => {
     const json = cvToJSON(r);
 
+    if (json.value === null) {
+      return {
+        borrowedAmount: 0,
+        borrowedBlock: 0,
+        debtShares: 0,
+        collaterals: []
+      }
+    };
+
     return {
       borrowedAmount: json.value.value["borrowed-amount"].value,
       borrowedBlock: json.value.value["borrowed-block"].value,
