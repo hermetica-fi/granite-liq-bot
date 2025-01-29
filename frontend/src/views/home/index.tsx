@@ -3,9 +3,9 @@ import AddContractForm from "../../components/add-contract-form";
 import { useContractsStore } from "../../store/contracts";
 
 const Home = () => {
-  const { items } = useContractsStore();
+  const { contracts } = useContractsStore();
 
-  if (items.length === 0) {
+  if (contracts.length === 0) {
     return (
       <Box sx={{ maxWidth: "600px" }}>
         <AddContractForm />

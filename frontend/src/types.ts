@@ -8,7 +8,7 @@ export type Contract = {
 export type ContractState = {
     initialized: boolean,
     loading: boolean,
-    items: Contract[],
+    contracts: Contract[],
     loadContracts: () => Promise<void>,
     addContract: (address: string, mnemonic: string) => Promise<void>
 }
