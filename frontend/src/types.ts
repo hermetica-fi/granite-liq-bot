@@ -1,7 +1,9 @@
 import { StacksNetworkName } from "@stacks/network";
 
 export type Contract = {
+    id: string,
     address: string,
+    name: string,
     network: StacksNetworkName,
     owner_address: string
 }
