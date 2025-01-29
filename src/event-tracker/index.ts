@@ -11,9 +11,11 @@ import type { NetworkName } from "../types";
 
 const logger = createLogger("event-tracker");
 
-const BORROWER_CONTRACTS = [
+const CONTRACTS = [
   "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.borrower-v1",
+  "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.state-v1",
   "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.borrower-v1",
+  "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.state-v1",
 ];
 
 const upsertBorrower = async (dbClient: PoolClient, network: NetworkName, address: string) => {
@@ -37,7 +39,7 @@ const processEvents = async (dbClient: PoolClient, network: NetworkName, event: 
   const json = cvToJSON(decoded);
   const action = json?.value?.action?.value;
 
-  if (["borrow", "add-collateral", "remove-collateral"].includes(action)) {
+  if (["borrow", "add-collateral", "remove-collateral", "deposit", "withdraw"].includes(action)) {
     const user = json.value.user.value;
     await upsertBorrower(dbClient, network, user);
   }
@@ -47,12 +49,12 @@ const processEvents = async (dbClient: PoolClient, network: NetworkName, event: 
     await upsertBorrower(dbClient, network, user);
   }
 
-  if (["deposit", "withdraw"].includes(action)) {
-
+  if (["update-ir-params"].includes(action)) {
+    
   }
 
-  if (["update-ir-params", "update-collateral-settings", "liquidate-collateral"].includes(action)) {
-
+  if (["update-collateral-settings"].includes(action)) {
+    // Update all borrowers under the network to recheck them
   }
 }
 
@@ -109,7 +111,7 @@ const syncContract = async (contract: string) => {
 
 export const main = async () => {
   while (true) {
-    for (const contract of BORROWER_CONTRACTS) {
+    for (const contract of CONTRACTS) {
       await syncContract(contract);
     }
     await sleep(5000);
