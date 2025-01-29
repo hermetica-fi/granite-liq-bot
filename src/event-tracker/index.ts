@@ -50,7 +50,7 @@ const processEvents = async (dbClient: PoolClient, network: NetworkName, event: 
   }
 
   if (["update-ir-params"].includes(action)) {
-    
+    // Update ir params
   }
 
   if (["update-collateral-settings"].includes(action)) {
