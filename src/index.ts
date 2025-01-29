@@ -3,7 +3,7 @@ import { main as apiMain } from './api';
 import { migrateDb } from './db/migrate';
 import { main as eventTrackerMain } from './event-tracker';
 import { main as borrowerSyncMain } from './borrower-sync';
-import { main as stateTrackerMain } from './state-tracker';
+import { main as marketStateTrackerMain } from './market-state-tracker';
 import { createLogger } from './logger';
 import { waitForDb } from './db';
 
@@ -20,8 +20,8 @@ const main = async () => {
         prms = eventTrackerMain;
     } else if (cmd === "borrower-sync") {
         prms = borrowerSyncMain;
-    } else if (cmd === "state-tracker")     {
-        prms = stateTrackerMain;
+    } else if (cmd === "market-state-tracker") {
+        prms = marketStateTrackerMain;
     } else {
         throw new Error("Invalid command");
     }

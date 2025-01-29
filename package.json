@@ -6,7 +6,7 @@
     "start:api": "bun run src/index.ts api",
     "start:event-tracker": "bun run src/index.ts event-tracker",
     "start:borrower-sync": "bun run src/index.ts borrower-sync",
-    "start:state-tracker": "bun run src/index.ts state-tracker"
+    "start:market-state-tracker": "bun run src/index.ts market-state-tracker"
   },
   "devDependencies": {
     "@types/bun": "latest"
@@ -21,7 +21,7 @@
     "@stacks/wallet-sdk": "^7.0.2",
     "@types/pg": "^8.11.11",
     "dotenv": "^16.4.7",
-    "install": "^0.13.0",
+    "granite-math-sdk": "^1.0.19",
     "pg": "^8.13.1"
   }
 }

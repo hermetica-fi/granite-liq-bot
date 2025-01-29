@@ -2,7 +2,7 @@ import { sleep } from "bun";
 import { cvToJSON, fetchCallReadOnlyFunction } from "@stacks/transactions";
 import { CONTRACTS } from "../constants";
 import { getNetworkNameFromAddress } from "../helper";
-import type { NetworkName } from "../types";
+import type { AccrueInterestParams, InterestRateParams, LpParams, NetworkName } from "../types";
 import type { PoolClient } from "pg";
 import { kvStoreSet } from "../db/helper";
 import { pool } from "../db";
@@ -10,7 +10,7 @@ import { createLogger } from "../logger";
 
 const logger = createLogger("state-tracker");
 
-const getIrParams = async (contract: string, network: NetworkName) => {
+const getIrParams = async (contract: string, network: NetworkName): Promise<InterestRateParams> => {
     const [contractAddress, contractName] = contract.split(".");
     return fetchCallReadOnlyFunction({
         contractAddress,
@@ -21,17 +21,16 @@ const getIrParams = async (contract: string, network: NetworkName) => {
         network,
     }).then(r => {
         const json = cvToJSON(r);
-
         return {
-            ["base-ir"]: json.value["base-ir"].value,
-            ["ir-slope-1"]: json.value["ir-slope-1"].value,
-            ["ir-slope-2"]: json.value["ir-slope-2"].value,
-            ["utilization-kink"]: json.value["utilization-kink"].value,
+            baseIR: Number(json.value["base-ir"].value),
+            slope1: Number(json.value["ir-slope-1"].value),
+            slope2: Number(json.value["ir-slope-2"].value),
+            urKink: Number(json.value["utilization-kink"].value),
         }
     })
 }
 
-const getLpParams = async (contract: string, network: NetworkName) => {
+const getLpParams = async (contract: string, network: NetworkName): Promise<LpParams> => {
     const [contractAddress, contractName] = contract.split(".");
     return fetchCallReadOnlyFunction({
         contractAddress,
@@ -43,13 +42,13 @@ const getLpParams = async (contract: string, network: NetworkName) => {
     }).then(r => {
         const json = cvToJSON(r);
         return {
-            ["total-assets"]: json.value["total-assets"].value,
-            ["total-shares"]: json.value["total-shares"].value,
+            totalAssets: Number(json.value["total-assets"].value),
+            totalShares: Number(json.value["total-shares"].value),
         }
     })
 };
 
-const getAccrueInterestParams = async (contract: string, network: NetworkName) => {
+const getAccrueInterestParams = async (contract: string, network: NetworkName): Promise<AccrueInterestParams> => {
     const [contractAddress, contractName] = contract.split(".");
     return fetchCallReadOnlyFunction({
         contractAddress,
@@ -62,7 +61,7 @@ const getAccrueInterestParams = async (contract: string, network: NetworkName) =
         const json = cvToJSON(r);
 
         return {
-            ["last-accrued-block-time"]: json.value.value["last-accrued-block-time"].value
+            lastAccruedBlockTime: Number(json.value.value["last-accrued-block-time"].value)
         }
     })
 }
@@ -92,6 +91,7 @@ const worker = async () => {
     await dbClient.query("BEGIN");
     await syncMarketState(dbClient);
     await dbClient.query("COMMIT");
+    dbClient.release();
 }
 
 export const main = async () => {
