@@ -77,7 +77,4 @@ export const main = async () => {
         await worker();
         await sleep(10000);
     }
-
 };
-
-main();

@@ -5,7 +5,8 @@
   "scripts": {
     "start:api": "bun run src/index.ts api",
     "start:event-tracker": "bun run src/index.ts event-tracker",
-    "start:borrower-sync": "bun run src/index.ts borrower-sync"
+    "start:borrower-sync": "bun run src/index.ts borrower-sync",
+    "start:state-tracker": "bun run src/index.ts state-tracker"
   },
   "devDependencies": {
     "@types/bun": "latest"
