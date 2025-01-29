@@ -22,8 +22,9 @@ const syncBorrowers = async (borrowers: string[]) => {
         .query("SELECT * FROM borrowers WHERE address = $1", [address])
         .then((r) => r.rows.length === 0)
     ) {
-      await dbClient.query("INSERT INTO borrowers (address) VALUES ($1)", [
+      await dbClient.query("INSERT INTO borrowers (address, network) VALUES ($1, $2)", [
         address,
+        getNetworkNameFromAddress(address),
       ]);
       logger.info(`New borrower ${address}`);
     }
