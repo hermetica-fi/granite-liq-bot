@@ -14,9 +14,6 @@ export const useContractsStore = create<ContractState>((set, get) => ({
     },
     addContract: async (address: string, mnemonic: string) => {
         const resp = await postAddContract(address, mnemonic);
-        if (resp.error) {
-            throw new Error(resp.error);
-        }
         set({ items: resp, loading: false, initialized: true });
     }
 }))
