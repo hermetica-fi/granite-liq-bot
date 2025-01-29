@@ -9,7 +9,7 @@ import { pool } from "../db";
 import { createLogger } from "../logger";
 import { kvStoreGet, kvStoreSet } from "../db/helper";
 
-const logger = createLogger("borrower-finder");
+const logger = createLogger("event-tracker");
 
 const BORROWER_CONTRACTS = [
   "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.borrower-v1",

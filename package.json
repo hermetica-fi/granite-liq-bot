@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "start:api": "bun run src/index.ts api",
-    "start:borrower-finder": "bun run src/index.ts borrower-finder",
+    "start:event-tracker": "bun run src/index.ts event-tracker",
     "start:borrower-sync": "bun run src/index.ts borrower-sync"
   },
   "devDependencies": {

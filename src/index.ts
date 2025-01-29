@@ -1,7 +1,7 @@
 
 import { main as apiMain } from './api';
 import { migrateDb } from './db/migrate';
-import { main as borrowerFinderMain } from './borrower-finder';
+import { main as eventTrackerMain } from './event-tracker';
 import { main as borrowerSyncMain } from './borrower-sync';
 import { createLogger } from './logger';
 import { waitForDb } from './db';
@@ -15,8 +15,8 @@ const main = async () => {
 
     if (cmd === "api") {
         prms = apiMain;
-    } else if (cmd === "borrower-finder") {
-        prms = borrowerFinderMain;
+    } else if (cmd === "event-tracker") {
+        prms = eventTrackerMain;
     } else if (cmd === "borrower-sync") {
         prms = borrowerSyncMain;
     } else {

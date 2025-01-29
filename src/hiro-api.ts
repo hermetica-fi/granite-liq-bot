@@ -1,12 +1,16 @@
-import type { StacksNetwork, StacksNetworkName } from "@stacks/network";
+import type { StacksNetworkName } from "@stacks/network";
 import { networkFromName } from "@stacks/network";
 import { type TransactionEventsResponse } from "@stacks/stacks-blockchain-api-types";
+import { createLogger } from "./logger";
 
+const logger = createLogger("hiro-api");
 
 export const fetchWrapper = async (path: string, network: StacksNetworkName) => {
     // TODO: Inject hiro api key
     const networkObj = networkFromName(network);
-    return fetch(`${networkObj.client.baseUrl}${path}`);
+    const url = `${networkObj.client.baseUrl}${path}`;
+    logger.info(url);
+    return fetch(url);
 }
 
 export const getContractInfo = async (contractId: string, network: StacksNetworkName) => {
