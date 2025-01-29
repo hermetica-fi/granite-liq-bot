@@ -7,7 +7,7 @@ import { useContractsStore } from "./state/contracts";
 
 function App() {
   const { initialized, loadContracts } = useContractsStore();
-
+ 
   useEffect(() => {
     if (!initialized) {
       loadContracts();

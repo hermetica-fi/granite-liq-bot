@@ -1,23 +1,17 @@
-import {atom} from 'jotai';
-import {PaletteMode} from '@mui/material';
+import { create } from 'zustand';
 
 export type ToastType = null | 'error' | 'warning' | 'info' | 'success';
 
-export interface Toast {
+export interface ToastState {
     message: null | string,
-    type: ToastType
+    type: ToastType,
+    setToast: (message: null | string, type: ToastType) => void,
 }
 
-export type Modal = {body: JSX.Element, fullScreen?: boolean} | null;
-
-const initialTheme = (): PaletteMode => {
-    const s = localStorage.getItem('app_theme');
-    if (s && ['dark', 'ligth'].includes(s)) {
-        return s as PaletteMode
+export const useToastStore = create<ToastState>((set) => ({
+    message: null, 
+    type: null,
+    setToast: (message: null | string, type: ToastType) => {
+        set({ message, type });
     }
-    return 'light'
-}
-
-export const themeAtom = atom<PaletteMode>(initialTheme());
-export const toastAtom = atom<Toast>({message: null, type: null});
-export const modalAtom = atom<Modal>(null);
+}));

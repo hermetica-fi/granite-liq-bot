@@ -9,7 +9,7 @@ const AddContractForm = () => {
   const [contractOwnerSecretKey, setContractOwnerSecretKey] = useState("");
   const [inProgress, setInProgress] = useState(false);
 
-  const [, showMessage] = useToast();
+  const [showMessage] = useToast();
 
   const { addContract } = useContractsStore()
 
