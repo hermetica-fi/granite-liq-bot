@@ -6,6 +6,7 @@ import "./App.css";
 import Providers from "./providers";
 import { useContractsStore } from "./store/contracts";
 import useToast from "./hooks/use-toast";
+import ContractPage from "./views/contract";
 
 function App() {
   const {
@@ -36,6 +37,7 @@ function App() {
           style={{ flexGrow: 1, display: "flex", flexDirection: "column"}}
         >
           <HomePage path="/" />
+          <ContractPage path="/contract/:id" />
         </Router>
       </Layout>
     </Providers>

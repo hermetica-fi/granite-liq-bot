@@ -1,7 +1,7 @@
 import { Box, Typography, useTheme } from "@mui/material";
 import { grey } from "@mui/material/colors";
-import { useMemo, useCallback } from "react";
-import {navigate} from '@reach/router';
+import { useMemo } from "react";
+import { useNavigate } from "@reach/router";
 import ThemedBox from "../../components/themed-box";
 import useTranslation from "../../hooks/use-translation";
 import NetworkChip from "../../components/network-chip";
@@ -10,10 +10,7 @@ import { Contract } from "../../types";
 const ContractList = ({ contracts }: { contracts: Contract[] }) => {
   const [t] = useTranslation();
   const theme = useTheme();
-  
-  const itemClicked = useCallback((id: string) => {
-    console.log(id);
-  }, []);
+  const navigate = useNavigate();
 
   const items = useMemo(() => {
     return contracts.map((c, n) => (
@@ -30,7 +27,7 @@ const ContractList = ({ contracts }: { contracts: Contract[] }) => {
           },
         }}
         onClick={() => {
-            navigate(`/contract/${c.id}`).then();
+          navigate(`/contract/${c.id}`).then();
         }}
       >
         <Box
@@ -51,7 +48,7 @@ const ContractList = ({ contracts }: { contracts: Contract[] }) => {
         </Box>
       </Box>
     ));
-  }, [contracts, theme, itemClicked]);
+  }, [contracts, theme]);
 
   return (
     <ThemedBox sx={{ maxWidth: "600px" }}>

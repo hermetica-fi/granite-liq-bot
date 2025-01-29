@@ -5,7 +5,7 @@ import { useContractsStore } from "../../store/contracts";
 import ContractList from "../../components/contract-list";
 
 
-const Home = (_: RouteComponentProps) => {
+const HomePage = (_: RouteComponentProps) => {
   const { contracts } = useContractsStore();
   if (contracts.length === 0) {
     return (
@@ -18,4 +18,4 @@ const Home = (_: RouteComponentProps) => {
   return  <ContractList contracts={contracts} />;
 };
 
-export default Home;
+export default HomePage;
