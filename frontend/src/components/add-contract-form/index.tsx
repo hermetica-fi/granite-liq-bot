@@ -3,8 +3,10 @@ import { useState } from "react";
 import ThemedBox from "../themed-box";
 import useToast from "../../hooks/use-toast";
 import { useContractsStore } from "../../store/contracts";
+import useTranslation from "../../hooks/use-translation";
 
 const AddContractForm = () => {
+  const [t] = useTranslation();
   const [contractAddress, setContractAddress] = useState("");
   const [contractOwnerSecretKey, setContractOwnerSecretKey] = useState("");
   const [inProgress, setInProgress] = useState(false);
@@ -42,7 +44,7 @@ const AddContractForm = () => {
   return (
     <ThemedBox>
       <Typography variant="h5" sx={{ mb: "20px" }}>
-        Add Liqudiation Contract
+        {t("Add Liqudiation Contract")}
       </Typography>
       <Box sx={{ mb: "12px", mt: "12px" }}>
         <TextField
@@ -56,7 +58,7 @@ const AddContractForm = () => {
       </Box>
       <Box sx={{ mb: "12px", mt: "12px" }}>
         <TextField
-          label="Contract Owner Secret Key"
+          label={t("Contract Owner Secret Key")}
           fullWidth
           helperText="24 word mnemonic"
           value={contractOwnerSecretKey}
@@ -70,7 +72,7 @@ const AddContractForm = () => {
           onClick={handleSubmit}
           disabled={inProgress}
         >
-          Submit
+          {t("Submit")}
         </Button>
       </Box>
     </ThemedBox>

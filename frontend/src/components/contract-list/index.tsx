@@ -48,7 +48,7 @@ const ContractList = ({ contracts }: { contracts: Contract[] }) => {
         </Box>
       </Box>
     ));
-  }, [contracts, theme]);
+  }, [contracts, theme, navigate]);
 
   return (
     <ThemedBox sx={{ maxWidth: "600px" }}>
