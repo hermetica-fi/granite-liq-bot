@@ -47,15 +47,13 @@ const addContract = async (req: Request) => {
     }
     dbClient.release();
 
-    let networkName;
+    let network;
 
     try {
-        networkName = getNetworkNameFromAddress(address);
+        network = getNetworkNameFromAddress(address);
     } catch (error) {
         return errorResponse(error);
     }
-
-    const network = networkFromName(networkName);
 
     let wallet;
     try {
@@ -87,7 +85,7 @@ const addContract = async (req: Request) => {
             functionName: 'get-owner',
             functionArgs: [],
             senderAddress: ownerAddress,
-            network,
+            network: network,
         }).then(r => cvToJSON(r).value);
     } catch (error) {
         return errorResponse('Could not fetch contract owner');
@@ -99,7 +97,7 @@ const addContract = async (req: Request) => {
 
     dbClient = await pool.connect();
     await dbClient.query('INSERT INTO contracts (id, address, name, network, owner_address, owner_priv) VALUES ($1, $2, $3, $4, $5, $6)',
-        [address, contractAddress, contractName, networkName, ownerAddress, owner.stxPrivateKey]);
+        [address, contractAddress, contractName, network, ownerAddress, owner.stxPrivateKey]);
     const contracts =  await getContractList(dbClient);
     dbClient.release();
     return Response.json(contracts);

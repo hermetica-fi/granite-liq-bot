@@ -1,5 +1,3 @@
-import type { StacksNetwork, StacksNetworkName } from "@stacks/network";
-import { networkFromName } from "@stacks/network";
 import { cvToJSON, hexToCV } from "@stacks/transactions";
 import type { TransactionEvent } from "@stacks/stacks-blockchain-api-types";
 import { sleep } from "bun";
@@ -7,19 +5,6 @@ import { getNetworkNameFromAddress } from "../helper";
 import { getContractEvents } from "../hiro-api";
 import { pool } from "../db";
 import { createLogger } from "../logger";
-
-/*
-
-const MULTI_CALL_MAINNET = "SP3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBPEKAEK7.g-multi"
-const MULTI_CALL_TESTNET = "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK.g-multi"
-
-const STATE_CONTRACTS = [
-  "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.borrower-v1",
-  "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.state-v1",
-];
-*/
-
-// const MULTI_CALL = "SP3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBPEKAEK7.g-multi";
 
 const logger = createLogger("borrower-finder");
 
@@ -47,13 +32,18 @@ const syncBorrowers = async (borrowers: string[]) => {
   dbClient.release();
 };
 
-const getAllEvents = async (contract: string, network: StacksNetwork) => {
+const getAllEvents = async (contract: string) => {
   const limit = 50;
   let offset = 0;
   const allEvents: TransactionEvent[] = [];
 
   while (true) {
-    const events = await getContractEvents(contract, limit, offset, network);
+    const events = await getContractEvents(
+      contract,
+      limit,
+      offset,
+      getNetworkNameFromAddress(contract)
+    );
     if (events.results.length === 0) {
       break;
     }
@@ -68,8 +58,10 @@ const getAllEvents = async (contract: string, network: StacksNetwork) => {
   return allEvents;
 };
 
-const getRecentEvents = async (contract: string, network: StacksNetwork) =>
-  getContractEvents(contract, 0, 50, network).then((r) => r.results);
+const getRecentEvents = async (contract: string) =>
+  getContractEvents(contract, 0, 50, getNetworkNameFromAddress(contract)).then(
+    (r) => r.results
+  );
 
 const eventsToBorrowers = (events: TransactionEvent[]) => {
   const users: string[] = [];
@@ -90,17 +82,13 @@ const eventsToBorrowers = (events: TransactionEvent[]) => {
 };
 
 const fullSync = async (contract: string) => {
-  const networkName = getNetworkNameFromAddress(contract);
-  const network = networkFromName(networkName);
-  const events = await getAllEvents(contract, network);
+  const events = await getAllEvents(contract);
   const borrowers = eventsToBorrowers(events);
   await syncBorrowers(borrowers);
 };
 
 const partialSync = async (contract: string) => {
-  const networkName = getNetworkNameFromAddress(contract);
-  const network = networkFromName(networkName);
-  const recentEvents = await getRecentEvents(contract, network);
+  const recentEvents = await getRecentEvents(contract);
   const borrowers = eventsToBorrowers(recentEvents);
   await syncBorrowers(borrowers);
   await sleep(5000);
