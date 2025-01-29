@@ -1,8 +1,9 @@
 
 import { main as apiMain } from './api';
+import { migrateDb } from './db/migrate';
+import { main as borrowerFinderMain } from './borrower-finder';
 import { createLogger } from './logger';
 import { waitForDb } from './db';
-import { migrateDb } from './db/migrate';
 
 const logger = createLogger('main');
 
@@ -13,6 +14,8 @@ const main = async () => {
 
     if (cmd === "api") {
         prms = apiMain;
+    } else if (cmd === "borrower-finder") {
+        prms = borrowerFinderMain;
     } else {
         throw new Error("Invalid command");
     }

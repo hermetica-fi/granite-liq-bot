@@ -18,7 +18,7 @@ const getContracts = async (req: Request) => {
     return Response.json(contracts);
 }
 
-const errorResponse = (error: any) => {
+export const errorResponse = (error: any) => {
     if (typeof error === 'string') {
         return Response.json({ error: error }, { status: 400 });
     };
