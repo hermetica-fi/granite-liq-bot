@@ -31,7 +31,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         }}
       >
         <Typography
-          variant="h6"
+          variant="h5"
           sx={{ ml: "12px", mr: "12px", display: "flex", alignItems: "center" }}
         >
           <Box
