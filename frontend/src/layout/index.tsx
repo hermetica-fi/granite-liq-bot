@@ -3,7 +3,7 @@ import { grey } from "@mui/material/colors";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const theme = useTheme();
-
+  
   return (
     <Box
       sx={{
@@ -32,7 +32,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       >
         <Typography
           variant="h5"
-          sx={{ ml: "12px", mr: "12px", display: "flex", alignItems: "center" }}
+          component="div"
+          sx={{ ml: "12px", mr: "12px", display: "flex", alignItems: "center", cursor: "pointer" }}
+          onClick={() => {
+            window.location.href = "/";
+          }}
         >
           <Box
             component="img"
