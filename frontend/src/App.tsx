@@ -6,13 +6,19 @@ import Providers from "./providers";
 import { useContractsStore } from "./store/contracts";
 
 function App() {
-  const { initialized, loadContracts } = useContractsStore();
- 
+  const { initialized, loading: contractsLoading, loadContracts } = useContractsStore();
+
   useEffect(() => {
     if (!initialized) {
       loadContracts();
     }
   }, [loadContracts, initialized]);
+
+  const loading = contractsLoading || !initialized;
+
+  if(loading) {
+    return null;
+  }
 
   return (
     <Providers>
