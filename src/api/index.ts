@@ -7,7 +7,7 @@ import { pool } from "../db";
 
 const getContracts = async (req: Request) => {
     const dbClient = await pool.connect();
-    const contracts = await dbClient.query('SELECT address, network, owner_address FROM contracts').then(r => r.rows);
+    const contracts = await dbClient.query('SELECT id, address, name, network, owner_address FROM contracts').then(r => r.rows);
     dbClient.release();
     return Response.json(contracts);
 }
@@ -23,13 +23,14 @@ const errorResponse = (error: any) => {
 
 const addContract = async (req: Request) => {
     const body = await req.json();
-    const { address, mnemonic } = body;
+    const address = body.address?.trim();
+    const mnemonic = body.mnemonic?.trim();
 
-    if (address.trim() === '') {
+    if (address === '') {
         return errorResponse('Enter an address');
     }
 
-    if (mnemonic.trim() === '') {
+    if (mnemonic === '') {
         return errorResponse('Enter a mnemonic');
     }
 
@@ -72,10 +73,11 @@ const addContract = async (req: Request) => {
     }
 
     let onChainOwnerAddress;
+    const [contractAddress, contractName] = address.trim().split('.');
     try {
         onChainOwnerAddress = await fetchCallReadOnlyFunction({
-            contractAddress: address.split('.')[0],
-            contractName: address.split('.')[1],
+            contractAddress,
+            contractName,
             functionName: 'get-owner',
             functionArgs: [],
             senderAddress: ownerAddress,
@@ -85,17 +87,15 @@ const addContract = async (req: Request) => {
         return errorResponse('Could not fetch contract owner');
     }
 
-    console.log(onChainOwnerAddress, ownerAddress)
-
     if (onChainOwnerAddress !== ownerAddress) {
         return errorResponse('Contract owner does not match');
     }
 
     dbClient = await pool.connect();
-    await dbClient.query('INSERT INTO contracts (address, network, owner_address, owner_priv) VALUES ($1, $2, $3, $4)', [address, networkName, ownerAddress, owner.stxPrivateKey]);
-    const contracts = await dbClient.query('SELECT address, network, owner_address FROM contracts').then(r => r.rows);
+    await dbClient.query('INSERT INTO contracts (id, address, name, network, owner_address, owner_priv) VALUES ($1, $2, $3, $4, $5, $6)',
+        [address, contractAddress, contractName, networkName, ownerAddress, owner.stxPrivateKey]);
+    const contracts = await dbClient.query('SELECT id, address, name, network, owner_address FROM contracts').then(r => r.rows);
     dbClient.release();
-    
     return Response.json(contracts);
 }
 
