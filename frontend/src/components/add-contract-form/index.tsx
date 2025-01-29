@@ -47,6 +47,7 @@ const AddContractForm = () => {
       <Box sx={{ mb: "12px", mt: "12px" }}>
         <TextField
           label="Contract Address"
+          autoComplete="off"
           fullWidth
           helperText="e.g ST36B2A32N1WCRSV1437QR8ET917ZHYVY7J3K1AM0.liquidator"
           value={contractAddress}
