@@ -3,7 +3,7 @@ const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8081';
 
 const wrapResponse = (resp: Promise<Response>) => resp.then(r => r.json()).then(r => {
     if (r.error) {
-        Promise.reject(r.error)
+        throw new Error(r.error);
     }
     return r;
 })
