@@ -1,9 +1,9 @@
 import { Box } from "@mui/material";
 import AddContractForm from "../../components/add-contract-form";
-import { useContractsStore } from "../../state/contracts";
+import { useContractsStore } from "../../store/contracts";
 
 const Home = () => {
-  const { items } = useContractsStore((state) => state);
+  const { items } = useContractsStore();
 
   if (items.length === 0) {
     return (

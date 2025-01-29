@@ -3,7 +3,7 @@ import Layout from "./layout";
 import HomePage from "./views/home";
 import "./App.css";
 import Providers from "./providers";
-import { useContractsStore } from "./state/contracts";
+import { useContractsStore } from "./store/contracts";
 
 function App() {
   const { initialized, loadContracts } = useContractsStore();

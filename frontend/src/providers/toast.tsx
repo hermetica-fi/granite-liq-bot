@@ -2,7 +2,7 @@ import React from "react";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import Slide, { SlideProps } from "@mui/material/Slide";
-import { useToastStore } from "../state/ui";
+import { useToastStore } from "../store/ui";
 
 const SlideTransition = (props: SlideProps) => {
   return <Slide {...props} direction="down" />;

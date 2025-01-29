@@ -2,7 +2,7 @@ import { Box, Typography, TextField, Button } from "@mui/material";
 import { useState } from "react";
 import ThemedBox from "../themed-box";
 import useToast from "../../hooks/use-toast";
-import { useContractsStore } from "../../state/contracts";
+import { useContractsStore } from "../../store/contracts";
 
 const AddContractForm = () => {
   const [contractAddress, setContractAddress] = useState("");
