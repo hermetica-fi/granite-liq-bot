@@ -22,11 +22,12 @@ export const createDb = async (client: PoolClient) => {
         "address VARCHAR PRIMARY KEY NOT NULL," +
         "network VARCHAR NOT NULL," +
         "lp_shares NUMERIC DEFAULT '0'," +
+        "health VARCHAR," +
         "check_flag INTEGER NOT NULL DEFAULT 0" +
         ");";
 
     CREATE += "CREATE TABLE IF NOT EXISTS public.user_positions(" +
-        "address VARCHAR PRIMARY KEY NOT NULL," +
+        "address VARCHAR PRIMARY KEY REFERENCES borrowers(address) ON DELETE RESTRICT," +
         "borrowed_amount NUMERIC NOT NULL," +
         "borrowed_block NUMERIC NOT NULL," +
         "debt_shares NUMERIC NOT NULL," +
@@ -35,13 +36,14 @@ export const createDb = async (client: PoolClient) => {
 
     CREATE += "CREATE TABLE IF NOT EXISTS public.user_collaterals(" +
         "id SERIAL PRIMARY KEY NOT NULL," +
-        "address VARCHAR NOT NULL," +
+        "address VARCHAR NOT NULL REFERENCES borrowers(address) ON DELETE RESTRICT," +
         "collateral VARCHAR NOT NULL," +
         "amount NUMERIC NOT NULL" +
         ");";
 
     CREATE += "CREATE UNIQUE INDEX IF NOT EXISTS user_collateral_address_idx ON user_collaterals (address, collateral);";
 
+    /*
     CREATE += "CREATE TABLE IF NOT EXISTS public.transactions(" +
         "tx_id VARCHAR PRIMARY KEY NOT NULL," +
         "contract_address VARCHAR NOT NULL," +
@@ -51,6 +53,7 @@ export const createDb = async (client: PoolClient) => {
         "status VARCHAR NOT NULL DEFAULT 'pending'," +
         "created_at TIMESTAMP NOT NULL DEFAULT NOW()" +
         ");";
+    */
 
     CREATE += "INSERT INTO kv_store VALUES ('db_ver', 1);";
 
