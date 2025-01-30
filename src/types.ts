@@ -1,4 +1,4 @@
-import type { InterestRateParams as InterestRateParams_, CollateralParams as CollateralParams_, Collateral as Collateral_ } from "granite-math-sdk";
+import type { CollateralParams as CollateralParams_, Collateral as Collateral_, InterestRateParams as InterestRateParams_ } from "granite-math-sdk";
 
 export type NetworkName = "mainnet" | "testnet";
 
@@ -37,3 +37,6 @@ export type MarketState = {
     priceFeed: PriceFeed;
     collateralParams: Record<string, CollateralParams>;
 }
+
+
+export type DbOpRs = 0 | 1 | 2;
