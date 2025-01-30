@@ -2,13 +2,13 @@ import { sleep } from "bun";
 import { contractPrincipalCV, cvToJSON, fetchCallReadOnlyFunction } from "@stacks/transactions";
 import { CONTRACTS, PRICE_FEED_IDS } from "../constants";
 import { getNetworkNameFromAddress } from "../helper";
-import type { AccrueInterestParams, DebtParams, InterestRateParams, LpParams, MarketState, NetworkName, PriceFeed } from "../types";
+import type { AccrueInterestParams, DebtParams, InterestRateParams, LpParams, MarketState, NetworkName, PriceFeed, CollateralParams } from "../types";
 import type { PoolClient } from "pg";
 import { kvStoreSet } from "../db/helper";
 import { pool } from "../db";
 import { createLogger } from "../logger";
 import { setMarketState } from "./lib";
-import type { CollateralParams } from "granite-math-sdk";
+
 
 const logger = createLogger("state-tracker");
 
@@ -102,7 +102,8 @@ const getCollateralParams = async (contract: string, collateral: string, network
         const json = cvToJSON(r);
 
         return {
-            liquidationLTV: json.value.value["liquidation-ltv"].value
+            liquidationLTV: Number(json.value.value["liquidation-ltv"].value),
+            decimals: Number(json.value.value["decimals"].value)
         }
     })
 };

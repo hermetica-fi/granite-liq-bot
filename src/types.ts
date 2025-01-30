@@ -1,4 +1,4 @@
-import type { InterestRateParams as InterestRateParams_, CollateralParams as CollateralParams_ } from "granite-math-sdk";
+import type { InterestRateParams as InterestRateParams_, CollateralParams as CollateralParams_, Collateral as Collateral_ } from "granite-math-sdk";
 
 export type NetworkName = "mainnet" | "testnet";
 
@@ -18,7 +18,10 @@ export type AccrueInterestParams = {
     lastAccruedBlockTime: number;
 }
 
-export type CollateralParams = CollateralParams_;
+export type CollateralParams = CollateralParams_ & { liquidationLTV:number, decimals: number };
+
+export type Collateral = Collateral_;
+
 
 export type PriceFeed = {
     btc: number;
