@@ -12,7 +12,7 @@ export const updateBorrower = async (dbClient: PoolClient, borrower: PartialBorr
 }
 
 export const userHasPosition = async (dbClient: PoolClient, address: string): Promise<boolean> => {
-    return dbClient.query("SELECT address FROM user_positions WHERE address = $1", [address]).then(r => r.rows.length === 0)
+    return dbClient.query("SELECT address FROM user_positions WHERE address = $1", [address]).then(r => r.rows.length > 0)
 }
 
 const insertUserPosition = async (dbClient: PoolClient, userPosition: UserPosition): Promise<any> => {
@@ -38,7 +38,7 @@ export const upsertUserPosition = async (dbClient: PoolClient, userPosition: Use
 type PartialUserCollateral = Pick<UserCollateral, 'address' | 'collateral' | 'amount'>;
 
 const userHasCollateral = async (dbClient: PoolClient, address: string, collateral: string): Promise<boolean> => {
-    return dbClient.query("SELECT address FROM user_collaterals WHERE address = $1 AND collateral = $2", [address, collateral]).then(r => r.rows.length === 0)
+    return dbClient.query("SELECT address FROM user_collaterals WHERE address = $1 AND collateral = $2", [address, collateral]).then(r => r.rows.length > 0)
 }
 
 const insertUserCollateral = async (dbClient: PoolClient, userCollateral: PartialUserCollateral): Promise<any> => {
@@ -55,6 +55,7 @@ export const upsertUserCollateral = async (dbClient: PoolClient, userCollateral:
         return 2;
     } else {
         await insertUserCollateral(dbClient, userCollateral);
+        
         return 1;
     }
 }

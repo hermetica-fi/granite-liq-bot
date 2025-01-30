@@ -8,6 +8,8 @@ import { getMarketState } from "./worker/market-sync/shared";
 const dbClient = await pool.connect();
 
 const marketState = await getMarketState(dbClient, "mainnet");
+console.log(marketState);
+process.exit(1)
 if (!marketState) {
     throw new Error("No market state found");
 }
