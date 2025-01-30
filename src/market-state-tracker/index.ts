@@ -12,8 +12,8 @@ import { setMarketState } from "./lib";
 
 const logger = createLogger("state-tracker");
 
-const getIrParams = async (contract: string, network: NetworkName): Promise<InterestRateParams> => {
-    const [contractAddress, contractName] = contract.split(".");
+const getIrParams = async (network: NetworkName): Promise<InterestRateParams> => {
+    const [contractAddress, contractName] = CONTRACTS[network].ir.split(".");
     return fetchCallReadOnlyFunction({
         contractAddress,
         contractName,
@@ -32,8 +32,8 @@ const getIrParams = async (contract: string, network: NetworkName): Promise<Inte
     })
 }
 
-const getLpParams = async (contract: string, network: NetworkName): Promise<LpParams> => {
-    const [contractAddress, contractName] = contract.split(".");
+const getLpParams = async (network: NetworkName): Promise<LpParams> => {
+    const [contractAddress, contractName] = CONTRACTS[network].state.split(".");
     return fetchCallReadOnlyFunction({
         contractAddress,
         contractName,
@@ -50,8 +50,26 @@ const getLpParams = async (contract: string, network: NetworkName): Promise<LpPa
     })
 };
 
-const getDebtParams = async (contract: string, network: NetworkName): Promise<DebtParams> => {
-    const [contractAddress, contractName] = contract.split(".");
+const getAccrueInterestParams = async (network: NetworkName): Promise<AccrueInterestParams> => {
+    const [contractAddress, contractName] = CONTRACTS[network].state.split(".");
+    return fetchCallReadOnlyFunction({
+        contractAddress,
+        contractName,
+        functionName: "get-accrue-interest-params",
+        functionArgs: [],
+        senderAddress: contractAddress,
+        network,
+    }).then(r => {
+        const json = cvToJSON(r);
+
+        return {
+            lastAccruedBlockTime: Number(json.value.value["last-accrued-block-time"].value)
+        }
+    })
+}
+
+const getDebtParams = async (network: NetworkName): Promise<DebtParams> => {
+    const [contractAddress, contractName] = CONTRACTS[network].state.split(".");
     return fetchCallReadOnlyFunction({
         contractAddress,
         contractName,
@@ -69,26 +87,8 @@ const getDebtParams = async (contract: string, network: NetworkName): Promise<De
     })
 };
 
-const getAccrueInterestParams = async (contract: string, network: NetworkName): Promise<AccrueInterestParams> => {
-    const [contractAddress, contractName] = contract.split(".");
-    return fetchCallReadOnlyFunction({
-        contractAddress,
-        contractName,
-        functionName: "get-accrue-interest-params",
-        functionArgs: [],
-        senderAddress: contractAddress,
-        network,
-    }).then(r => {
-        const json = cvToJSON(r);
-
-        return {
-            lastAccruedBlockTime: Number(json.value.value["last-accrued-block-time"].value)
-        }
-    })
-}
-
-const getCollateralParams = async (contract: string, collateral: string, network: NetworkName): Promise<CollateralParams> => {
-    const [contractAddress, contractName] = contract.split(".");
+const getCollateralParams = async (collateral: string, network: NetworkName): Promise<CollateralParams> => {
+    const [contractAddress, contractName] = CONTRACTS[network].state.split(".");
     return fetchCallReadOnlyFunction({
         contractAddress,
         contractName,
@@ -116,10 +116,10 @@ const getPriceFeed = async (feedId: string): Promise<any> => {
 const syncMarketState = async (dbClient: PoolClient) => {
     const collaterals = await dbClient.query("SELECT collateral FROM user_collaterals GROUP BY collateral").then(r => r.rows.map(r => r.collateral));
     for (const network of ["mainnet", "testnet"] as NetworkName[]) {
-        const irParams = await getIrParams(CONTRACTS[network].ir, network);
-        const lpParams = await getLpParams(CONTRACTS[network].state, network);
-        const accrueInterestParams = await getAccrueInterestParams(CONTRACTS[network].state, network);
-        const debtParams = await getDebtParams(CONTRACTS[network].state, network);
+        const irParams = await getIrParams(network);
+        const lpParams = await getLpParams(network);
+        const accrueInterestParams = await getAccrueInterestParams(network);
+        const debtParams = await getDebtParams(network);
         const priceFeed: PriceFeed = {
             btc: await getPriceFeed(PRICE_FEED_IDS.btc),
             eth: await getPriceFeed(PRICE_FEED_IDS.eth),
@@ -128,9 +128,9 @@ const syncMarketState = async (dbClient: PoolClient) => {
 
         const collateralParams: Record<string, CollateralParams> = {};
         for (const collateral of collaterals.filter(c => getNetworkNameFromAddress(c) === network)) {
-            collateralParams[collateral] = await getCollateralParams(CONTRACTS[network].state, collateral, network);
+            collateralParams[collateral] = await getCollateralParams(collateral, network);
         }
-
+        
         const marketState: MarketState = {
             irParams,
             lpParams,
