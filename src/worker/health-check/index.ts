@@ -1,11 +1,10 @@
 import assert from "assert";
 import { calculateAccountHealth, convertDebtSharesToAssets } from "granite-math-sdk";
-import { getUserCollateralAmount } from "../../client/stacks";
 import { IR_PARAMS_SCALING_FACTOR, SCALING_FACTOR } from "../../constants";
 import { pool } from "../../db";
 import type { InterestRateParams, NetworkName, PriceFeed } from "../../types";
 import { getMarketState } from "../market-sync/shared";
-import { getBorrowersForHealthCheck, updateBorrowerHealth } from "./shared";
+import { getBorrowersForHealthCheck, getUserCollateralAmount, updateBorrowerHealth } from "./shared";
 
 
 const getCollateralPrice = (collateral: string, priceFeed: PriceFeed): number => {
@@ -31,7 +30,6 @@ export const main = async () => {
 
     for (const collateral of borrower.collaterals) {
       const amount = await getUserCollateralAmount(dbClient, borrower.address, collateral);
-      console.log(borrower)
       assert(amount !== undefined, "User collateral amount is undefined");
       collateralTokensDeposited[collateral] = amount;
     }
