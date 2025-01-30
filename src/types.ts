@@ -62,3 +62,13 @@ export type UserCollateral = {
     collateral: string,
     amount: number
 }
+
+export type BorrowerStatus = {
+    health: number,
+    debt: number,
+    collateral: number,
+    risk: number,
+    liquidateAmt: number
+}
+
+export type BorrowerStatusEntity = BorrowerStatus & { address: string }

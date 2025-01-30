@@ -1,6 +1,9 @@
-import { calculateAccountHealth, calculateAccountLiqLTV, calculateAccountMaxLTV, calculateLiquidationPoint, calculateTotalCollateralValue, convertDebtSharesToAssets } from "granite-math-sdk";
+import {
+    calculateAccountHealth, calculateAccountLiqLTV, calculateAccountMaxLTV,
+    calculateLiquidationPoint, calculateTotalCollateralValue, convertDebtSharesToAssets
+} from "granite-math-sdk";
 import { IR_PARAMS_SCALING_FACTOR, SCALING_FACTOR } from "../../constants";
-import type { InterestRateParams, MarketState, PriceFeed } from "../../types";
+import type { BorrowerStatus, InterestRateParams, MarketState, PriceFeed } from "../../types";
 
 
 const getCollateralPrice = (collateral: string, priceFeed: PriceFeed): number => {
@@ -20,10 +23,10 @@ const calcAmountToLiquidate = (debtAssets: number, weightedMaxLtv: number, total
     return availableToLiquidate;
 }
 
-export const calcAccountLiquidationInfo = (borrower: {
+export const calcBorrowerStatus = (borrower: {
     debtShares: number;
-    collateralTokensDeposited: Record<string, number>;
-}, marketState: MarketState) => {
+    collateralsDeposited: Record<string, number>;
+}, marketState: MarketState): BorrowerStatus => {
     const irParams: InterestRateParams = {
         urKink: marketState.irParams.urKink / 10 ** IR_PARAMS_SCALING_FACTOR,
         baseIR: marketState.irParams.baseIR / 10 ** IR_PARAMS_SCALING_FACTOR,
@@ -36,7 +39,7 @@ export const calcAccountLiquidationInfo = (borrower: {
     const openInterest = marketState.debtParams.openInterest / 10 ** SCALING_FACTOR;
     const totalDebtShares = marketState.debtParams.totalDebtShares / 10 ** SCALING_FACTOR;
     const totalAssets = marketState.lpParams.totalAssets / 10 ** SCALING_FACTOR;
-    const timeDelta =Math.ceil(now / 1000) - marketState.accrueInterestParams.lastAccruedBlockTime;
+    const timeDelta = Math.ceil(now / 1000) - marketState.accrueInterestParams.lastAccruedBlockTime;
 
     const debtAssets = convertDebtSharesToAssets(
         debtShares,
@@ -47,7 +50,7 @@ export const calcAccountLiquidationInfo = (borrower: {
         timeDelta,
     );
 
-    const collaterals = Object.keys(borrower.collateralTokensDeposited).map(key => {
+    const collaterals = Object.keys(borrower.collateralsDeposited).map(key => {
         const { decimals, liquidationLTV, maxLTV } = marketState.collateralParams[key];
         const price = getCollateralPrice(key, marketState.priceFeed);
 
@@ -56,7 +59,7 @@ export const calcAccountLiquidationInfo = (borrower: {
         }
 
         return {
-            amount: borrower.collateralTokensDeposited[key] / 10 ** decimals,
+            amount: borrower.collateralsDeposited[key] / 10 ** decimals,
             price: price / 10 ** decimals,
             liquidationLTV: liquidationLTV / 10 ** decimals,
             maxLTV: maxLTV / 10 ** decimals,

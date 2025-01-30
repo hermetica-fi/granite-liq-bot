@@ -22,8 +22,16 @@ export const createDb = async (client: PoolClient) => {
         "address VARCHAR PRIMARY KEY NOT NULL," +
         "network VARCHAR NOT NULL," +
         "lp_shares NUMERIC DEFAULT '0'," +
-        "health VARCHAR," +
         "sync_flag INTEGER NOT NULL DEFAULT 0" +
+        ");";
+
+    CREATE += "CREATE TABLE IF NOT EXISTS public.borrower_status(" +
+        "address VARCHAR PRIMARY KEY REFERENCES borrowers(address) ON DELETE RESTRICT," +
+        "health NUMERIC NOT NULL," +
+        "debt NUMERIC NOT NULL," +
+        "collateral NUMERIC NOT NULL," +
+        "risk NUMERIC NOT NULL," +
+        "liquidate_amt NUMERIC NOT NULL" +
         ");";
 
     CREATE += "CREATE TABLE IF NOT EXISTS public.user_positions(" +

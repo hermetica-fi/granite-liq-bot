@@ -1,8 +1,8 @@
 import { expect, setSystemTime, test } from "bun:test";
 import type { MarketState } from "../../types";
-import { calcAccountLiquidationInfo } from "./lib";
+import { calcBorrowerStatus } from "./lib";
 
-test("calcAccountLiquidationInfo 1", () => {
+test("calcBorrowerStatus 1", () => {
     setSystemTime(1738262052565);
     const marketState: MarketState = {
         irParams: {
@@ -43,13 +43,13 @@ test("calcAccountLiquidationInfo 1", () => {
 
     const borrower = {
         debtShares: 43213934616323,
-        collateralTokensDeposited: {
+        collateralsDeposited: {
             'ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth': 7000000000,
             'ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc': 500000000
         }
     }
 
-    expect(calcAccountLiquidationInfo(borrower, marketState)).toEqual({
+    expect(calcBorrowerStatus(borrower, marketState)).toEqual({
         health: 1.0206104956758972,
         debt: 526735.7296664099,
         collateral: 754865.5289313,
@@ -59,7 +59,7 @@ test("calcAccountLiquidationInfo 1", () => {
 });
 
 
-test("calcAccountLiquidationInfo 2", () => {
+test("calcBorrowerStatus 2", () => {
     setSystemTime(1738262557287);
     const marketState: MarketState = {
         irParams: {
@@ -100,12 +100,12 @@ test("calcAccountLiquidationInfo 2", () => {
 
     const borrower = {
         debtShares: 1233675334672,
-        collateralTokensDeposited: {
+        collateralsDeposited: {
             'ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth': 658317537
         }
     }
 
-    expect(calcAccountLiquidationInfo(borrower, marketState)).toEqual({
+    expect(calcBorrowerStatus(borrower, marketState)).toEqual({
         health: 0.7310475216909251,
         debt: 15038.024870804698,
         collateral: 21555.903554761313,
