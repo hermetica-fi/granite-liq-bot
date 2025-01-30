@@ -7,7 +7,7 @@ import { getMarketState } from "./worker/market-sync/shared";
 
 const dbClient = await pool.connect();
 
-const marketState = await getMarketState(dbClient, "mainnet");
+export const marketState = await getMarketState(dbClient, "mainnet");
 
 if (!marketState) {
     throw new Error("No market state found");
@@ -26,9 +26,9 @@ const borrower: {
     debtShares: number;
     collateralTokensDeposited: Record<string, number>;
 } = {
-    debtShares: 99850540,
+    debtShares: 1,
     collateralTokensDeposited: {
-        'SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token': 1000
+        'SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token': 100000
     }
 }
 
