@@ -42,6 +42,8 @@ export const main = async () => {
       slope2: marketState.irParams.slope2 / 10 ** IR_PARAMS_SCALING_FACTOR,
     };
 
+    console.log("borrower.debtShare",  borrower.debtShares )
+
     const currentDebt = convertDebtSharesToAssets(
       borrower.debtShares / 10 ** SCALING_FACTOR,
       marketState.debtParams.openInterest / 10 ** SCALING_FACTOR,

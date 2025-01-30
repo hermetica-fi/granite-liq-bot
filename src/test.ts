@@ -7,7 +7,7 @@ import { getMarketState } from "./worker/market-sync/shared";
 
 const dbClient = await pool.connect();
 
-export const marketState = await getMarketState(dbClient, "mainnet");
+export const marketState = await getMarketState(dbClient, "testnet");
 
 if (!marketState) {
     throw new Error("No market state found");
@@ -20,18 +20,15 @@ const irParamsInput: InterestRateParams = {
     slope2: marketState.irParams.slope2 / 10 ** IR_PARAMS_SCALING_FACTOR,
 };
 
-
-
 const borrower: {
     debtShares: number;
     collateralTokensDeposited: Record<string, number>;
 } = {
-    debtShares: 1,
+    debtShares: 82595077484,
     collateralTokensDeposited: {
-        'SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token': 100000
+        'ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc': 90000000
     }
 }
-
 
 const currentDebt = convertDebtSharesToAssets(
     borrower.debtShares / 10 ** SCALING_FACTOR,
@@ -42,6 +39,9 @@ const currentDebt = convertDebtSharesToAssets(
     marketState.accrueInterestParams.lastAccruedBlockTime,
 );
 
+
+
+
 const getCollateralPrice = (collateral: string, priceFeed: PriceFeed): number => {
     for (const f of Object.keys(priceFeed)) {
         const name = collateral.split(".")[1];
@@ -51,6 +51,7 @@ const getCollateralPrice = (collateral: string, priceFeed: PriceFeed): number =>
     }
     return 0;
 }
+
 
 const collaterals = Object.keys(borrower.collateralTokensDeposited).map(key => {
     const { decimals, liquidationLTV } = marketState.collateralParams[key];
