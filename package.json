@@ -4,9 +4,9 @@
   "type": "module",
   "scripts": {
     "start:api": "bun run src/index.ts api",
-    "start:event-tracker": "bun run src/index.ts event-tracker",
+    "start:event-sync": "bun run src/index.ts event-sync",
     "start:borrower-sync": "bun run src/index.ts borrower-sync",
-    "start:market-state-tracker": "bun run src/index.ts market-state-tracker"
+    "start:market-sync": "bun run src/index.ts market-sync"
   },
   "devDependencies": {
     "@types/bun": "latest"

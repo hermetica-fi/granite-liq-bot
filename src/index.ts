@@ -1,11 +1,11 @@
 
 import { main as apiMain } from './api';
-import { migrateDb } from './db/migrate';
-import { main as eventTrackerMain } from './event-tracker';
-import { main as borrowerSyncMain } from './borrower-sync';
-import { main as marketStateTrackerMain } from './market-state-tracker';
-import { createLogger } from './logger';
 import { waitForDb } from './db';
+import { migrateDb } from './db/migrate';
+import { createLogger } from './logger';
+import { main as borrowerSyncMain } from './worker/borrower-sync';
+import { main as eventSyncMain } from './worker/event-sync';
+import { main as marketSyncMain } from './worker/market-sync';
 
 const logger = createLogger('main');
 
@@ -16,12 +16,12 @@ const main = async () => {
 
     if (cmd === "api") {
         prms = apiMain;
-    } else if (cmd === "event-tracker") {
-        prms = eventTrackerMain;
+    } else if (cmd === "event-sync") {
+        prms = eventSyncMain;
     } else if (cmd === "borrower-sync") {
         prms = borrowerSyncMain;
-    } else if (cmd === "market-state-tracker") {
-        prms = marketStateTrackerMain;
+    } else if (cmd === "market-sync") {
+        prms = marketSyncMain;
     } else {
         throw new Error("Invalid command");
     }

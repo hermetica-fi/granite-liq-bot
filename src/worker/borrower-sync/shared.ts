@@ -1,5 +1,5 @@
 import type { PoolClient } from "pg";
-import type { Borrower, DbOpRs, UserCollateral, UserPosition } from "../types";
+import type { Borrower, DbOpRs, UserCollateral, UserPosition } from "../../types";
 
 type PartialBorrower = Pick<Borrower, 'address' | 'network'>;
 

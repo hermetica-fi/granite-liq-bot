@@ -1,5 +1,5 @@
 import type { PoolClient } from "pg";
-import type { DbOpRs, NetworkName } from "../types";
+import type { DbOpRs, NetworkName } from "../../types";
 
 export const upsertBorrower = async (dbClient: PoolClient, network: NetworkName, address: string): Promise<DbOpRs> => {
     const rec = await dbClient.query("SELECT check_flag FROM borrowers WHERE address = $1", [address]).then((r) => r.rows[0]);

@@ -2,13 +2,13 @@ import type { TransactionEventSmartContractLog } from "@stacks/stacks-blockchain
 import { cvToJSON, hexToCV } from "@stacks/transactions";
 import { sleep } from "bun";
 import type { PoolClient } from "pg";
-import { getContractEvents } from "../client/hiro";
-import { CONTRACTS } from "../constants";
-import { pool } from "../db";
-import { kvStoreGet, kvStoreSet } from "../db/helper";
-import { getNetworkNameFromAddress } from "../helper";
-import { createLogger } from "../logger";
-import type { NetworkName } from "../types";
+import { getContractEvents } from "../../client/hiro";
+import { CONTRACTS } from "../../constants";
+import { pool } from "../../db";
+import { kvStoreGet, kvStoreSet } from "../../db/helper";
+import { getNetworkNameFromAddress } from "../../helper";
+import { createLogger } from "../../logger";
+import type { NetworkName } from "../../types";
 import { upsertBorrower } from "./shared";
 
 const logger = createLogger("event-tracker");

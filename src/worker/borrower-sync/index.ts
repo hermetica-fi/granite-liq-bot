@@ -1,8 +1,8 @@
 import { sleep } from "bun";
 import type { PoolClient } from "pg";
-import { getUserCollateralAmount, getUserLpShares, getUserPosition } from "../client/stacks";
-import { pool } from "../db";
-import { createLogger } from "../logger";
+import { getUserCollateralAmount, getUserLpShares, getUserPosition } from "../../client/stacks";
+import { pool } from "../../db";
+import { createLogger } from "../../logger";
 import { getBorrowersToSync, updateBorrower, upsertUserCollateral, upsertUserPosition } from "./shared";
 
 export const logger = createLogger("borrower-sync");
