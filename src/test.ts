@@ -1,7 +1,7 @@
 import { calculateAccountHealth, convertDebtSharesToAssets } from "granite-math-sdk";
 import { IR_PARAMS_SCALING_FACTOR, SCALING_FACTOR } from "./constants";
 import { pool } from "./db";
-import { getMarketState } from "./market-state-tracker/lib";
+import { getMarketState } from "./market-state-tracker/shared";
 import type { InterestRateParams, PriceFeed } from "./types";
 
 const dbClient = await pool.connect();

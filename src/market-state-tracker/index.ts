@@ -7,7 +7,7 @@ import { pool } from "../db";
 import { getNetworkNameFromAddress } from "../helper";
 import { createLogger } from "../logger";
 import type { CollateralParams, MarketState, NetworkName, PriceFeed } from "../types";
-import { getDistinctCollateralList, setMarketState } from "./lib";
+import { getDistinctCollateralList, setMarketState } from "./shared";
 
 const logger = createLogger("state-tracker");
 
