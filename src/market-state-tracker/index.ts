@@ -61,7 +61,7 @@ const syncMarketState = async (dbClient: PoolClient) => {
         usdc: await getPriceFeed(PRICE_FEED_IDS.usdc),
     }
 
-    await setPriceFeedLocal(dbClient, priceFeed, 0);
+    await setPriceFeedLocal(dbClient, priceFeed, epoch() + 10);
     logger.info(`setPriceFeedLocal: ${JSON.stringify(priceFeed)}`);
 }
 
