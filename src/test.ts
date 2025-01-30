@@ -54,7 +54,7 @@ const collaterals = Object.keys(borrower.collateralTokensDeposited).map(key => {
     const { decimals, liquidationLTV } = marketState.collateralParams[key];
     const price = getCollateralPrice(key, marketState.priceFeed);
 
-    if(!price) {
+    if (!price) {
         throw new Error(`No price found for ${key}`);
     }
 
@@ -62,9 +62,9 @@ const collaterals = Object.keys(borrower.collateralTokensDeposited).map(key => {
         amount: borrower.collateralTokensDeposited[key] / 10 ** decimals,
         price: price / 10 ** decimals,
         liquidationLTV: liquidationLTV / 10 ** decimals,
-    } 
+    }
 });
 
-const health = calculateAccountHealth( collaterals, currentDebt);
+const health = calculateAccountHealth(collaterals, currentDebt);
 
 console.log(health)
