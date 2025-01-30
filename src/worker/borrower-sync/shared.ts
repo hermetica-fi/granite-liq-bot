@@ -4,11 +4,11 @@ import type { Borrower, UserCollateral, UserPosition } from "../../types";
 type PartialBorrower = Pick<Borrower, 'address' | 'network'>;
 
 export const getBorrowersToSync = async (dbClient: PoolClient): Promise<PartialBorrower[]> => {
-    return dbClient.query("SELECT address, network FROM borrowers WHERE check_flag = 1 LIMIT 10").then(r => r.rows);
+    return dbClient.query("SELECT address, network FROM borrowers WHERE sync_flag = 1 LIMIT 10").then(r => r.rows);
 }
 
 export const updateBorrower = async (dbClient: PoolClient, borrower: PartialBorrower, lpShares: number): Promise<any> => {
-    return dbClient.query("UPDATE borrowers SET lp_shares = $1, check_flag = 0 WHERE address = $2", [lpShares, borrower.address]);
+    return dbClient.query("UPDATE borrowers SET lp_shares = $1, sync_flag = 0 WHERE address = $2", [lpShares, borrower.address]);
 }
 
 export const syncUserPosition = async (dbClient: PoolClient, userPosition: UserPosition): Promise<any> => {

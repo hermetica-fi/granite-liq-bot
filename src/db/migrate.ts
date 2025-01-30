@@ -23,7 +23,7 @@ export const createDb = async (client: PoolClient) => {
         "network VARCHAR NOT NULL," +
         "lp_shares NUMERIC DEFAULT '0'," +
         "health VARCHAR," +
-        "check_flag INTEGER NOT NULL DEFAULT 0" +
+        "sync_flag INTEGER NOT NULL DEFAULT 0" +
         ");";
 
     CREATE += "CREATE TABLE IF NOT EXISTS public.user_positions(" +
