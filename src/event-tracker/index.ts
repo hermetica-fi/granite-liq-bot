@@ -9,6 +9,7 @@ import { kvStoreGet, kvStoreSet } from "../db/helper";
 import { getNetworkNameFromAddress } from "../helper";
 import { createLogger } from "../logger";
 import type { NetworkName } from "../types";
+import { upsertBorrower } from "./shared";
 
 const logger = createLogger("event-tracker");
 
@@ -19,43 +20,28 @@ const TRACKED_CONTRACTS = [
   CONTRACTS.testnet.state,
 ]
 
-const upsertBorrower = async (dbClient: PoolClient, network: NetworkName, address: string) => {
-  const rec = await dbClient.query("SELECT check_flag FROM borrowers WHERE address = $1", [address]).then((r) => r.rows[0]);
-  if (!rec) {
-    await dbClient.query("INSERT INTO borrowers (address, network) VALUES ($1, $2)", [
-      address,
-      network,
-    ]);
-    logger.info(`New borrower ${address}`);
-  } else {
-    if (rec.check_flag === 0) {
-      await dbClient.query("UPDATE borrowers SET check_flag = 1 WHERE address = $1", [address]);
-      logger.info(`Borrower ${address} check flag activated`);
-    }
-  }
-}
-
 const processEvents = async (dbClient: PoolClient, network: NetworkName, event: TransactionEventSmartContractLog) => {
   const decoded = hexToCV(event.contract_log.value.hex);
   const json = cvToJSON(decoded);
   const action = json?.value?.action?.value;
+  let user = null;
 
   if (["borrow", "add-collateral", "remove-collateral", "deposit", "withdraw"].includes(action)) {
-    const user = json.value.user.value;
-    await upsertBorrower(dbClient, network, user);
+     user = json.value.user.value;
   }
 
-  if (action === "repay") {
-    const user = json.value["on-behalf-of"].value || json.value.sender.value;
-    await upsertBorrower(dbClient, network, user);
+  else if (action === "repay") {
+     user = json.value["on-behalf-of"].value || json.value.sender.value;
   }
 
-  if (["update-ir-params"].includes(action)) {
-    // Update ir params
-  }
-
-  if (["update-collateral-settings"].includes(action)) {
-    // Update all borrowers under the network to recheck them
+  if(user){
+    const r = await upsertBorrower(dbClient, network, user);
+    if(r === 1){
+      logger.info(`New borrower ${user}`);
+    }
+    else if(r === 2){
+      logger.info(`Borrower ${user} check flag activated`);
+    }
   }
 }
 
