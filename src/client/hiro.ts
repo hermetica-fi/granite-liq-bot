@@ -5,8 +5,8 @@ import type { NetworkName } from "../types";
 
 const logger = createLogger("hiro-api");
 
-const MAX_RETRIES = 3;
-const INITIAL_DELAY = 1000; // 1 second
+const MAX_RETRIES = 5;
+const INITIAL_DELAY = 5000;
 
 export const fetchWrapper = async (path: string, network: NetworkName) => {
     const networkObj = networkFromName(network);

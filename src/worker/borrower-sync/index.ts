@@ -3,7 +3,7 @@ import type { PoolClient } from "pg";
 import { getUserCollateralAmount, getUserLpShares, getUserPosition } from "../../client/stacks";
 import { pool } from "../../db";
 import { createLogger } from "../../logger";
-import { getBorrowersToSync, updateBorrower, upsertUserCollateral, upsertUserPosition } from "./shared";
+import { getBorrowersToSync, syncUserCollaterals, syncUserPosition, updateBorrower } from "./shared";
 
 export const logger = createLogger("borrower-sync");
 
@@ -19,31 +19,15 @@ const worker = async (dbClient: PoolClient) => {
 
     // Sync user position
     const userPosition = await getUserPosition(borrower.address, borrower.network);
-    const r = await upsertUserPosition(dbClient, {
-      address: borrower.address,
-      ...userPosition
-    });
-    if (r === 1) {
-      logger.info(`New user position for borrower: ${borrower.address}, borrowed amount: ${userPosition.borrowedAmount}, borrowed block: ${userPosition.borrowedBlock}, debt shares: ${userPosition.debtShares}, collaterals: ${userPosition.collaterals}`);
-    }
-    else if (r === 2) {
-      logger.info(`Updated user position for ${borrower.address} borrowed amount: ${userPosition.borrowedAmount}, borrowed block: ${userPosition.borrowedBlock}, debt shares: ${userPosition.debtShares}, collaterals: ${userPosition.collaterals}`);
-    }
+    await syncUserPosition(dbClient, { address: borrower.address, ...userPosition });
 
     // Sync user collaterals
+    const collaterals = [];
     for (const col of userPosition.collaterals) {
       const amount = await getUserCollateralAmount(borrower.address, col, borrower.network);
-      const r = await upsertUserCollateral(dbClient, {
-        address: borrower.address,
-        collateral: col,
-        amount
-      });
-      if (r === 1) {
-        logger.info(`New user collateral for ${borrower.address} collateral: ${col}, amount: ${amount}`);
-      } else if (r === 2) {
-        logger.info(`Updated borrower collateral for ${borrower.address} collateral: ${col}, amount: ${amount}`);
-      }
+      collaterals.push({ collateral: col, amount });
     }
+    await syncUserCollaterals(dbClient, borrower.address, collaterals);
 
     logger.info(`Synced borrower ${borrower.address}`);
   }
