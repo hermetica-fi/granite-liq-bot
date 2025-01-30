@@ -18,6 +18,7 @@ export const getMarketState = async (dbClient: PoolClient, network: NetworkName)
     assert(debtParams, 'debtParams not found');
     const collateralParams = await getCollateralParamsLocal(dbClient, network);
     assert(collateralParams, 'collateralParams not found');
+    assert(Object.keys(collateralParams).length > 0, 'collateralParams is empty');
     const priceFeed = await getPriceFeedLocal(dbClient);
     assert(priceFeed, 'priceFeed not found');
 
