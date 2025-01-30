@@ -5,12 +5,42 @@ import type { NetworkName } from "../types";
 
 const logger = createLogger("hiro-api");
 
+const MAX_RETRIES = 3;
+const INITIAL_DELAY = 1000; // 1 second
+
 export const fetchWrapper = async (path: string, network: NetworkName) => {
-    // TODO: Inject hiro api key
     const networkObj = networkFromName(network);
     const url = `${networkObj.client.baseUrl}${path}`;
-    logger.info(url);
-    return fetch(url);
+    
+    let lastError: Error | null = null;
+    
+    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+        try {
+            const r = await fetch(url);
+            if (r.status === 200) {
+                return r;
+            }
+            
+            lastError = new Error(`HTTP ${r.status}: ${await r.text()}`);
+            
+            // Only retry if we haven't reached max attempts
+            if (attempt < MAX_RETRIES - 1) {
+                const delay = INITIAL_DELAY * Math.pow(2, attempt);
+                logger.error(`Hiro api request failed, retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES})`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        } catch (error) {
+            lastError = error as Error;
+            
+            if (attempt < MAX_RETRIES - 1) {
+                const delay = INITIAL_DELAY * Math.pow(2, attempt);
+                logger.error(`Hiro api request failed, retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES})`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        }
+    }
+    
+    throw lastError || new Error('Request failed after max retries');
 }
 
 export const getContractInfo = async (contractId: string, network: NetworkName) => {
