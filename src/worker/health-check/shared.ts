@@ -18,7 +18,3 @@ export const getUserCollateralAmount = async (dbClient: PoolClient, address: str
 export const updateBorrowerHealth = async (dbClient: PoolClient, address: string, health: number) => {
     return dbClient.query("UPDATE borrowers SET health=$1 WHERE address=$2", [health, address])
 }
-    
-export const calcAccountHealth = () => {
-
-}
