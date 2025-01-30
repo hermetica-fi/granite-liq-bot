@@ -1,5 +1,5 @@
 import type { PoolClient } from "pg";
-import type { Borrower, DbOpRs, UserPosition } from "../types";
+import type { Borrower, DbOpRs, UserCollateral, UserPosition } from "../types";
 
 type PartialBorrower = Pick<Borrower, 'address' | 'network'>;
 
@@ -7,7 +7,7 @@ export const getBorrowersToSync = async (dbClient: PoolClient): Promise<PartialB
     return dbClient.query("SELECT address, network FROM borrowers WHERE check_flag = 1 LIMIT 10").then(r => r.rows);
 }
 
-export const updateBorrower = async (dbClient: PoolClient, borrower: PartialBorrower, lpShares: string): Promise<any> => {
+export const updateBorrower = async (dbClient: PoolClient, borrower: PartialBorrower, lpShares: number): Promise<any> => {
     return dbClient.query("UPDATE borrowers SET lp_shares = $1, check_flag = 0 WHERE address = $2", [lpShares, borrower.address]);
 }
 
@@ -25,7 +25,7 @@ const updateUserPosition = async (dbClient: PoolClient, userPosition: UserPositi
         [userPosition.borrowedAmount, userPosition.borrowedBlock, userPosition.debtShares, userPosition.collaterals, userPosition.address]);
 }
 
-export const upsertUserPosition = async (dbClient: PoolClient, userPosition: UserPosition): Promise<DbOpRs  > => {
+export const upsertUserPosition = async (dbClient: PoolClient, userPosition: UserPosition): Promise<DbOpRs> => {
     if (await userHasPosition(dbClient, userPosition.address)) {
         await updateUserPosition(dbClient, userPosition);
         return 2;
@@ -33,6 +33,28 @@ export const upsertUserPosition = async (dbClient: PoolClient, userPosition: Use
         await insertUserPosition(dbClient, userPosition);
         return 1;
     }
+}
 
-    return 0;
+type PartialUserCollateral = Pick<UserCollateral, 'address' | 'collateral' | 'amount'>;
+
+const userHasCollateral = async (dbClient: PoolClient, address: string, collateral: string): Promise<boolean> => {
+    return dbClient.query("SELECT address FROM user_collaterals WHERE address = $1 AND collateral = $2", [address, collateral]).then(r => r.rows.length === 0)
+}
+
+const insertUserCollateral = async (dbClient: PoolClient, userCollateral: PartialUserCollateral): Promise<any> => {
+    return dbClient.query("INSERT INTO user_collaterals (address, collateral, amount) VALUES ($1, $2, $3)", [userCollateral.address, userCollateral.collateral, userCollateral.amount]);
+}
+
+const updateUserCollateral = async (dbClient: PoolClient, userCollateral: PartialUserCollateral): Promise<any> => {
+    return dbClient.query("UPDATE user_collaterals SET amount = $1 WHERE address = $2 AND collateral = $3", [userCollateral.amount, userCollateral.address, userCollateral.collateral]);
+}
+
+export const upsertUserCollateral = async (dbClient: PoolClient, userCollateral: PartialUserCollateral): Promise<DbOpRs> => {
+    if (await userHasCollateral(dbClient, userCollateral.address, userCollateral.collateral)) {
+        await updateUserCollateral(dbClient, userCollateral);
+        return 2;
+    } else {
+        await insertUserCollateral(dbClient, userCollateral);
+        return 1;
+    }
 }

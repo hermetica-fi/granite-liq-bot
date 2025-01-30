@@ -1,6 +1,6 @@
-import { contractPrincipalCV, cvToJSON, fetchCallReadOnlyFunction } from "@stacks/transactions";
+import { contractPrincipalCV, cvToJSON, fetchCallReadOnlyFunction, principalCV } from "@stacks/transactions";
 import { CONTRACTS } from "../constants";
-import type { AccrueInterestParams, CollateralParams, DebtParams, InterestRateParams, LpParams, NetworkName } from "../types";
+import type { AccrueInterestParams, CollateralParams, DebtParams, InterestRateParams, LpParams, NetworkName, UserPosition } from "../types";
 
 export const getIrParams = async (network: NetworkName): Promise<InterestRateParams> => {
     const [contractAddress, contractName] = CONTRACTS[network].ir.split(".");
@@ -97,3 +97,72 @@ export const getCollateralParams = async (collateral: string, network: NetworkNa
         }
     })
 };
+
+export const getUserPosition = async (address: string, network: NetworkName): Promise<Pick<UserPosition, 'borrowedAmount' | 'borrowedBlock' | 'debtShares' | 'collaterals'>> => {
+  const [contractAddress, contractName] = CONTRACTS[network].borrower.split(".");
+  return fetchCallReadOnlyFunction({
+    contractAddress,
+    contractName,
+    functionName: "get-user-position",
+    functionArgs: [
+      principalCV(address),
+    ],
+    senderAddress: address,
+    network
+  }).then(r => {
+    const json = cvToJSON(r);
+
+    if (json.value === null) {
+      return {
+        borrowedAmount: 0,
+        borrowedBlock: 0,
+        debtShares: 0,
+        collaterals: []
+      }
+    };
+
+    return {
+      borrowedAmount: Number(json.value.value["borrowed-amount"].value),
+      borrowedBlock: Number(json.value.value["borrowed-block"].value),
+      debtShares: Number(json.value.value["debt-shares"].value),
+      collaterals: json.value.value.collaterals.value.map((c: any) => c.value)
+    }
+  })
+}
+
+export const getUserLpShares = async (address: string, network: NetworkName) => {
+  const [contractAddress, contractName] = CONTRACTS[network].borrower.split(".");
+  return fetchCallReadOnlyFunction({
+    contractAddress,
+    contractName,
+    functionName: "get-balance",
+    functionArgs: [
+      principalCV(address),
+    ],
+    senderAddress: address,
+    network
+  }).then(r => {
+    return Number( cvToJSON(r).value.value);
+  })
+}
+
+
+
+export const getUserCollateralAmount = async (address: string, collateral: string, network: NetworkName): Promise<number> => {
+  const [contractAddress, contractName] = CONTRACTS[network].borrower.split(".");
+  return fetchCallReadOnlyFunction({
+    contractAddress,
+    contractName,
+    functionName: "get-user-collateral",
+    functionArgs: [
+      principalCV(address),
+      contractPrincipalCV(collateral.split(".")[0], collateral.split(".")[1])
+    ],
+    senderAddress: address,
+    network
+  }).then(r => {
+    const json = cvToJSON(r);
+
+    return Number(json.value.value.amount.value);
+  })
+}

@@ -21,15 +21,15 @@ export const createDb = async (client: PoolClient) => {
     CREATE += "CREATE TABLE IF NOT EXISTS public.borrowers(" +
         "address VARCHAR PRIMARY KEY NOT NULL," +
         "network VARCHAR NOT NULL," +
-        "lp_shares VARCHAR DEFAULT '0'," +
+        "lp_shares NUMERIC DEFAULT '0'," +
         "check_flag INTEGER NOT NULL DEFAULT 0" +
         ");";
 
     CREATE += "CREATE TABLE IF NOT EXISTS public.user_positions(" +
         "address VARCHAR PRIMARY KEY NOT NULL," +
-        "borrowed_amount VARCHAR NOT NULL," +
-        "borrowed_block VARCHAR NOT NULL," +
-        "debt_shares VARCHAR NOT NULL," +
+        "borrowed_amount NUMERIC NOT NULL," +
+        "borrowed_block NUMERIC NOT NULL," +
+        "debt_shares NUMERIC NOT NULL," +
         "collaterals VARCHAR[] NOT NULL" +
         ");";
 
@@ -37,7 +37,7 @@ export const createDb = async (client: PoolClient) => {
         "id SERIAL PRIMARY KEY NOT NULL," +
         "address VARCHAR NOT NULL," +
         "collateral VARCHAR NOT NULL," +
-        "amount VARCHAR NOT NULL" +
+        "amount NUMERIC NOT NULL" +
         ");";
 
     CREATE += "CREATE UNIQUE INDEX IF NOT EXISTS user_collateral_address_idx ON user_collaterals (address, collateral);";

@@ -50,8 +50,15 @@ export type Borrower = {
 
 export type UserPosition = {
     address: string,
-    borrowedAmount: string,
-    borrowedBlock: string,
-    debtShares: string,
+    borrowedAmount: number,
+    borrowedBlock: number,
+    debtShares: number,
     collaterals: string[]
+}
+
+export type UserCollateral = {
+    id: number,
+    address: string,
+    collateral: string,
+    amount: number
 }
