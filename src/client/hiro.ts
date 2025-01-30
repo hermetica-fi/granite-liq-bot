@@ -1,7 +1,7 @@
 import { networkFromName } from "@stacks/network";
 import { type TransactionEventsResponse } from "@stacks/stacks-blockchain-api-types";
-import type { NetworkName } from "./types";
-import { createLogger } from "./logger";
+import { createLogger } from "../logger";
+import type { NetworkName } from "../types";
 
 const logger = createLogger("hiro-api");
 

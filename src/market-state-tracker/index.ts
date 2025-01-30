@@ -1,7 +1,7 @@
 import { sleep } from "bun";
 import type { PoolClient } from "pg";
-import { getPriceFeed } from "../api/pyth";
-import { getAccrueInterestParams, getCollateralParams, getDebtParams, getIrParams, getLpParams } from "../api/stacks";
+import { getPriceFeed } from "../client/pyth";
+import { getAccrueInterestParams, getCollateralParams, getDebtParams, getIrParams, getLpParams } from "../client/stacks";
 import { PRICE_FEED_IDS } from "../constants";
 import { pool } from "../db";
 import { getNetworkNameFromAddress } from "../helper";
@@ -13,7 +13,7 @@ const logger = createLogger("state-tracker");
 
 const syncMarketState = async (dbClient: PoolClient) => {
     const collaterals = await getDistinctCollateralList(dbClient);
-    
+
     for (const network of ["mainnet", "testnet"] as NetworkName[]) {
         const irParams = await getIrParams(network);
         const lpParams = await getLpParams(network);

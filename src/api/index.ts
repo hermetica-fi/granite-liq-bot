@@ -1,10 +1,9 @@
+import { cvToJSON, fetchCallReadOnlyFunction, getAddressFromPrivateKey } from "@stacks/transactions";
 import { generateWallet } from "@stacks/wallet-sdk";
 import type { PoolClient } from "pg";
-import { cvToJSON, fetchCallReadOnlyFunction, getAddressFromPrivateKey } from "@stacks/transactions";
-import { getNetworkNameFromAddress } from "../helper";
-import { getContractInfo } from "../hiro-api";
-import { networkFromName } from "@stacks/network";
+import { getContractInfo } from "../client/hiro";
 import { pool } from "../db";
+import { getNetworkNameFromAddress } from "../helper";
 
 
 const getContractList = async (dbClient: PoolClient) => {
