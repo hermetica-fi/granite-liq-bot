@@ -1,10 +1,11 @@
 import assert from "assert";
 import { calculateAccountHealth, convertDebtSharesToAssets } from "granite-math-sdk";
+import { getUserCollateralAmount } from "../../client/stacks";
 import { IR_PARAMS_SCALING_FACTOR, SCALING_FACTOR } from "../../constants";
 import { pool } from "../../db";
 import type { InterestRateParams, NetworkName, PriceFeed } from "../../types";
 import { getMarketState } from "../market-sync/shared";
-import { getBorrowersForHealthCheck, getUserCollateralAmount, updateBorrowerHealth } from "./shared";
+import { getBorrowersForHealthCheck, updateBorrowerHealth } from "./shared";
 
 
 const getCollateralPrice = (collateral: string, priceFeed: PriceFeed): number => {
@@ -30,6 +31,7 @@ export const main = async () => {
 
     for (const collateral of borrower.collaterals) {
       const amount = await getUserCollateralAmount(dbClient, borrower.address, collateral);
+      console.log(borrower)
       assert(amount !== undefined, "User collateral amount is undefined");
       collateralTokensDeposited[collateral] = amount;
     }
@@ -42,7 +44,6 @@ export const main = async () => {
       slope2: marketState.irParams.slope2 / 10 ** IR_PARAMS_SCALING_FACTOR,
     };
 
-    console.log("borrower.debtShare",  borrower.debtShares )
 
     const currentDebt = convertDebtSharesToAssets(
       borrower.debtShares / 10 ** SCALING_FACTOR,
@@ -53,12 +54,8 @@ export const main = async () => {
       marketState.accrueInterestParams.lastAccruedBlockTime,
     );
 
-    console.log("borrower", borrower);
-    console.log("currentDebt", currentDebt);
-
     if (currentDebt === 0) {
-      await updateBorrowerHealth(dbClient, borrower.address, 0);
-      console.log("-------------------------------------------------");
+      await updateBorrowerHealth(dbClient, borrower.address, 100);
       continue
     }
 
@@ -77,14 +74,8 @@ export const main = async () => {
       }
     });
 
-    console.log("collaterals", collaterals);
-
     const health = calculateAccountHealth(collaterals, currentDebt);
-
     await updateBorrowerHealth(dbClient, borrower.address, health);
-
-    console.log("health", health);
-    console.log("-------------------------------------------------");
   }
 };
 

@@ -23,6 +23,6 @@ export const syncUserCollaterals = async (dbClient: PoolClient, address: string,
     await dbClient.query("DELETE FROM user_collaterals WHERE address = $1", [address]);
 
     for (const userCollateral of userCollaterals) {
-        return dbClient.query("INSERT INTO user_collaterals (address, collateral, amount) VALUES ($1, $2, $3)", [address, userCollateral.collateral, userCollateral.amount]);
+        await dbClient.query("INSERT INTO user_collaterals (address, collateral, amount) VALUES ($1, $2, $3)", [address, userCollateral.collateral, userCollateral.amount]);
     }
 }
