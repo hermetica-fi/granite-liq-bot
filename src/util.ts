@@ -13,4 +13,4 @@ export const assertEnvVars = (vars: string | string[]): string[] => {
     return rv;
 }
 
-export const unixTsNow = () => Math.floor(Date.now() / 1000);
+export const epoch = () => Math.floor(Date.now() / 1000);

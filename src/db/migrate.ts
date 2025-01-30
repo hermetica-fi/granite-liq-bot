@@ -4,9 +4,9 @@ import { pool } from "../db";
 export const createDb = async (client: PoolClient) => {
     let CREATE = "CREATE TABLE IF NOT EXISTS public.kv_store(" +
         "key VARCHAR PRIMARY KEY NOT NULL," +
-        "value VARCHAR NOT NULL" +
+        "value VARCHAR NOT NULL," +
+        "expires INTEGER NOT NULL DEFAULT 0" +
         ");";
-
 
     CREATE += "CREATE TABLE IF NOT EXISTS public.contracts(" +
         "id VARCHAR PRIMARY KEY NOT NULL," +

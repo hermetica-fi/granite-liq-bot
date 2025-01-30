@@ -20,6 +20,7 @@
     "@stacks/transactions": "^7.0.2",
     "@stacks/wallet-sdk": "^7.0.2",
     "@types/pg": "^8.11.11",
+    "assert": "^2.1.0",
     "dotenv": "^16.4.7",
     "granite-math-sdk": "^1.0.19",
     "pg": "^8.13.1"
