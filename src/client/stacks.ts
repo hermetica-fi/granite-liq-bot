@@ -95,7 +95,8 @@ export const getCollateralParams = async (collateral: string, network: NetworkNa
 
     return {
       liquidationLTV: Number(json.value.value["liquidation-ltv"].value),
-      decimals: Number(json.value.value["decimals"].value)
+      decimals: Number(json.value.value["decimals"].value),
+      maxLTV: Number(json.value.value["max-ltv"].value)
     }
   })
 };

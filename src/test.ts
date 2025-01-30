@@ -21,7 +21,7 @@ const borrower: {
     debtShares: 43213934616323,
     collateralTokensDeposited: {
         'ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth': 7000000000,
-        'ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc' : 500000000
+        'ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc': 500000000
     }
 }
 
@@ -62,7 +62,7 @@ const getCollateralPrice = (collateral: string, priceFeed: PriceFeed): number =>
 
 
 const collaterals = Object.keys(borrower.collateralTokensDeposited).map(key => {
-    const { decimals, liquidationLTV } = marketState.collateralParams[key];
+    const { decimals, liquidationLTV, maxLTV } = marketState.collateralParams[key];
     const price = getCollateralPrice(key, marketState.priceFeed);
 
     if (!price) {
@@ -73,7 +73,7 @@ const collaterals = Object.keys(borrower.collateralTokensDeposited).map(key => {
         amount: borrower.collateralTokensDeposited[key] / 10 ** decimals,
         price: price / 10 ** decimals,
         liquidationLTV: liquidationLTV / 10 ** decimals,
-        maxLTV: 0.5, // !!!!
+        maxLTV: maxLTV / 10 ** decimals,
     }
 });
 
@@ -86,42 +86,42 @@ const accountLiqLTV = calculateAccountLiqLTV(collaterals)
 
 console.log('accountLiqLTV', accountLiqLTV)
 
-const liquidationPoint =  calculateLiquidationPoint(
+const liquidationPoint = calculateLiquidationPoint(
     accountLiqLTV,
     borrower.debtShares / 10 ** SCALING_FACTOR,
-  
+
 
     marketState.debtParams.openInterest / 10 ** SCALING_FACTOR,
     marketState.debtParams.totalDebtShares / 10 ** SCALING_FACTOR,
     marketState.lpParams.totalAssets / 10 ** SCALING_FACTOR,
     irParamsInput,
     Math.ceil(Math.floor(Date.now() / 1000) - marketState.accrueInterestParams.lastAccruedBlockTime),
-  )
+)
 
-  console.log('liquidationPoint', liquidationPoint)
+console.log('liquidationPoint', liquidationPoint)
 
-  const totalCollateralValue = calculateTotalCollateralValue(collaterals)
+const totalCollateralValue = calculateTotalCollateralValue(collaterals)
 
-  console.log('totalCollateralValue', totalCollateralValue)
+console.log('totalCollateralValue', totalCollateralValue)
 
-  const liquidationRisk = liquidationPoint / totalCollateralValue;
+const liquidationRisk = liquidationPoint / totalCollateralValue;
 
-  console.log('liquidationRisk', (liquidationRisk * 100).toFixed(2))
+console.log('liquidationRisk', (liquidationRisk * 100).toFixed(2))
 
-  
-  const weightedMaxLtv = calculateAccountMaxLTV(collaterals)
 
-  console.log('weightedMaxLtv', weightedMaxLtv)
+const weightedMaxLtv = calculateAccountMaxLTV(collaterals)
 
-  const renderAmountLiquidate = () => {
+console.log('weightedMaxLtv', weightedMaxLtv)
+
+const renderAmountLiquidate = () => {
     const numerator = debtAssets - weightedMaxLtv * totalCollateralValue;
     const denominator = 1 - weightedMaxLtv * (1 + 0.1);
 
     const availableToLiquidate = numerator / denominator;
 
     return availableToLiquidate;
-  };
+};
 
-  const amountLiquidate = liquidationRisk >= 1 ? renderAmountLiquidate() : 0;
+const amountLiquidate = liquidationRisk >= 1 ? renderAmountLiquidate() : 0;
 
-  console.log('amountLiquidate', amountLiquidate)
+console.log('amountLiquidate', amountLiquidate)
