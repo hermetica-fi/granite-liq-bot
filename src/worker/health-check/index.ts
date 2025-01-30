@@ -16,6 +16,11 @@ export const worker = async (dbClient: PoolClient) => {
       throw new Error("No market state found");
     }
 
+    if(borrower.debtShares === 0){
+      await upsertBorrowerStatus(dbClient, borrower.address, null);
+      continue;
+    }
+
     const collateralsDeposited: Record<string, number> = {}
     for (const collateral of borrower.collaterals) {
       const amount = await getUserCollateralAmount(dbClient, borrower.address, collateral);

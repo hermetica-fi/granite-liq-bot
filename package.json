@@ -6,7 +6,8 @@
     "start:api": "bun run src/index.ts api",
     "start:event-sync": "bun run src/index.ts event-sync",
     "start:borrower-sync": "bun run src/index.ts borrower-sync",
-    "start:market-sync": "bun run src/index.ts market-sync"
+    "start:market-sync": "bun run src/index.ts market-sync",
+    "start:health-check": "bun run src/index.ts health-check"
   },
   "devDependencies": {
     "@types/bun": "latest"

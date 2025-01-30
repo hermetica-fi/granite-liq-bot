@@ -5,6 +5,7 @@ import { migrateDb } from './db/migrate';
 import { createLogger } from './logger';
 import { main as borrowerSyncMain } from './worker/borrower-sync';
 import { main as eventSyncMain } from './worker/event-sync';
+import { main as healthCheckMain } from './worker/health-check';
 import { main as marketSyncMain } from './worker/market-sync';
 
 const logger = createLogger('main');
@@ -22,6 +23,8 @@ const main = async () => {
         prms = borrowerSyncMain;
     } else if (cmd === "market-sync") {
         prms = marketSyncMain;
+    } else if (cmd === "health-check") {
+        prms = healthCheckMain;
     } else {
         throw new Error("Invalid command");
     }
