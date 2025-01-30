@@ -18,7 +18,7 @@ export type AccrueInterestParams = {
     lastAccruedBlockTime: number;
 }
 
-export type CollateralParams = CollateralParams_ & { liquidationLTV:number, decimals: number };
+export type CollateralParams = CollateralParams_ & { liquidationLTV: number, decimals: number };
 
 export type Collateral = Collateral_;
 
@@ -40,3 +40,18 @@ export type MarketState = {
 
 
 export type DbOpRs = 0 | 1 | 2;
+
+export type Borrower = {
+    address: string,
+    network: NetworkName,
+    lpShares: string,
+    checkFlag: 0 | 1
+}
+
+export type UserPosition = {
+    address: string,
+    borrowedAmount: string,
+    borrowedBlock: string,
+    debtShares: string,
+    collaterals: string[]
+}
