@@ -7,7 +7,7 @@ export const getDistinctCollateralList = async (dbClient: PoolClient): Promise<s
     return dbClient.query("SELECT collateral FROM user_collaterals GROUP BY collateral").then(r => r.rows.map(r => r.collateral));
 }
 
-export const getMarketState = async (dbClient: PoolClient, network: NetworkName): Promise<MarketState | null> => {
+export const getMarketState = async (dbClient: PoolClient, network: NetworkName): Promise<MarketState> => {
     const irParams = await getIrParamsLocal(dbClient, network);
     assert(irParams, 'irParams not found'); 
     const lpParams = await getLpParamsLocal(dbClient, network);

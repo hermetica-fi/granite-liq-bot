@@ -12,9 +12,6 @@ export const worker = async (dbClient: PoolClient) => {
   const borrowers = await getBorrowersForHealthCheck(dbClient);
   for (const borrower of borrowers) {
     const marketState = await getMarketState(dbClient, borrower.network as NetworkName);
-    if (!marketState) {
-      throw new Error("No market state found");
-    }
 
     if(borrower.debtShares === 0){
       await upsertBorrowerStatus(dbClient, borrower.address, null);
