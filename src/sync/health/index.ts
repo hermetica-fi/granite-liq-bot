@@ -4,17 +4,17 @@ import { pool } from "../../db";
 import type { NetworkName } from "../../types";
 import { getMarketState } from "../market/shared";
 import { calcBorrowerStatus } from "./lib";
-import { getBorrowerCollateralAmount, getBorrowersForHealthCheck, upsertBorrowerStatus } from "./shared";
+import { clearStatuses, getBorrowerCollateralAmount, getBorrowersForHealthCheck, insertBorrowerStatus } from "./shared";
 
 export const worker = async (dbClient: PoolClient) => {
   await dbClient.query("BEGIN");
+  await clearStatuses(dbClient);
   const borrowers = await getBorrowersForHealthCheck(dbClient);
   for (const borrower of borrowers) {
     const network = borrower.network as NetworkName
     const marketState = await getMarketState(dbClient, borrower.network as NetworkName);
 
-    if(borrower.debtShares === 0){
-      await upsertBorrowerStatus(dbClient, borrower.address, network, null);
+    if (borrower.debtShares === 0) {
       continue;
     }
 
@@ -30,7 +30,7 @@ export const worker = async (dbClient: PoolClient) => {
       collateralsDeposited
     }, marketState);
 
-    await upsertBorrowerStatus(dbClient, borrower.address, network, status);
+    await insertBorrowerStatus(dbClient, borrower.address, network, status);
   }
   await dbClient.query("COMMIT");
 };
