@@ -8,7 +8,7 @@ export const createDb = async (client: PoolClient) => {
         "expires INTEGER NOT NULL DEFAULT 0" +
         ");";
 
-    CREATE += "CREATE TABLE IF NOT EXISTS public.contracts(" +
+    CREATE += "CREATE TABLE IF NOT EXISTS public.contract(" +
         "id VARCHAR PRIMARY KEY NOT NULL," +
         "address VARCHAR NOT NULL," +
         "name VARCHAR NOT NULL," +
