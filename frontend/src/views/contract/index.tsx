@@ -1,7 +1,8 @@
+import { Box, Typography } from "@mui/material";
 import { RouteComponentProps, useParams } from "@reach/router";
-import { useContractsStore } from "../../store/contracts";
-import { Typography } from "@mui/material";
+import AppMenu from "../../components/app-menu";
 import useTranslation from "../../hooks/use-translation";
+import { useContractsStore } from "../../store/contracts";
 
 const ContractPage = (_: RouteComponentProps) => {
   const { contracts } = useContractsStore();
@@ -15,7 +16,12 @@ const ContractPage = (_: RouteComponentProps) => {
     return <Typography>{t("Not found")}</Typography>;
   }
 
-  return <div>Contract</div>;
+  return (
+    <>
+      <AppMenu />
+      <Box sx={{ ml: "12px", mr: "12px" }}>Contract</Box>
+    </>
+  );
 };
 
 export default ContractPage;
