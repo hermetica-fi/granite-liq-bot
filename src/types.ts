@@ -39,8 +39,6 @@ export type MarketState = {
 }
 
 
-export type DbOpRs = 0 | 1 | 2;
-
 export type Borrower = {
     address: string,
     network: NetworkName,
