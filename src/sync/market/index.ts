@@ -8,10 +8,9 @@ import { createLogger } from "../../logger";
 import type { CollateralParams, NetworkName, PriceFeed } from "../../types";
 import { epoch } from "../../util";
 import {
-    getDistinctCollateralList,
-    setAccrueInterestParamsLocal,
-    setCollateralParamsLocal, setDebtParamsLocal, setIrParamsLocal, setLpParamsLocal, setPriceFeedLocal
-} from "./shared";
+    getDistinctCollateralList, setAccrueInterestParamsLocal, setCollateralParamsLocal,
+    setDebtParamsLocal, setIrParamsLocal, setLpParamsLocal, setPriceFeedLocal
+} from "./lib";
 
 const logger = createLogger("market-sync");
 
