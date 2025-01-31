@@ -2,7 +2,7 @@ import type { PoolClient } from "pg";
 import { getUserCollateralAmount, getUserPosition } from "../../client/stacks";
 import { pool } from "../../db";
 import { createLogger } from "../../logger";
-import { getBorrowersToSync, syncBorrowerCollaterals, syncBorrowerPosition, updateBorrower } from "./lib";
+import { getBorrowersToSync, switchBorrowerSyncFlagOff, syncBorrowerCollaterals, syncBorrowerPosition } from "./lib";
 
 export const logger = createLogger("borrower-sync");
 
@@ -13,7 +13,7 @@ const worker = async (dbClient: PoolClient) => {
   for (const borrower of borrowers) {
 
     //  Turn off check flag
-    await updateBorrower(dbClient, borrower);
+    await switchBorrowerSyncFlagOff(dbClient, borrower.address);
 
     // Sync user position
     const userPosition = await getUserPosition(borrower.address, borrower.network);
