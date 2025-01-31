@@ -2,7 +2,7 @@ import type { PoolClient } from "pg";
 import type { BorrowerStatus, NetworkName } from "../../types";
 
 export const getBorrowersForHealthCheck = async (dbClient: PoolClient): Promise<{ address: string, network: string, debtShares: number, collaterals: string[] }[]> => {
-    return dbClient.query("SELECT b.address, b.network, u.debt_shares, u.collaterals FROM user_positions u LEFT OUTER JOIN borrowers b ON u.address=b.address").then(r => r.rows).then(rows => (
+    return dbClient.query("SELECT b.address, b.network, u.debt_shares, u.collaterals FROM borrower_positions u LEFT OUTER JOIN borrowers b ON u.address=b.address").then(r => r.rows).then(rows => (
         rows.map(row => ({
             address: row.address,
             network: row.network,
@@ -12,8 +12,8 @@ export const getBorrowersForHealthCheck = async (dbClient: PoolClient): Promise<
     ))
 }
 
-export const getUserCollateralAmount = async (dbClient: PoolClient, address: string, collateral: string): Promise<number | undefined> => {
-    return dbClient.query("SELECT amount FROM user_collaterals WHERE address=$1 AND collateral=$2", [address, collateral]).then(r => r.rows[0] ? Number(r.rows[0].amount) : undefined)
+export const getBorrowerCollateralAmount = async (dbClient: PoolClient, address: string, collateral: string): Promise<number | undefined> => {
+    return dbClient.query("SELECT amount FROM borrower_collaterals WHERE address=$1 AND collateral=$2", [address, collateral]).then(r => r.rows[0] ? Number(r.rows[0].amount) : undefined)
 }
 
 export const upsertBorrowerStatus = async (dbClient: PoolClient, address: string, network: NetworkName, status: BorrowerStatus | null) => {

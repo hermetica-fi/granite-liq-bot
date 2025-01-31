@@ -35,7 +35,7 @@ export const createDb = async (client: PoolClient) => {
         "liquidate_amt NUMERIC NOT NULL" +
         ");";
 
-    CREATE += "CREATE TABLE IF NOT EXISTS public.user_positions(" +
+    CREATE += "CREATE TABLE IF NOT EXISTS public.borrower_positions(" +
         "address VARCHAR PRIMARY KEY REFERENCES borrowers(address) ON DELETE RESTRICT," +
         "borrowed_amount NUMERIC NOT NULL," +
         "borrowed_block NUMERIC NOT NULL," +
@@ -43,13 +43,13 @@ export const createDb = async (client: PoolClient) => {
         "collaterals VARCHAR[] NOT NULL" +
         ");";
 
-    CREATE += "CREATE TABLE IF NOT EXISTS public.user_collaterals(" +
+    CREATE += "CREATE TABLE IF NOT EXISTS public.borrower_collaterals(" +
         "address VARCHAR NOT NULL REFERENCES borrowers(address) ON DELETE RESTRICT," +
         "collateral VARCHAR NOT NULL," +
         "amount NUMERIC NOT NULL" +
         ");";
 
-    CREATE += "CREATE UNIQUE INDEX IF NOT EXISTS user_collateral_address_idx ON user_collaterals (address, collateral);";
+    CREATE += "CREATE UNIQUE INDEX IF NOT EXISTS borrower_collateral_address_idx ON borrower_collaterals (address, collateral);";
 
     /*
     CREATE += "CREATE TABLE IF NOT EXISTS public.transactions(" +

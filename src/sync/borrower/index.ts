@@ -2,7 +2,7 @@ import type { PoolClient } from "pg";
 import { getUserCollateralAmount, getUserLpShares, getUserPosition } from "../../client/stacks";
 import { pool } from "../../db";
 import { createLogger } from "../../logger";
-import { getBorrowersToSync, syncUserCollaterals, syncUserPosition, updateBorrower } from "./shared";
+import { getBorrowersToSync, syncBorrowerCollaterals, syncBorrowerPosition, updateBorrower } from "./shared";
 
 export const logger = createLogger("borrower-sync");
 
@@ -18,7 +18,7 @@ const worker = async (dbClient: PoolClient) => {
 
     // Sync user position
     const userPosition = await getUserPosition(borrower.address, borrower.network);
-    await syncUserPosition(dbClient, { address: borrower.address, ...userPosition });
+    await syncBorrowerPosition(dbClient, { address: borrower.address, ...userPosition });
 
     // Sync user collaterals
     const collaterals = [];
@@ -26,7 +26,7 @@ const worker = async (dbClient: PoolClient) => {
       const amount = await getUserCollateralAmount(borrower.address, col, borrower.network);
       collaterals.push({ collateral: col, amount });
     }
-    await syncUserCollaterals(dbClient, borrower.address, collaterals);
+    await syncBorrowerCollaterals(dbClient, borrower.address, collaterals);
 
     logger.info(`Synced borrower ${borrower.address}`);
   }

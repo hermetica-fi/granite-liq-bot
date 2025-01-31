@@ -4,7 +4,7 @@ import { kvStoreGet, kvStoreSet } from "../../db/helper";
 import type { AccrueInterestParams, CollateralParams, DebtParams, InterestRateParams, LpParams, MarketState, NetworkName, PriceFeed } from "../../types";
 
 export const getDistinctCollateralList = async (dbClient: PoolClient): Promise<string[]> => {
-    return dbClient.query("SELECT collateral FROM user_collaterals GROUP BY collateral").then(r => r.rows.map(r => r.collateral));
+    return dbClient.query("SELECT collateral FROM borrower_collaterals GROUP BY collateral").then(r => r.rows.map(r => r.collateral));
 }
 
 export const getMarketState = async (dbClient: PoolClient, network: NetworkName): Promise<MarketState> => {

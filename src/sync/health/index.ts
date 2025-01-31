@@ -4,7 +4,7 @@ import { pool } from "../../db";
 import type { NetworkName } from "../../types";
 import { getMarketState } from "../market/shared";
 import { calcBorrowerStatus } from "./lib";
-import { getBorrowersForHealthCheck, getUserCollateralAmount, upsertBorrowerStatus } from "./shared";
+import { getBorrowerCollateralAmount, getBorrowersForHealthCheck, upsertBorrowerStatus } from "./shared";
 
 export const worker = async (dbClient: PoolClient) => {
   await dbClient.query("BEGIN");
@@ -20,7 +20,7 @@ export const worker = async (dbClient: PoolClient) => {
 
     const collateralsDeposited: Record<string, number> = {}
     for (const collateral of borrower.collaterals) {
-      const amount = await getUserCollateralAmount(dbClient, borrower.address, collateral);
+      const amount = await getBorrowerCollateralAmount(dbClient, borrower.address, collateral);
       assert(amount !== undefined, "User collateral amount is undefined");
       collateralsDeposited[collateral] = amount;
     }
