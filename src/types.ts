@@ -48,7 +48,6 @@ export type BorrowerEntity = {
 export type BorrowerPositionEntity = {
     address: string,
     network: NetworkName,
-    borrowedAmount: number,
     borrowedBlock: number,
     debtShares: number,
     collaterals: string[]

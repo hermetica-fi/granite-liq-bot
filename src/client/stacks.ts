@@ -101,7 +101,7 @@ export const getCollateralParams = async (collateral: string, network: NetworkNa
   })
 };
 
-export const getUserPosition = async (address: string, network: NetworkName): Promise<Pick<BorrowerPositionEntity, 'borrowedAmount' | 'borrowedBlock' | 'debtShares' | 'collaterals'>> => {
+export const getUserPosition = async (address: string, network: NetworkName): Promise<Pick<BorrowerPositionEntity,  'borrowedBlock' | 'debtShares' | 'collaterals'>> => {
   const [contractAddress, contractName] = CONTRACTS[network].state.split(".");
   return callReadOnly({
     contractAddress,
@@ -117,7 +117,7 @@ export const getUserPosition = async (address: string, network: NetworkName): Pr
 
     if (json.value === null) {
       return {
-        borrowedAmount: 0,
+  
         borrowedBlock: 0,
         debtShares: 0,
         collaterals: []
@@ -125,7 +125,6 @@ export const getUserPosition = async (address: string, network: NetworkName): Pr
     };
 
     return {
-      borrowedAmount: Number(json.value.value["borrowed-amount"].value),
       borrowedBlock: Number(json.value.value["borrowed-block"].value),
       debtShares: Number(json.value.value["debt-shares"].value),
       collaterals: json.value.value.collaterals.value.map((c: any) => c.value)
