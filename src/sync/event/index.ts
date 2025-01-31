@@ -10,7 +10,7 @@ import { createLogger } from "../../logger";
 import type { NetworkName } from "../../types";
 import { upsertBorrower } from "./lib";
 
-const logger = createLogger("event-tracker");
+const logger = createLogger("event-sync");
 
 const TRACKED_CONTRACTS = [
   CONTRACTS.mainnet.borrower,
