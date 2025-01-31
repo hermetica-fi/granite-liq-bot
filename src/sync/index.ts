@@ -8,7 +8,6 @@ const BASE_DELAY = 10_000;
 
 export const main = async () => {
     while (true) {
-        console.log("Syncing...")
         const start = Date.now();
         await eventSync();
         await borrowerSync();
@@ -17,7 +16,6 @@ export const main = async () => {
         const end = Date.now();
         const delay = BASE_DELAY - (end - start);
         if(delay > 0){
-            console.log(`Sleeping for ${delay}ms`)
             await sleep(delay)
         }
     }

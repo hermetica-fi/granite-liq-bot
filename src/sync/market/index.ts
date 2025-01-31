@@ -43,28 +43,28 @@ const syncMarketState = async (dbClient: PoolClient) => {
         if (lastSyncTs[network].irParams < now - 60) {
             const val = await getIrParams(network);
             await setIrParamsLocal(dbClient, network, val);
-            logger.info(`setIrParamsLocal: ${network} ${JSON.stringify(val)}`);
+            // logger.info(`setIrParamsLocal: ${network} ${JSON.stringify(val)}`);
             lastSyncTs[network].irParams = now;
         }
 
         if (lastSyncTs[network].lpParams < now - 60) {
             const val = await getLpParams(network);
             await setLpParamsLocal(dbClient, network, val);
-            logger.info(`setLpParamsLocal: ${network} ${JSON.stringify(val)}`);
+            //logger.info(`setLpParamsLocal: ${network} ${JSON.stringify(val)}`);
             lastSyncTs[network].lpParams = now;
         }
 
         if (lastSyncTs[network].accrueInterestParams < now - 60) {
             const val = await getAccrueInterestParams(network);
             await setAccrueInterestParamsLocal(dbClient, network, val);
-            logger.info(`setAccrueInterestParamsLocal: ${network} ${JSON.stringify(val)}`);
+            // logger.info(`setAccrueInterestParamsLocal: ${network} ${JSON.stringify(val)}`);
             lastSyncTs[network].accrueInterestParams = now;
         }
 
         if (lastSyncTs[network].debtParams < now - 60) {
             const val = await getDebtParams(network);
             await setDebtParamsLocal(dbClient, network, val);
-            logger.info(`setDebtParamsLocal: ${network} ${JSON.stringify(val)}`);
+            // logger.info(`setDebtParamsLocal: ${network} ${JSON.stringify(val)}`);
             lastSyncTs[network].debtParams = now;
         }
 
@@ -75,7 +75,7 @@ const syncMarketState = async (dbClient: PoolClient) => {
                 collateralParams[collateral] = await getCollateralParams(collateral, network);
             }
             await setCollateralParamsLocal(dbClient, network, collateralParams);
-            logger.info(`setCollateralParamsLocal: ${network} ${JSON.stringify(collateralParams)}`);
+            // logger.info(`setCollateralParamsLocal: ${network} ${JSON.stringify(collateralParams)}`);
             lastSyncTs[network].collateralParams = now;
         }
     }
@@ -89,7 +89,7 @@ const syncMarketState = async (dbClient: PoolClient) => {
     await setPriceFeedLocal(dbClient, priceFeed);
     await dbClient.query("COMMIT");
 
-    logger.info(`setPriceFeedLocal: ${JSON.stringify(priceFeed)}`);
+    // logger.info(`setPriceFeedLocal: ${JSON.stringify(priceFeed)}`);
 }
 
 export const main = async () => {
