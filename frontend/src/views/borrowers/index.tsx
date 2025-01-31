@@ -69,7 +69,7 @@ const BorrowersPage = (_: RouteComponentProps) => {
                   <TableCell align="right">{row.collateral}</TableCell>
                   <TableCell align="right">{row.debt}</TableCell>
                   <TableCell align="right">{(row.risk * 100).toFixed(2)}%</TableCell>
-                  <TableCell align="right">{row.liquidateAmt}</TableCell>
+                  <TableCell align="right">{row.liquidateAmt.toFixed(2)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

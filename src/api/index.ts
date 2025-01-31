@@ -110,11 +110,11 @@ const getBorrowers = async (req: Request, url: URL) => {
         .then(r => r.rows).then(rows => rows.map(row => ({
             address: row.address,
             network: row.network,
-            health: row.health,
-            debt: row.debt,
-            collateral: row.collateral,
-            risk: row.risk,
-            liquidateAmt: row.liquidate_amt,
+            health: Number(row.health),
+            debt: Number(row.debt),
+            collateral: Number(row.collateral),
+            risk: Number(row.risk),
+            liquidateAmt: Number(row.liquidate_amt),
         })));
     dbClient.release();
     return Response.json(borrowers);
