@@ -39,28 +39,28 @@ const syncMarketState = async (dbClient: PoolClient) => {
     for (const network of ["mainnet", "testnet"] as NetworkName[]) {
         const now = epoch();
 
-        if (lastSyncTs[network].irParams < now - 60) {
+        if (lastSyncTs[network].irParams < now - 600) {
             const val = await getIrParams(network);
             await setIrParamsLocal(dbClient, network, val);
             // logger.info(`setIrParamsLocal: ${network} ${JSON.stringify(val)}`);
             lastSyncTs[network].irParams = now;
         }
 
-        if (lastSyncTs[network].lpParams < now - 60) {
+        if (lastSyncTs[network].lpParams < now - 30) {
             const val = await getLpParams(network);
             await setLpParamsLocal(dbClient, network, val);
             //logger.info(`setLpParamsLocal: ${network} ${JSON.stringify(val)}`);
             lastSyncTs[network].lpParams = now;
         }
 
-        if (lastSyncTs[network].accrueInterestParams < now - 60) {
+        if (lastSyncTs[network].accrueInterestParams < now - 600) {
             const val = await getAccrueInterestParams(network);
             await setAccrueInterestParamsLocal(dbClient, network, val);
             // logger.info(`setAccrueInterestParamsLocal: ${network} ${JSON.stringify(val)}`);
             lastSyncTs[network].accrueInterestParams = now;
         }
 
-        if (lastSyncTs[network].debtParams < now - 60) {
+        if (lastSyncTs[network].debtParams < now - 30) {
             const val = await getDebtParams(network);
             await setDebtParamsLocal(dbClient, network, val);
             // logger.info(`setDebtParamsLocal: ${network} ${JSON.stringify(val)}`);
