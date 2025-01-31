@@ -2,8 +2,8 @@ import {
     calculateAccountHealth, calculateAccountLiqLTV, calculateAccountMaxLTV,
     calculateLiquidationPoint, calculateTotalCollateralValue, convertDebtSharesToAssets
 } from "granite-math-sdk";
-import { IR_PARAMS_SCALING_FACTOR } from "../../constants";
-import type { BorrowerStatus, InterestRateParams, MarketState, PriceFeed } from "../../types";
+import { IR_PARAMS_SCALING_FACTOR } from "./constants";
+import type { BorrowerStatus, InterestRateParams, MarketState, PriceFeed } from "./types";
 
 
 const getCollateralPrice = (collateral: string, priceFeed: PriceFeed): number => {
