@@ -106,7 +106,7 @@ const addContract = async (req: Request) => {
 const getBorrowers = async (req: Request, url: URL) => {
     const network = url.searchParams.get('network') || 'mainnet';
     const dbClient = await pool.connect();
-    const borrowers = await dbClient.query('SELECT * FROM borrower_status WHERE network = $1', [network])
+    const borrowers = await dbClient.query('SELECT * FROM borrower_status WHERE network = $1 ORDER BY liquidate_amt DESC, risk DESC', [network])
         .then(r => r.rows).then(rows => rows.map(row => ({
             address: row.address,
             network: row.network,
