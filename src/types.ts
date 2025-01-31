@@ -48,7 +48,7 @@ export type Borrower = {
     checkFlag: 0 | 1
 }
 
-export type UserPosition = {
+export type BorrowerPosition = {
     address: string,
     borrowedAmount: number,
     borrowedBlock: number,
@@ -56,7 +56,7 @@ export type UserPosition = {
     collaterals: string[]
 }
 
-export type UserCollateral = {
+export type BorrowerCollateral = {
     id: number,
     address: string,
     collateral: string,

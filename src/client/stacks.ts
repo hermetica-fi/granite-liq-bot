@@ -1,6 +1,6 @@
 import { contractPrincipalCV, cvToJSON, principalCV } from "@stacks/transactions";
 import { CONTRACTS } from "../constants";
-import type { AccrueInterestParams, CollateralParams, DebtParams, InterestRateParams, LpParams, NetworkName, UserPosition } from "../types";
+import type { AccrueInterestParams, BorrowerPosition, CollateralParams, DebtParams, InterestRateParams, LpParams, NetworkName } from "../types";
 import { callReadOnly } from "./hiro";
 
 
@@ -101,7 +101,7 @@ export const getCollateralParams = async (collateral: string, network: NetworkNa
   })
 };
 
-export const getUserPosition = async (address: string, network: NetworkName): Promise<Pick<UserPosition, 'borrowedAmount' | 'borrowedBlock' | 'debtShares' | 'collaterals'>> => {
+export const getUserPosition = async (address: string, network: NetworkName): Promise<Pick<BorrowerPosition, 'borrowedAmount' | 'borrowedBlock' | 'debtShares' | 'collaterals'>> => {
   const [contractAddress, contractName] = CONTRACTS[network].state.split(".");
   return callReadOnly({
     contractAddress,

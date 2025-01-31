@@ -1,5 +1,5 @@
 import type { PoolClient } from "pg";
-import type { Borrower, UserCollateral, UserPosition } from "../../types";
+import type { Borrower, BorrowerCollateral, BorrowerPosition } from "../../types";
 
 type PartialBorrower = Pick<Borrower, 'address' | 'network'>;
 
@@ -11,15 +11,15 @@ export const updateBorrower = async (dbClient: PoolClient, borrower: PartialBorr
     return dbClient.query("UPDATE borrower SET lp_shares = $1, sync_flag = 0 WHERE address = $2", [lpShares, borrower.address]);
 }
 
-export const syncBorrowerPosition = async (dbClient: PoolClient, userPosition: UserPosition): Promise<any> => {
+export const syncBorrowerPosition = async (dbClient: PoolClient, userPosition: BorrowerPosition): Promise<any> => {
     await dbClient.query("DELETE FROM borrower_position WHERE address = $1 ", [userPosition.address]);
     return dbClient.query("INSERT INTO borrower_position (address, borrowed_amount, borrowed_block, debt_shares, collaterals) VALUES ($1, $2, $3, $4, $5)",
         [userPosition.address, userPosition.borrowedAmount, userPosition.borrowedBlock, userPosition.debtShares, userPosition.collaterals]);
 }
 
-type PartialUserCollateral = Pick<UserCollateral, 'collateral' | 'amount'>;
+type PartialBorrowerCollateral = Pick<BorrowerCollateral, 'collateral' | 'amount'>;
 
-export const syncBorrowerCollaterals = async (dbClient: PoolClient, address: string, userCollaterals: PartialUserCollateral[]): Promise<any> => {
+export const syncBorrowerCollaterals = async (dbClient: PoolClient, address: string, userCollaterals: PartialBorrowerCollateral[]): Promise<any> => {
     await dbClient.query("DELETE FROM borrower_collaterals WHERE address = $1", [address]);
 
     for (const userCollateral of userCollaterals) {
