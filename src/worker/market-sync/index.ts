@@ -7,7 +7,6 @@ import { pool } from "../../db";
 import { getNetworkNameFromAddress } from "../../helper";
 import { createLogger } from "../../logger";
 import type { CollateralParams, NetworkName, PriceFeed } from "../../types";
-import { epoch } from "../../util";
 import {
     getAccrueInterestParamsLocal, getCollateralParamsLocal, getDebtParamsLocal,
     getDistinctCollateralList, getIrParamsLocal, getLpParamsLocal, setAccrueInterestParamsLocal,
@@ -23,25 +22,25 @@ const syncMarketState = async (dbClient: PoolClient) => {
 
         if (!await getIrParamsLocal(dbClient, network)) {
             const val = await getIrParams(network);
-            await setIrParamsLocal(dbClient, network, val, epoch() + 60);
+            await setIrParamsLocal(dbClient, network, val);
             logger.info(`setIrParamsLocal: ${network} ${JSON.stringify(val)}`);
         }
 
         if (!await getLpParamsLocal(dbClient, network)) {
             const val = await getLpParams(network);
-            await setLpParamsLocal(dbClient, network, val, epoch() + 60);
+            await setLpParamsLocal(dbClient, network, val);
             logger.info(`setLpParamsLocal: ${network} ${JSON.stringify(val)}`);
         }
 
         if (!await getAccrueInterestParamsLocal(dbClient, network)) {
             const val = await getAccrueInterestParams(network);
-            await setAccrueInterestParamsLocal(dbClient, network, val, epoch() + 60);
+            await setAccrueInterestParamsLocal(dbClient, network, val);
             logger.info(`setAccrueInterestParamsLocal: ${network} ${JSON.stringify(val)}`);
         }
 
         if (!await getDebtParamsLocal(dbClient, network)) {
             const val = await getDebtParams(network);
-            await setDebtParamsLocal(dbClient, network, val, epoch() + 60);
+            await setDebtParamsLocal(dbClient, network, val);
             logger.info(`setDebtParamsLocal: ${network} ${JSON.stringify(val)}`);
         }
 
@@ -50,7 +49,7 @@ const syncMarketState = async (dbClient: PoolClient) => {
             for (const collateral of collaterals.filter(c => getNetworkNameFromAddress(c) === network)) {
                 collateralParams[collateral] = await getCollateralParams(collateral, network);
             }
-            await setCollateralParamsLocal(dbClient, network, collateralParams, epoch() + 60);
+            await setCollateralParamsLocal(dbClient, network, collateralParams);
             logger.info(`setCollateralParamsLocal: ${network} ${JSON.stringify(collateralParams)}`);
         }
     }
@@ -61,7 +60,7 @@ const syncMarketState = async (dbClient: PoolClient) => {
         usdc: await getPriceFeed(PRICE_FEED_IDS.usdc),
     }
 
-    await setPriceFeedLocal(dbClient, priceFeed, epoch() + 10);
+    await setPriceFeedLocal(dbClient, priceFeed);
     logger.info(`setPriceFeedLocal: ${JSON.stringify(priceFeed)}`);
 }
 
