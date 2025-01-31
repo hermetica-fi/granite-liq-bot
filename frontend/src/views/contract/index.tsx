@@ -18,7 +18,7 @@ const ContractPage = (_: RouteComponentProps) => {
 
   return (
     <>
-      <AppMenu />
+      <AppMenu network={contract.network} />
       <Box sx={{ ml: "12px", mr: "12px" }}>Contract</Box>
     </>
   );

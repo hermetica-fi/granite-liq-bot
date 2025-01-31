@@ -1,8 +1,10 @@
 import { Box, Typography, useTheme } from "@mui/material";
 import { useNavigate } from "@reach/router";
+import { StacksNetworkName } from "@stacks/network";
 import { useCallback } from "react";
 
-const AppMenu = () => {
+const AppMenu = ({ network }: { network?: StacksNetworkName  }) => {
+  console.log(network)
   const theme = useTheme();
   const navigate = useNavigate();
 
@@ -47,8 +49,8 @@ const AppMenu = () => {
           "&:hover": { color: theme.palette.primary.main },
         }}
         onClick={useCallback(() => {
-            navigate("/");
-          }, [navigate])}
+            navigate(`/borrowers/${network}`);
+          }, [navigate, network])}
       >
         Borrowers
       </Typography>
