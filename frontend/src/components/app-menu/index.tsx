@@ -49,8 +49,8 @@ const AppMenu = ({ network }: { network?: StacksNetworkName  }) => {
           "&:hover": { color: theme.palette.primary.main },
         }}
         onClick={useCallback(() => {
-            navigate(`/borrowers/${network}`);
-          }, [navigate, network])}
+          navigate(network ? `/borrowers/${network}` : "/borrowers");
+        }, [navigate, network])}
       >
         Borrowers
       </Typography>
