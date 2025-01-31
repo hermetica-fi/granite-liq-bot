@@ -49,6 +49,7 @@ export type Borrower = {
 
 export type BorrowerPosition = {
     address: string,
+    network: NetworkName,
     borrowedAmount: number,
     borrowedBlock: number,
     debtShares: number,

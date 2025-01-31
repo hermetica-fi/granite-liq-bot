@@ -17,7 +17,7 @@ const worker = async (dbClient: PoolClient) => {
 
     // Sync user position
     const userPosition = await getUserPosition(borrower.address, borrower.network);
-    await syncBorrowerPosition(dbClient, { address: borrower.address, ...userPosition });
+    await syncBorrowerPosition(dbClient, { address: borrower.address, network: borrower.network, ...userPosition });
 
     // Sync user collaterals
     const collaterals = [];
