@@ -133,22 +133,6 @@ export const getUserPosition = async (address: string, network: NetworkName): Pr
   })
 }
 
-export const getUserLpShares = async (address: string, network: NetworkName) => {
-  const [contractAddress, contractName] = CONTRACTS[network].state.split(".");
-  return callReadOnly({
-    contractAddress,
-    contractName,
-    functionName: "get-balance",
-    functionArgs: [
-      principalCV(address),
-    ],
-    senderAddress: address,
-    network
-  }).then(r => {
-    return Number(cvToJSON(r).value.value);
-  })
-}
-
 export const getUserCollateralAmount = async (address: string, collateral: string, network: NetworkName): Promise<number> => {
   const [contractAddress, contractName] = CONTRACTS[network].state.split(".");
   return callReadOnly({

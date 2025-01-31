@@ -44,7 +44,6 @@ export type DbOpRs = 0 | 1 | 2;
 export type Borrower = {
     address: string,
     network: NetworkName,
-    lpShares: string,
     checkFlag: 0 | 1
 }
 

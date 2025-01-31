@@ -7,8 +7,8 @@ export const getBorrowersToSync = async (dbClient: PoolClient): Promise<PartialB
     return dbClient.query("SELECT address, network FROM borrower WHERE sync_flag = 1").then(r => r.rows);
 }
 
-export const updateBorrower = async (dbClient: PoolClient, borrower: PartialBorrower, lpShares: number): Promise<any> => {
-    return dbClient.query("UPDATE borrower SET lp_shares = $1, sync_flag = 0 WHERE address = $2", [lpShares, borrower.address]);
+export const updateBorrower = async (dbClient: PoolClient, borrower: PartialBorrower): Promise<any> => {
+    return dbClient.query("UPDATE borrower SET sync_flag = 0 WHERE address = $1", [borrower.address]);
 }
 
 export const syncBorrowerPosition = async (dbClient: PoolClient, userPosition: BorrowerPosition): Promise<any> => {

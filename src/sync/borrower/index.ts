@@ -1,5 +1,5 @@
 import type { PoolClient } from "pg";
-import { getUserCollateralAmount, getUserLpShares, getUserPosition } from "../../client/stacks";
+import { getUserCollateralAmount, getUserPosition } from "../../client/stacks";
 import { pool } from "../../db";
 import { createLogger } from "../../logger";
 import { getBorrowersToSync, syncBorrowerCollaterals, syncBorrowerPosition, updateBorrower } from "./shared";
@@ -11,10 +11,9 @@ const worker = async (dbClient: PoolClient) => {
 
   const borrowers = await getBorrowersToSync(dbClient);
   for (const borrower of borrowers) {
-    const lpShares = await getUserLpShares(borrower.address, borrower.network);
 
-    // Sync lp shares and turn off check flag
-    await updateBorrower(dbClient, borrower, lpShares);
+    //  Turn off check flag
+    await updateBorrower(dbClient, borrower);
 
     // Sync user position
     const userPosition = await getUserPosition(borrower.address, borrower.network);
