@@ -71,4 +71,4 @@ describe("health sync lib", () => {
         const resp = await client.query("SELECT * FROM borrower_status").then((r: any) => r.rows);
         expect(resp).toEqual([]);
     });
-})
+});
