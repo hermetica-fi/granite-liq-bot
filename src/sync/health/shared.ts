@@ -2,7 +2,7 @@ import {
     calculateAccountHealth, calculateAccountLiqLTV, calculateAccountMaxLTV,
     calculateLiquidationPoint, calculateTotalCollateralValue, convertDebtSharesToAssets
 } from "granite-math-sdk";
-import { IR_PARAMS_SCALING_FACTOR, SCALING_FACTOR } from "../../constants";
+import { IR_PARAMS_SCALING_FACTOR } from "../../constants";
 import type { BorrowerStatus, InterestRateParams, MarketState, PriceFeed } from "../../types";
 
 
@@ -35,10 +35,10 @@ export const calcBorrowerStatus = (borrower: {
     };
 
     const now = Date.now();
-    const debtShares = borrower.debtShares / 10 ** SCALING_FACTOR;
-    const openInterest = marketState.debtParams.openInterest / 10 ** SCALING_FACTOR;
-    const totalDebtShares = marketState.debtParams.totalDebtShares / 10 ** SCALING_FACTOR;
-    const totalAssets = marketState.lpParams.totalAssets / 10 ** SCALING_FACTOR;
+    const debtShares = borrower.debtShares / 10 ** marketState.marketAssetParams.decimals;
+    const openInterest = marketState.debtParams.openInterest / 10 ** marketState.marketAssetParams.decimals;
+    const totalDebtShares = marketState.debtParams.totalDebtShares / 10 ** marketState.marketAssetParams.decimals;
+    const totalAssets = marketState.lpParams.totalAssets / 10 ** marketState.marketAssetParams.decimals;
     const timeDelta = Math.ceil(now / 1000) - marketState.accrueInterestParams.lastAccruedBlockTime;
 
     const debtAssets = convertDebtSharesToAssets(

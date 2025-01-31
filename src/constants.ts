@@ -1,6 +1,11 @@
 
-export const SCALING_FACTOR = 8;
+
 export const IR_PARAMS_SCALING_FACTOR = 12;
+
+export const MARKET_ASSET_DECIMAL = {
+    "mainnet": 6,
+    "testnet": 8
+}
 
 export const CONTRACTS = {
     "mainnet": {

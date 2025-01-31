@@ -1,5 +1,6 @@
 import assert from "assert";
 import type { PoolClient } from "pg";
+import { MARKET_ASSET_DECIMAL } from "../constants";
 import { kvStoreGet, kvStoreSet } from "../db/helper";
 import type {
     AccrueInterestParams, BorrowerCollateralEntity, BorrowerEntity,
@@ -151,7 +152,10 @@ export const getMarketState = async (dbClient: PoolClient, network: NetworkName)
         accrueInterestParams,
         debtParams,
         collateralParams,
-        priceFeed   
+        priceFeed,
+        marketAssetParams: {
+            decimals: MARKET_ASSET_DECIMAL[network],
+        }   
     }
 }
 

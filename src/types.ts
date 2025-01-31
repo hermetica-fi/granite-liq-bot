@@ -22,6 +22,9 @@ export type CollateralParams = CollateralParams_ & { liquidationLTV: number, dec
 
 export type Collateral = Collateral_;
 
+export type MarketAssetParams = {
+    decimals: number;
+}
 
 export type PriceFeed = {
     btc: number;
@@ -36,6 +39,7 @@ export type MarketState = {
     debtParams: DebtParams;
     priceFeed: PriceFeed;
     collateralParams: Record<string, CollateralParams>;
+    marketAssetParams: MarketAssetParams;
 }
 
 

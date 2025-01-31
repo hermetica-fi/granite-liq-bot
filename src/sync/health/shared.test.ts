@@ -39,6 +39,9 @@ test("calcBorrowerStatus 1", () => {
             eth: 326603000000,
             usdc: 100005237,
         },
+        marketAssetParams: {
+            decimals: 8
+        }
     };
 
     const borrower = {
@@ -96,6 +99,9 @@ test("calcBorrowerStatus 2", () => {
             eth: 327439303121,
             usdc: 100003543,
         },
+        marketAssetParams: {
+            decimals: 8
+        }
     }
 
     const borrower = {

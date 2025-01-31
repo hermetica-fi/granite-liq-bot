@@ -379,6 +379,9 @@ describe("sync db helper", () => {
                 eth: 10000,
                 usdc: 1000,
             },
+            marketAssetParams: {
+                decimals: 6
+            }
         });
     });
 });
