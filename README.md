@@ -1,4 +1,4 @@
-# granite-liq-bot
+# Granite Liquidation Bot
 
 To install dependencies:
 
