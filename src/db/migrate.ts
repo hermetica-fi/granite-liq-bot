@@ -28,7 +28,6 @@ export const createDb = async (client: PoolClient) => {
     CREATE += "CREATE TABLE IF NOT EXISTS public.borrower_position(" +
         "address VARCHAR PRIMARY KEY REFERENCES borrower(address) ON DELETE RESTRICT," +
         "network VARCHAR NOT NULL," +
-        "borrowed_block NUMERIC NOT NULL," +
         "debt_shares NUMERIC NOT NULL," +
         "collaterals VARCHAR[] NOT NULL" +
         ");";
