@@ -39,7 +39,7 @@ const processEvents = async (dbClient: PoolClient, network: NetworkName, event: 
       logger.info(`New borrower ${user}`);
     }
     else if (r === 2) {
-      logger.info(`Borrower ${user} check flag activated`);
+      logger.info(`Borrower ${user} check sync activated`);
     }
   }
 }
