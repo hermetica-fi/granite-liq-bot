@@ -8,7 +8,7 @@ import { kvStoreGet, kvStoreSet } from "../../db/helper";
 import { getNetworkNameFromAddress } from "../../helper";
 import { createLogger } from "../../logger";
 import type { NetworkName } from "../../types";
-import { upsertBorrower } from "./shared";
+import { upsertBorrower } from "./lib";
 
 const logger = createLogger("event-tracker");
 
