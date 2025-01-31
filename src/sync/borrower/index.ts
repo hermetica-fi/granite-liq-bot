@@ -23,7 +23,7 @@ const worker = async (dbClient: PoolClient) => {
     const collaterals = [];
     for (const col of userPosition.collaterals) {
       const amount = await getUserCollateralAmount(borrower.address, col, borrower.network);
-      collaterals.push({ collateral: col, amount });
+      collaterals.push({ collateral: col, amount, network: borrower.network });
     }
     await syncBorrowerCollaterals(dbClient, borrower.address, collaterals);
 

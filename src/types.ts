@@ -59,6 +59,7 @@ export type BorrowerPosition = {
 export type BorrowerCollateral = {
     id: number,
     address: string,
+    network: NetworkName,
     collateral: string,
     amount: number
 }

@@ -17,12 +17,13 @@ export const syncBorrowerPosition = async (dbClient: PoolClient, userPosition: B
         [userPosition.address, userPosition.network, userPosition.borrowedAmount, userPosition.borrowedBlock, userPosition.debtShares, userPosition.collaterals]);
 }
 
-type PartialBorrowerCollateral = Pick<BorrowerCollateral, 'collateral' | 'amount'>;
+type PartialBorrowerCollateral = Omit<BorrowerCollateral, 'id' | 'address'>;
 
-export const syncBorrowerCollaterals = async (dbClient: PoolClient, address: string, userCollaterals: PartialBorrowerCollateral[]): Promise<any> => {
+export const syncBorrowerCollaterals = async (dbClient: PoolClient, address: string, collaterals: PartialBorrowerCollateral[]): Promise<any> => {
     await dbClient.query("DELETE FROM borrower_collaterals WHERE address = $1", [address]);
 
-    for (const userCollateral of userCollaterals) {
-        await dbClient.query("INSERT INTO borrower_collaterals (address, collateral, amount) VALUES ($1, $2, $3)", [address, userCollateral.collateral, userCollateral.amount]);
+    for (const collateral of collaterals) {
+        await dbClient.query("INSERT INTO borrower_collaterals (address, network, collateral, amount) VALUES ($1, $2, $3, $4)", 
+            [address, collateral.network, collateral.collateral, collateral.amount]);
     }
 }
