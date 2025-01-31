@@ -16,51 +16,59 @@ import {
 const logger = createLogger("market-sync");
 
 const lastSyncTs = {
-    irParams: 0,
-    lpParams: 0,
-    accrueInterestParams: 0,
-    debtParams: 0,
-    collateralParams: 0,
-    priceFeed: 0,
+    "mainnet": {
+        irParams: 0,
+        lpParams: 0,
+        accrueInterestParams: 0,
+        debtParams: 0,
+        collateralParams: 0,
+        priceFeed: 0,
+    },
+    "testnet": {
+        irParams: 0,
+        lpParams: 0,
+        accrueInterestParams: 0,
+        debtParams: 0,
+        collateralParams: 0,
+        priceFeed: 0,
+    }
 }
 
 const syncMarketState = async (dbClient: PoolClient) => {
     await dbClient.query("BEGIN");
-  
 
     for (const network of ["mainnet", "testnet"] as NetworkName[]) {
-
         const now = epoch();
 
-        if (lastSyncTs.irParams < now - 60) {
+        if (lastSyncTs[network].irParams < now - 60) {
             const val = await getIrParams(network);
             await setIrParamsLocal(dbClient, network, val);
             logger.info(`setIrParamsLocal: ${network} ${JSON.stringify(val)}`);
-            lastSyncTs.irParams = now;
+            lastSyncTs[network].irParams = now;
         }
-            
-        if (lastSyncTs.lpParams < now - 60) {
+
+        if (lastSyncTs[network].lpParams < now - 60) {
             const val = await getLpParams(network);
             await setLpParamsLocal(dbClient, network, val);
             logger.info(`setLpParamsLocal: ${network} ${JSON.stringify(val)}`);
-            lastSyncTs.lpParams = now;
+            lastSyncTs[network].lpParams = now;
         }
 
-        if (lastSyncTs.accrueInterestParams < now - 60) {
+        if (lastSyncTs[network].accrueInterestParams < now - 60) {
             const val = await getAccrueInterestParams(network);
             await setAccrueInterestParamsLocal(dbClient, network, val);
             logger.info(`setAccrueInterestParamsLocal: ${network} ${JSON.stringify(val)}`);
-            lastSyncTs.accrueInterestParams = now;
+            lastSyncTs[network].accrueInterestParams = now;
         }
 
-        if (lastSyncTs.debtParams < now - 60) {
+        if (lastSyncTs[network].debtParams < now - 60) {
             const val = await getDebtParams(network);
             await setDebtParamsLocal(dbClient, network, val);
             logger.info(`setDebtParamsLocal: ${network} ${JSON.stringify(val)}`);
-            lastSyncTs.debtParams = now;
+            lastSyncTs[network].debtParams = now;
         }
 
-        if (lastSyncTs.collateralParams < now - 60) {
+        if (lastSyncTs[network].collateralParams < now - 60) {
             const collaterals = await getDistinctCollateralList(dbClient);
             const collateralParams: Record<string, CollateralParams> = {};
             for (const collateral of collaterals.filter(c => getNetworkNameFromAddress(c) === network)) {
@@ -68,7 +76,7 @@ const syncMarketState = async (dbClient: PoolClient) => {
             }
             await setCollateralParamsLocal(dbClient, network, collateralParams);
             logger.info(`setCollateralParamsLocal: ${network} ${JSON.stringify(collateralParams)}`);
-            lastSyncTs.collateralParams = now;
+            lastSyncTs[network].collateralParams = now;
         }
     }
 

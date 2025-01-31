@@ -1,4 +1,3 @@
-
 import { main as apiMain } from './api';
 import { waitForDb } from './db';
 import { migrateDb } from './db/migrate';

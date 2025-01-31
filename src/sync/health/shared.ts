@@ -21,11 +21,11 @@ export const upsertBorrowerStatus = async (dbClient: PoolClient, address: string
     if (status) {
         return dbClient.query(
             `INSERT INTO borrower_status (
-                address, health, debt, collateral, risk, liquidate_amt
+                address, network, health, debt, collateral, risk, liquidate_amt
             ) VALUES (
-                $1, $2, $3, $4, $5, $6
+                $1, $2, $3, $4, $5, $6, $7
             )`,
-            [address, status.health, status.debt, status.collateral, status.risk, status.liquidateAmt]
+            [address, network, status.health, status.debt, status.collateral, status.risk, status.liquidateAmt]
         )
     }
 }

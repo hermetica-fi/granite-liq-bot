@@ -1,20 +1,21 @@
 import { sleep } from "bun";
-import { epoch } from "../util";
 import { main as borrowerSync } from "./borrower";
 import { main as eventSync } from "./event";
 import { main as healthSync } from "./health";
 import { main as marketSync } from "./market";
 
+const BASE_DELAY = 10_000;
+
 export const main = async () => {
     while (true) {
         console.log("Syncing...")
-        const start = epoch();
+        const start = Date.now();
         await eventSync();
         await borrowerSync();
         await marketSync();
         await healthSync();
-        const end = epoch()
-        const delay = 10 - (end - start);
+        const end = Date.now();
+        const delay = BASE_DELAY - (end - start);
         if(delay > 0){
             console.log(`Sleeping for ${delay}ms`)
             await sleep(delay)
