@@ -2,7 +2,7 @@ import type { PoolClient } from "pg";
 import { getUserCollateralAmount, getUserPosition } from "../../client/stacks";
 import { pool } from "../../db";
 import { createLogger } from "../../logger";
-import { getBorrowersToSync, syncBorrowerCollaterals, syncBorrowerPosition, updateBorrower } from "./shared";
+import { getBorrowersToSync, syncBorrowerCollaterals, syncBorrowerPosition, updateBorrower } from "./lib";
 
 export const logger = createLogger("borrower-sync");
 
