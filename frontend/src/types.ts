@@ -14,6 +14,18 @@ export type ContractState = {
     loadContracts: () => Promise<void>,
     addContract: (address: string, mnemonic: string) => Promise<void>
 }
+
+export type Borrower = {
+    address: string,
+    network: StacksNetworkName,
+    health: number,
+    debt: number,
+    collateral: number,
+    risk: number,
+    liquidateAmt: number,
+}
+
+
 export type ToastType = null | 'error' | 'warning' | 'info' | 'success';
 
 export interface ToastState {

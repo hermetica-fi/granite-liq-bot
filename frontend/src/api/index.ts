@@ -1,3 +1,4 @@
+import { Borrower } from "../types";
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8081';
 
@@ -13,4 +14,6 @@ export const fetchContracts = () => wrapResponse(fetch(`${API_BASE}/contracts`))
 export const postAddContract = (address: string, mnemonic: string) => wrapResponse(fetch(`${API_BASE}/add-contract`, {
     method: 'POST',
     body: JSON.stringify({ address, mnemonic })
-}))
+}));
+
+export const fetchBorrowers = (network: string): Promise<Borrower[]> => wrapResponse(fetch(`${API_BASE}/borrowers?network=${network}`));

@@ -97,11 +97,28 @@ const addContract = async (req: Request) => {
     dbClient = await pool.connect();
     await dbClient.query('INSERT INTO contract (id, address, name, network, owner_address, owner_priv) VALUES ($1, $2, $3, $4, $5, $6)',
         [address, contractAddress, contractName, network, ownerAddress, owner.stxPrivateKey]);
-    const contracts =  await getContractList(dbClient);
+    const contracts = await getContractList(dbClient);
     dbClient.release();
     return Response.json(contracts);
 }
 
+
+const getBorrowers = async (req: Request, url: URL) => {
+    const network = url.searchParams.get('network') || 'mainnet';
+    const dbClient = await pool.connect();
+    const borrowers = await dbClient.query('SELECT * FROM borrower_status WHERE network = $1', [network])
+        .then(r => r.rows).then(rows => rows.map(row => ({
+            address: row.address,
+            network: row.network,
+            health: row.health,
+            debt: row.debt,
+            collateral: row.collateral,
+            risk: row.risk,
+            liquidateAmt: row.liquidate_amt,
+        })));
+    dbClient.release();
+    return Response.json(borrowers);
+}
 
 export const main = async () => {
     const server = Bun.serve({
@@ -114,6 +131,8 @@ export const main = async () => {
                 res = await getContracts(req);
             } else if (req.method === "POST" && url.pathname === "/add-contract") {
                 res = await addContract(req);
+            } else if (req.method === "GET" && url.pathname === "/borrowers") {
+                res = await getBorrowers(req, url);
             } else {
                 res = new Response("Not found", { status: 404 });
             }
