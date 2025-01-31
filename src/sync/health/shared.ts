@@ -2,7 +2,7 @@ import type { PoolClient } from "pg";
 import type { BorrowerStatus, NetworkName } from "../../types";
 
 export const getBorrowersForHealthCheck = async (dbClient: PoolClient): Promise<{ address: string, network: string, debtShares: number, collaterals: string[] }[]> => {
-    return dbClient.query("SELECT b.address, b.network, u.debt_shares, u.collaterals FROM borrower_positions u LEFT OUTER JOIN borrowers b ON u.address=b.address").then(r => r.rows).then(rows => (
+    return dbClient.query("SELECT b.address, b.network, u.debt_shares, u.collaterals FROM borrower_position u LEFT OUTER JOIN borrower b ON u.address=b.address").then(r => r.rows).then(rows => (
         rows.map(row => ({
             address: row.address,
             network: row.network,

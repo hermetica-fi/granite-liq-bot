@@ -4,16 +4,16 @@ import type { Borrower, UserCollateral, UserPosition } from "../../types";
 type PartialBorrower = Pick<Borrower, 'address' | 'network'>;
 
 export const getBorrowersToSync = async (dbClient: PoolClient): Promise<PartialBorrower[]> => {
-    return dbClient.query("SELECT address, network FROM borrowers WHERE sync_flag = 1").then(r => r.rows);
+    return dbClient.query("SELECT address, network FROM borrower WHERE sync_flag = 1").then(r => r.rows);
 }
 
 export const updateBorrower = async (dbClient: PoolClient, borrower: PartialBorrower, lpShares: number): Promise<any> => {
-    return dbClient.query("UPDATE borrowers SET lp_shares = $1, sync_flag = 0 WHERE address = $2", [lpShares, borrower.address]);
+    return dbClient.query("UPDATE borrower SET lp_shares = $1, sync_flag = 0 WHERE address = $2", [lpShares, borrower.address]);
 }
 
 export const syncBorrowerPosition = async (dbClient: PoolClient, userPosition: UserPosition): Promise<any> => {
-    await dbClient.query("DELETE FROM borrower_positions WHERE address = $1 ", [userPosition.address]);
-    return dbClient.query("INSERT INTO borrower_positions (address, borrowed_amount, borrowed_block, debt_shares, collaterals) VALUES ($1, $2, $3, $4, $5)",
+    await dbClient.query("DELETE FROM borrower_position WHERE address = $1 ", [userPosition.address]);
+    return dbClient.query("INSERT INTO borrower_position (address, borrowed_amount, borrowed_block, debt_shares, collaterals) VALUES ($1, $2, $3, $4, $5)",
         [userPosition.address, userPosition.borrowedAmount, userPosition.borrowedBlock, userPosition.debtShares, userPosition.collaterals]);
 }
 

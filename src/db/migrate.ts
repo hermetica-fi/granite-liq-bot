@@ -18,15 +18,24 @@ export const createDb = async (client: PoolClient) => {
         "created_at TIMESTAMP NOT NULL DEFAULT NOW()" +
         ");";
 
-    CREATE += "CREATE TABLE IF NOT EXISTS public.borrowers(" +
+    CREATE += "CREATE TABLE IF NOT EXISTS public.borrower(" +
         "address VARCHAR PRIMARY KEY NOT NULL," +
         "network VARCHAR NOT NULL," +
         "lp_shares NUMERIC DEFAULT '0'," +
         "sync_flag INTEGER NOT NULL DEFAULT 0" +
         ");";
 
+
+    CREATE += "CREATE TABLE IF NOT EXISTS public.borrower_position(" +
+        "address VARCHAR PRIMARY KEY REFERENCES borrower(address) ON DELETE RESTRICT," +
+        "borrowed_amount NUMERIC NOT NULL," +
+        "borrowed_block NUMERIC NOT NULL," +
+        "debt_shares NUMERIC NOT NULL," +
+        "collaterals VARCHAR[] NOT NULL" +
+        ");";
+
     CREATE += "CREATE TABLE IF NOT EXISTS public.borrower_status(" +
-        "address VARCHAR PRIMARY KEY REFERENCES borrowers(address) ON DELETE RESTRICT," +
+        "address VARCHAR PRIMARY KEY REFERENCES borrower(address) ON DELETE RESTRICT," +
         "network VARCHAR NOT NULL," +
         "health NUMERIC NOT NULL," +
         "debt NUMERIC NOT NULL," +
@@ -35,16 +44,9 @@ export const createDb = async (client: PoolClient) => {
         "liquidate_amt NUMERIC NOT NULL" +
         ");";
 
-    CREATE += "CREATE TABLE IF NOT EXISTS public.borrower_positions(" +
-        "address VARCHAR PRIMARY KEY REFERENCES borrowers(address) ON DELETE RESTRICT," +
-        "borrowed_amount NUMERIC NOT NULL," +
-        "borrowed_block NUMERIC NOT NULL," +
-        "debt_shares NUMERIC NOT NULL," +
-        "collaterals VARCHAR[] NOT NULL" +
-        ");";
 
     CREATE += "CREATE TABLE IF NOT EXISTS public.borrower_collaterals(" +
-        "address VARCHAR NOT NULL REFERENCES borrowers(address) ON DELETE RESTRICT," +
+        "address VARCHAR NOT NULL REFERENCES borrower(address) ON DELETE RESTRICT," +
         "collateral VARCHAR NOT NULL," +
         "amount NUMERIC NOT NULL" +
         ");";
