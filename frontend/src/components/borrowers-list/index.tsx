@@ -7,11 +7,13 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import { useState } from "react";
+import useTranslation from "../../hooks/use-translation";
 import { Borrower } from "../../types";
 
 const BorrowersList = ({ borrowers }: { borrowers: Borrower[] }) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(40);
+  const [t] = useTranslation();
 
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
@@ -30,11 +32,11 @@ const BorrowersList = ({ borrowers }: { borrowers: Borrower[] }) => {
         <Table>
           <TableHead>
             <TableRow sx={{}}>
-              <TableCell>ACCOUNT</TableCell>
-              <TableCell align="right">COLLATERAL</TableCell>
-              <TableCell align="right">DEBT</TableCell>
-              <TableCell align="right">RISK</TableCell>
-              <TableCell align="right">AVAILABLE TO LIQUIDATE</TableCell>
+              <TableCell>{t("ACCOUNT")}</TableCell>
+              <TableCell align="right">{t("COLLATERAL")}</TableCell>
+              <TableCell align="right">{t("DEBT")}</TableCell>
+              <TableCell align="right">{t("RISK")}</TableCell>
+              <TableCell align="right">{t("AVAILABLE TO LIQUIDATE")}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
