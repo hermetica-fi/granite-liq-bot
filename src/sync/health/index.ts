@@ -3,8 +3,8 @@ import type { PoolClient } from "pg";
 import { pool } from "../../db";
 import type { NetworkName } from "../../types";
 import { getMarketState } from "../market/shared";
-import { calcBorrowerStatus } from "./lib";
-import { clearStatuses, getBorrowerCollateralAmount, getBorrowersForHealthCheck, insertBorrowerStatus } from "./shared";
+import { clearStatuses, getBorrowerCollateralAmount, getBorrowersForHealthCheck, insertBorrowerStatus } from "./lib";
+import { calcBorrowerStatus } from "./shared";
 
 export const worker = async (dbClient: PoolClient) => {
   await dbClient.query("BEGIN");

@@ -1,98 +1,31 @@
-import {
-    calculateAccountHealth, calculateAccountLiqLTV, calculateAccountMaxLTV,
-    calculateLiquidationPoint, calculateTotalCollateralValue, convertDebtSharesToAssets
-} from "granite-math-sdk";
-import { IR_PARAMS_SCALING_FACTOR, SCALING_FACTOR } from "../../constants";
-import type { BorrowerStatus, InterestRateParams, MarketState, PriceFeed } from "../../types";
+import type { PoolClient } from "pg";
+import type { BorrowerStatus, NetworkName } from "../../types";
 
-
-const getCollateralPrice = (collateral: string, priceFeed: PriceFeed): number => {
-    for (const f of Object.keys(priceFeed)) {
-        const name = collateral.split(".")[1];
-        if (name.toLocaleLowerCase().includes(f.toLocaleLowerCase())) {
-            return priceFeed[f as keyof PriceFeed];
-        }
-    }
-    return 0;
+export const getBorrowersForHealthCheck = async (dbClient: PoolClient): Promise<{ address: string, network: string, debtShares: number, collaterals: string[] }[]> => {
+    return dbClient.query("SELECT address, network, debt_shares, collaterals FROM borrower_position").then(r => r.rows).then(rows => (
+        rows.map(row => ({
+            address: row.address,
+            network: row.network,
+            debtShares: Number(row.debt_shares),
+            collaterals: row.collaterals
+        }))
+    ))
 }
 
-const calcAmountToLiquidate = (debtAssets: number, weightedMaxLtv: number, totalCollateralValue: number) => {
-    const numerator = debtAssets - weightedMaxLtv * totalCollateralValue;
-    const denominator = 1 - weightedMaxLtv * (1 + 0.1);
-    const availableToLiquidate = numerator / denominator;
-    return availableToLiquidate;
+export const getBorrowerCollateralAmount = async (dbClient: PoolClient, address: string, collateral: string): Promise<number | undefined> => {
+    return dbClient.query("SELECT amount FROM borrower_collaterals WHERE address=$1 AND collateral=$2", [address, collateral]).then(r => r.rows[0] ? Number(r.rows[0].amount) : undefined)
 }
 
-export const calcBorrowerStatus = (borrower: {
-    debtShares: number;
-    collateralsDeposited: Record<string, number>;
-}, marketState: MarketState): BorrowerStatus => {
-    const irParams: InterestRateParams = {
-        urKink: marketState.irParams.urKink / 10 ** IR_PARAMS_SCALING_FACTOR,
-        baseIR: marketState.irParams.baseIR / 10 ** IR_PARAMS_SCALING_FACTOR,
-        slope1: marketState.irParams.slope1 / 10 ** IR_PARAMS_SCALING_FACTOR,
-        slope2: marketState.irParams.slope2 / 10 ** IR_PARAMS_SCALING_FACTOR,
-    };
+export const clearStatuses = async (dbClient: PoolClient) => {
+    await dbClient.query("DELETE FROM borrower_status");
+}
 
-    const now = Date.now();
-    const debtShares = borrower.debtShares / 10 ** SCALING_FACTOR;
-    const openInterest = marketState.debtParams.openInterest / 10 ** SCALING_FACTOR;
-    const totalDebtShares = marketState.debtParams.totalDebtShares / 10 ** SCALING_FACTOR;
-    const totalAssets = marketState.lpParams.totalAssets / 10 ** SCALING_FACTOR;
-    const timeDelta = Math.ceil(now / 1000) - marketState.accrueInterestParams.lastAccruedBlockTime;
-
-    const debtAssets = convertDebtSharesToAssets(
-        debtShares,
-        openInterest,
-        totalDebtShares,
-        totalAssets,
-        irParams,
-        timeDelta,
-    );
-
-    const collaterals = Object.keys(borrower.collateralsDeposited).map(key => {
-        const { decimals, liquidationLTV, maxLTV } = marketState.collateralParams[key];
-        const price = getCollateralPrice(key, marketState.priceFeed);
-
-        if (!price) {
-            throw new Error(`No price found for ${key}`);
-        }
-
-        return {
-            amount: borrower.collateralsDeposited[key] / 10 ** decimals,
-            price: price / 10 ** decimals,
-            liquidationLTV: liquidationLTV / 10 ** decimals,
-            maxLTV: maxLTV / 10 ** decimals,
-        }
-    });
-
-    const health = calculateAccountHealth(collaterals, debtAssets);
-
-    const accountLiqLTV = calculateAccountLiqLTV(collaterals);
-
-    const liquidationPoint = calculateLiquidationPoint(
-        accountLiqLTV,
-        debtShares,
-        openInterest,
-        totalDebtShares,
-        totalAssets,
-        irParams,
-        timeDelta,
-    );
-
-    const totalCollateralValue = calculateTotalCollateralValue(collaterals);
-
-    const liquidationRisk = liquidationPoint / totalCollateralValue;
-
-    const weightedMaxLtv = calculateAccountMaxLTV(collaterals);
-
-    const amountToLiquidate = liquidationRisk >= 1 ? calcAmountToLiquidate(debtAssets, weightedMaxLtv, totalCollateralValue) : 0;
-
-    return {
-        health,
-        debt: debtAssets,
-        collateral: totalCollateralValue,
-        risk: liquidationRisk,
-        liquidateAmt: amountToLiquidate
-    }
+export const insertBorrowerStatus = async (dbClient: PoolClient, address: string, network: NetworkName, status: BorrowerStatus) => {
+    return dbClient.query(
+        `INSERT INTO borrower_status (
+            address, network, health, debt, collateral, risk, liquidate_amt
+        ) VALUES (
+            $1, $2, $3, $4, $5, $6, $7
+        )`,
+        [address, network, status.health.toFixed(4), status.debt.toFixed(4), status.collateral.toFixed(4), status.risk.toFixed(4), status.liquidateAmt.toFixed(4)])
 }

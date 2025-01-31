@@ -1,6 +1,6 @@
 import { expect, setSystemTime, test } from "bun:test";
 import type { MarketState } from "../../types";
-import { calcBorrowerStatus } from "./lib";
+import { calcBorrowerStatus } from "./shared";
 
 test("calcBorrowerStatus 1", () => {
     setSystemTime(1738262052565);
