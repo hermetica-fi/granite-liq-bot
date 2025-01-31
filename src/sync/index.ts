@@ -8,10 +8,10 @@ import { main as marketSync } from "./market";
 export const main = async () => {
     while (true) {
         console.log("Syncing...")
-        const start = epoch()
-        await marketSync();
+        const start = epoch();
         await eventSync();
         await borrowerSync();
+        await marketSync();
         await healthSync();
         const end = epoch()
         const delay = 10 - (end - start);

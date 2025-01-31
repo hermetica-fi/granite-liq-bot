@@ -26,7 +26,7 @@ const lastSyncTs = {
 
 const syncMarketState = async (dbClient: PoolClient) => {
     await dbClient.query("BEGIN");
-    const collaterals = await getDistinctCollateralList(dbClient);
+  
 
     for (const network of ["mainnet", "testnet"] as NetworkName[]) {
 
@@ -61,6 +61,7 @@ const syncMarketState = async (dbClient: PoolClient) => {
         }
 
         if (lastSyncTs.collateralParams < now - 60) {
+            const collaterals = await getDistinctCollateralList(dbClient);
             const collateralParams: Record<string, CollateralParams> = {};
             for (const collateral of collaterals.filter(c => getNetworkNameFromAddress(c) === network)) {
                 collateralParams[collateral] = await getCollateralParams(collateral, network);
