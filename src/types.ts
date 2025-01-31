@@ -39,13 +39,13 @@ export type MarketState = {
 }
 
 
-export type Borrower = {
+export type BorrowerEntity = {
     address: string,
     network: NetworkName,
     checkFlag: 0 | 1
 }
 
-export type BorrowerPosition = {
+export type BorrowerPositionEntity = {
     address: string,
     network: NetworkName,
     borrowedAmount: number,
