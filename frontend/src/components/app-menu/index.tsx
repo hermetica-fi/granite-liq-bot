@@ -1,6 +1,7 @@
 import { Box, Typography, useTheme } from "@mui/material";
 import { useNavigate } from "@reach/router";
 import { StacksNetworkName } from "@stacks/network";
+import { t } from "i18next";
 import { useCallback } from "react";
 
 const AppMenu = ({ network }: { network?: StacksNetworkName  }) => {
@@ -52,7 +53,7 @@ const AppMenu = ({ network }: { network?: StacksNetworkName  }) => {
           navigate(network ? `/borrowers/${network}` : "/borrowers");
         }, [navigate, network])}
       >
-        Borrowers
+        {t("Borrowers")}
       </Typography>
     </Box>
   );
