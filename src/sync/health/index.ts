@@ -1,14 +1,13 @@
 import assert from "assert";
-import { sleep } from "bun";
 import type { PoolClient } from "pg";
 import { pool } from "../../db";
 import type { NetworkName } from "../../types";
-import { getMarketState } from "../market-sync/shared";
+import { getMarketState } from "../market/shared";
 import { calcBorrowerStatus } from "./lib";
 import { getBorrowersForHealthCheck, getUserCollateralAmount, upsertBorrowerStatus } from "./shared";
 
 export const worker = async (dbClient: PoolClient) => {
-  dbClient.query("BEGIN");
+  await dbClient.query("BEGIN");
   const borrowers = await getBorrowersForHealthCheck(dbClient);
   for (const borrower of borrowers) {
     const marketState = await getMarketState(dbClient, borrower.network as NetworkName);
@@ -35,11 +34,10 @@ export const worker = async (dbClient: PoolClient) => {
   await dbClient.query("COMMIT");
 };
 
-
 export const main = async () => {
-  const dbClient = await pool.connect();
-  while (true) {
-    await worker(dbClient);
-    await sleep(2000);
-  }
+  let dbClient = await pool.connect();
+  await worker(dbClient);
+  dbClient.release();
 }
+
+

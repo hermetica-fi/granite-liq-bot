@@ -1,4 +1,3 @@
-import { sleep } from "bun";
 import type { PoolClient } from "pg";
 import { getUserCollateralAmount, getUserLpShares, getUserPosition } from "../../client/stacks";
 import { pool } from "../../db";
@@ -37,8 +36,6 @@ const worker = async (dbClient: PoolClient) => {
 
 export const main = async () => {
   let dbClient = await pool.connect();
-  while (true) {
-    await worker(dbClient);
-    await sleep(5000);
-  }
+  await worker(dbClient);
+  dbClient.release();
 };

@@ -3,10 +3,7 @@ import { main as apiMain } from './api';
 import { waitForDb } from './db';
 import { migrateDb } from './db/migrate';
 import { createLogger } from './logger';
-import { main as borrowerSyncMain } from './worker/borrower-sync';
-import { main as eventSyncMain } from './worker/event-sync';
-import { main as healthCheckMain } from './worker/health-check';
-import { main as marketSyncMain } from './worker/market-sync';
+import { main as syncMain } from './sync';
 
 const logger = createLogger('main');
 
@@ -17,14 +14,8 @@ const main = async () => {
 
     if (cmd === "api") {
         prms = apiMain;
-    } else if (cmd === "event-sync") {
-        prms = eventSyncMain;
-    } else if (cmd === "borrower-sync") {
-        prms = borrowerSyncMain;
-    } else if (cmd === "market-sync") {
-        prms = marketSyncMain;
-    } else if (cmd === "health-check") {
-        prms = healthCheckMain;
+    } else if (cmd === "sync") {
+        prms = syncMain;
     } else {
         throw new Error("Invalid command");
     }

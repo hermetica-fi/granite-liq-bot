@@ -1,4 +1,3 @@
-import { sleep } from "bun";
 import type { PoolClient } from "pg";
 import { getPriceFeed } from "../../client/pyth";
 import { getAccrueInterestParams, getCollateralParams, getDebtParams, getIrParams, getLpParams } from "../../client/stacks";
@@ -26,6 +25,7 @@ const lastSyncTs = {
 }
 
 const syncMarketState = async (dbClient: PoolClient) => {
+    await dbClient.query("BEGIN");
     const collaterals = await getDistinctCollateralList(dbClient);
 
     for (const network of ["mainnet", "testnet"] as NetworkName[]) {
@@ -78,23 +78,14 @@ const syncMarketState = async (dbClient: PoolClient) => {
     }
 
     await setPriceFeedLocal(dbClient, priceFeed);
+    await dbClient.query("COMMIT");
+
     logger.info(`setPriceFeedLocal: ${JSON.stringify(priceFeed)}`);
 }
 
-const worker = async () => {
+export const main = async () => {
     let dbClient = await pool.connect();
-    await dbClient.query("BEGIN");
     await syncMarketState(dbClient);
-    await dbClient.query("COMMIT");
     dbClient.release();
 }
 
-export const main = async () => {
-    await worker();
-    await sleep(1000);
-
-    while (true) {
-        await worker();
-        await sleep(1000);
-    }
-};

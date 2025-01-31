@@ -1,6 +1,5 @@
 import type { TransactionEventSmartContractLog } from "@stacks/stacks-blockchain-api-types";
 import { cvToJSON, hexToCV } from "@stacks/transactions";
-import { sleep } from "bun";
 import type { PoolClient } from "pg";
 import { getContractEvents } from "../../client/hiro";
 import { CONTRACTS } from "../../constants";
@@ -27,27 +26,25 @@ const processEvents = async (dbClient: PoolClient, network: NetworkName, event: 
   let user = null;
 
   if (["borrow", "add-collateral", "remove-collateral", "deposit", "withdraw"].includes(action)) {
-     user = json.value.user.value;
+    user = json.value.user.value;
   }
 
   else if (action === "repay") {
-     user = json.value["on-behalf-of"].value || json.value.sender.value;
+    user = json.value["on-behalf-of"].value || json.value.sender.value;
   }
 
-  if(user){
+  if (user) {
     const r = await upsertBorrower(dbClient, network, user);
-    if(r === 1){
+    if (r === 1) {
       logger.info(`New borrower ${user}`);
     }
-    else if(r === 2){
+    else if (r === 2) {
       logger.info(`Borrower ${user} check flag activated`);
     }
   }
 }
 
-const syncContract = async (contract: string) => {
-  let dbClient = await pool.connect();
-  await dbClient.query("BEGIN");
+const worker = async (dbClient: PoolClient, contract: string) => {
   const key = `borrower-sync-last-tx-seen-${contract}`;
   const lastSeenTx = await kvStoreGet(dbClient, key);
   const network = getNetworkNameFromAddress(contract);
@@ -92,15 +89,14 @@ const syncContract = async (contract: string) => {
   if (lastSeenTxRemote) {
     await kvStoreSet(dbClient, key, lastSeenTxRemote);
   }
-  await dbClient.query("COMMIT");
-  dbClient.release();
 }
 
 export const main = async () => {
-  while (true) {
-    for (const contract of TRACKED_CONTRACTS) {
-      await syncContract(contract);
-    }
-    await sleep(5000);
+  let dbClient = await pool.connect();
+  await dbClient.query("BEGIN");
+  for (const contract of TRACKED_CONTRACTS) {
+    await worker(dbClient, contract);
   }
+  await dbClient.query("COMMIT");
+  dbClient.release();
 };
