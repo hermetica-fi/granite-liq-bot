@@ -1,9 +1,9 @@
-import { Box, useTheme, Typography } from "@mui/material";
+import { Box, Typography, useTheme } from "@mui/material";
 import { grey } from "@mui/material/colors";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const theme = useTheme();
-  
+
   return (
     <Box
       sx={{
@@ -33,7 +33,13 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         <Typography
           variant="h5"
           component="div"
-          sx={{ ml: "12px", mr: "12px", display: "flex", alignItems: "center", cursor: "pointer" }}
+          sx={{
+            ml: "12px",
+            mr: "12px",
+            display: "flex",
+            alignItems: "center",
+            cursor: "pointer",
+          }}
           onClick={() => {
             window.location.href = "/";
           }}
@@ -46,8 +52,21 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           />
           Liquidation Bot
         </Typography>
+        <Typography
+          component="div"
+          sx={{
+            ml: "20px",
+            cursor: "pointer",
+            "&:hover": { color: theme.palette.primary.main },
+          }}
+          onClick={() => {
+            window.location.href = "/";
+          }}
+        >
+          Borrowers
+        </Typography>
       </Box>
-      <Box sx={{ ml: '12px', mr: '12px' }}>{children}</Box>
+      <Box sx={{ ml: "12px", mr: "12px" }}>{children}</Box>
     </Box>
   );
 };
