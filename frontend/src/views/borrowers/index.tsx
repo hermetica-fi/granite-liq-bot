@@ -1,4 +1,4 @@
-import { Box, TablePagination, Typography, useTheme } from "@mui/material";
+import { Box, TablePagination, Typography } from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -15,38 +15,18 @@ import { Borrower } from "../../types";
 
 const BorrowersPage = (_: RouteComponentProps) => {
   const [t] = useTranslation();
-  const theme = useTheme();
+
   const [borrowers, setBorrowers] = useState<Borrower[]>([]);
   const [page, setPage] = useState(0);
-
-  console.log(borrowers);
-
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(40);
 
   useEffect(() => {
     fetchBorrowers("mainnet").then((data) => {
       setBorrowers(data);
     });
   }, []);
-  function createData(
-    name: string,
-    calories: number,
-    fat: number,
-    carbs: number,
-    protein: number
-  ) {
-    return { name, calories, fat, carbs, protein };
-  }
-
-  const rows = [
-    createData("Frozen yoghurt", 159, 6.0, 24, 4.0),
-    createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
-    createData("Eclair", 262, 16.0, 24, 6.0),
-    createData("Cupcake", 305, 3.7, 67, 4.3),
-    createData("Gingerbread", 356, 16.0, 49, 3.9),
-  ];
-
-  const handleChangePage = (event: unknown, newPage: number) => {
+ 
+  const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
   };
 
@@ -68,12 +48,12 @@ const BorrowersPage = (_: RouteComponentProps) => {
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
-              <TableRow sx={{ backgroundColor: theme.palette.action.hover }}>
-                <TableCell>Dessert (100g serving)</TableCell>
-                <TableCell align="right">Calories</TableCell>
-                <TableCell align="right">Fat&nbsp;(g)</TableCell>
-                <TableCell align="right">Carbs&nbsp;(g)</TableCell>
-                <TableCell align="right">Protein&nbsp;(g)</TableCell>
+              <TableRow sx={{  }}>
+                <TableCell>ACCOUNT</TableCell>
+                <TableCell align="right">COLLATERAL</TableCell>
+                <TableCell align="right">DEBT</TableCell>
+                <TableCell align="right">RISK</TableCell>
+                <TableCell align="right">AVAILABLE TO LIQUIDATE</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -88,7 +68,7 @@ const BorrowersPage = (_: RouteComponentProps) => {
                   </TableCell>
                   <TableCell align="right">{row.collateral}</TableCell>
                   <TableCell align="right">{row.debt}</TableCell>
-                  <TableCell align="right">{row.risk}</TableCell>
+                  <TableCell align="right">{(row.risk * 100).toFixed(2)}%</TableCell>
                   <TableCell align="right">{row.liquidateAmt}</TableCell>
                 </TableRow>
               ))}
@@ -96,9 +76,9 @@ const BorrowersPage = (_: RouteComponentProps) => {
           </Table>
         </TableContainer>
         <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
+          rowsPerPageOptions={[40, 100]}
           component="div"
-          count={rows.length}
+          count={borrowers.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
