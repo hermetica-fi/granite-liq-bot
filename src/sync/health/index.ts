@@ -10,10 +10,11 @@ export const worker = async (dbClient: PoolClient) => {
   await dbClient.query("BEGIN");
   const borrowers = await getBorrowersForHealthCheck(dbClient);
   for (const borrower of borrowers) {
+    const network = borrower.network as NetworkName
     const marketState = await getMarketState(dbClient, borrower.network as NetworkName);
 
     if(borrower.debtShares === 0){
-      await upsertBorrowerStatus(dbClient, borrower.address, null);
+      await upsertBorrowerStatus(dbClient, borrower.address, network, null);
       continue;
     }
 
@@ -29,7 +30,7 @@ export const worker = async (dbClient: PoolClient) => {
       collateralsDeposited
     }, marketState);
 
-    await upsertBorrowerStatus(dbClient, borrower.address, status);
+    await upsertBorrowerStatus(dbClient, borrower.address, network, status);
   }
   await dbClient.query("COMMIT");
 };

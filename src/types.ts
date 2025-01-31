@@ -71,4 +71,4 @@ export type BorrowerStatus = {
     liquidateAmt: number
 }
 
-export type BorrowerStatusEntity = BorrowerStatus & { address: string }
+export type BorrowerStatusEntity = BorrowerStatus & { address: string, network: NetworkName }
