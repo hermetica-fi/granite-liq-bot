@@ -16,7 +16,7 @@ export const getBorrowerCollateralAmount = async (dbClient: PoolClient, address:
     return dbClient.query("SELECT amount FROM borrower_collaterals WHERE address=$1 AND collateral=$2", [address, collateral]).then(r => r.rows[0] ? Number(r.rows[0].amount) : undefined)
 }
 
-export const clearStatuses = async (dbClient: PoolClient) => {
+export const clearBorrowerStatuses = async (dbClient: PoolClient) => {
     await dbClient.query("DELETE FROM borrower_status");
 }
 
