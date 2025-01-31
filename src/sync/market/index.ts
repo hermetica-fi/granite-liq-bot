@@ -10,7 +10,7 @@ import { epoch } from "../../util";
 import {
     getDistinctCollateralList, setAccrueInterestParamsLocal, setCollateralParamsLocal,
     setDebtParamsLocal, setIrParamsLocal, setLpParamsLocal, setPriceFeedLocal
-} from "./lib";
+} from "../db-helper";
 
 const logger = createLogger("market-sync");
 
