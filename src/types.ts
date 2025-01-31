@@ -54,8 +54,7 @@ export type BorrowerPosition = {
     collaterals: string[]
 }
 
-export type BorrowerCollateral = {
-    id: number,
+export type BorrowerCollateralEntity = {
     address: string,
     network: NetworkName,
     collateral: string,

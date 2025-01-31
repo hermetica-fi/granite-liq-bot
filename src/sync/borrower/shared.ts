@@ -1,5 +1,5 @@
 import type { PoolClient } from "pg";
-import type { Borrower, BorrowerCollateral, BorrowerPosition } from "../../types";
+import type { Borrower, BorrowerCollateralEntity, BorrowerPosition } from "../../types";
 
 type PartialBorrower = Pick<Borrower, 'address' | 'network'>;
 
@@ -17,9 +17,7 @@ export const syncBorrowerPosition = async (dbClient: PoolClient, userPosition: B
         [userPosition.address, userPosition.network, userPosition.borrowedAmount, userPosition.borrowedBlock, userPosition.debtShares, userPosition.collaterals]);
 }
 
-type PartialBorrowerCollateral = Omit<BorrowerCollateral, 'id' | 'address'>;
-
-export const syncBorrowerCollaterals = async (dbClient: PoolClient, address: string, collaterals: PartialBorrowerCollateral[]): Promise<any> => {
+export const syncBorrowerCollaterals = async (dbClient: PoolClient, address: string, collaterals: Omit<BorrowerCollateralEntity, 'address'>[]): Promise<any> => {
     await dbClient.query("DELETE FROM borrower_collaterals WHERE address = $1", [address]);
 
     for (const collateral of collaterals) {
