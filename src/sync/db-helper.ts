@@ -2,8 +2,10 @@ import assert from "assert";
 import type { PoolClient } from "pg";
 import { kvStoreGet, kvStoreSet } from "../db/helper";
 import type {
-    AccrueInterestParams, BorrowerCollateralEntity, BorrowerEntity, BorrowerPositionEntity, BorrowerStatus,
-    CollateralParams, DebtParams, InterestRateParams, LpParams, MarketState, NetworkName, PriceFeed
+    AccrueInterestParams, BorrowerCollateralEntity, BorrowerEntity,
+    BorrowerPositionEntity, BorrowerStatus,
+    CollateralParams, DebtParams, InterestRateParams, LpParams,
+    MarketState, NetworkName, PriceFeed
 } from "../types";
 
 export const upsertBorrower = async (dbClient: PoolClient, network: NetworkName, address: string): Promise< 0 | 1 | 2> => {
