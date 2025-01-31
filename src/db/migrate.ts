@@ -93,11 +93,17 @@ const migrateToV2 = async (client: PoolClient): Promise<number> => {
     }
 };
 
+
+const IS_TEST = process.env.NODE_ENV === "test";
+
 export const migrateDb = async () => {
     const dbClient = await pool.connect();
-    await dbClient.query("SELECT pg_advisory_lock(123456);");
 
-    const exists = await dbClient.query("SELECT to_regclass('public.kv_store') as x", []).then(r => r.rows[0].x);
+    if (!IS_TEST) {
+        await dbClient.query("SELECT pg_advisory_lock(123456);");
+    }
+
+    const exists = IS_TEST ? false : await dbClient.query("SELECT to_regclass('public.kv_store') as x", []).then(r => r.rows[0].x);
 
     if (!exists) {
         await createDb(dbClient);
@@ -111,5 +117,7 @@ export const migrateDb = async () => {
     }
     */
 
-    await dbClient.query("SELECT pg_advisory_unlock(123456);");
+    if (!IS_TEST) {
+        await dbClient.query("SELECT pg_advisory_unlock(123456);");
+    }
 }

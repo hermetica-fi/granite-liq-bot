@@ -7,7 +7,8 @@
     "start:sync": "bun run src/index.ts sync"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "pg-mem": "^3.0.4"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
