@@ -5,7 +5,6 @@ import { t } from "i18next";
 import { useCallback } from "react";
 
 const AppMenu = ({ network }: { network?: StacksNetworkName  }) => {
-  console.log(network)
   const theme = useTheme();
   const navigate = useNavigate();
 

@@ -1,4 +1,4 @@
-import { TablePagination } from "@mui/material";
+import { Button, TablePagination } from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -6,7 +6,7 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import useTranslation from "../../hooks/use-translation";
 import { Borrower } from "../../types";
 
@@ -15,16 +15,20 @@ const BorrowersList = ({ borrowers }: { borrowers: Borrower[] }) => {
   const [rowsPerPage, setRowsPerPage] = useState(40);
   const [t] = useTranslation();
 
-  const handleChangePage = (_: unknown, newPage: number) => {
+  const handleChangePage = useCallback((_: unknown, newPage: number) => {
     setPage(newPage);
-  };
+  }, []);
 
-  const handleChangeRowsPerPage = (
+  const handleChangeRowsPerPage = useCallback((
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
-  };
+  }, []);
+
+  const handleLiquidateClicked = useCallback((address: string) => {
+    console.log("liquidate", address);
+  }, []);
 
   return (
     <>
@@ -37,6 +41,7 @@ const BorrowersList = ({ borrowers }: { borrowers: Borrower[] }) => {
               <TableCell align="right">{t("DEBT")}</TableCell>
               <TableCell align="right">{t("RISK")}</TableCell>
               <TableCell align="right">{t("AVAILABLE TO LIQUIDATE")}</TableCell>
+              <TableCell align="right"></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -56,6 +61,11 @@ const BorrowersList = ({ borrowers }: { borrowers: Borrower[] }) => {
                 </TableCell>
                 <TableCell align="right">
                   {row.liquidateAmt.toFixed(2)}
+                </TableCell>
+                <TableCell align="right">
+                  <Button variant="contained" color="primary" onClick={() => handleLiquidateClicked(row.address)}>
+                    {t("LIQUIDATE")}
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
