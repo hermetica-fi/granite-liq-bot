@@ -25,7 +25,7 @@ export const upsertBorrowerStatus = async (dbClient: PoolClient, address: string
             ) VALUES (
                 $1, $2, $3, $4, $5, $6, $7
             )`,
-            [address, network, status.health, status.debt, status.collateral, status.risk, status.liquidateAmt]
+            [address, network, status.health.toFixed(4), status.debt.toFixed(4), status.collateral.toFixed(4), status.risk.toFixed(4), status.liquidateAmt.toFixed(4)]
         )
     }
 }
