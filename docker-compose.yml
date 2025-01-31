@@ -1,7 +1,7 @@
 version: "3.4"
 
 x-common-variables: &common-variables
-  DB: postgres://postgres:postgres-pwd@postgres:5432/leather_db
+  DB: postgres://postgres:postgres-pwd@postgres:5432/granite_liq_bot
   NODE_ENV: production
 
 services:
@@ -25,18 +25,34 @@ services:
     build:
       context: .
       dockerfile: .Dockerfile
-    entrypoint: bun api/index.ts
+    entrypoint: bun start:api
     restart: always
     depends_on:
       - postgres
     environment:
       - API_PORT=${API_PORT:-8081}
+      - DB=postgres://postgres:postgres-pwd@postgres:5432/granite_liq_bot
     volumes:
       - ./logs:/app/logs
     networks:
       - internal
     ports:
       - "${API_PORT:-8081}:${API_PORT:-8081}"
+  sync:
+    container_name: sync
+    build:
+      context: .
+      dockerfile: .Dockerfile
+    entrypoint: bun start:sync
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      - DB=postgres://postgres:postgres-pwd@postgres:5432/granite_liq_bot
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - internal
   postgres:
     restart: always
     image: postgres:16.0
