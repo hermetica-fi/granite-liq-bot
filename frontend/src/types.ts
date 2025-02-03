@@ -7,7 +7,9 @@ export type Contract = {
     network: StacksNetworkName,
     operator_address: string
 }
-export type ContractState = {
+
+
+export type ContractsState = {
     initialized: boolean,
     loading: boolean,
     contracts: Contract[],

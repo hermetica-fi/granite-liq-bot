@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 import { fetchContracts, postAddContract } from '../api';
-import { ContractState } from '../types';
+import { ContractsState } from '../types';
 
-export const useContractsStore = create<ContractState>((set, get) => ({
+export const useContractsStore = create<ContractsState>((set, get) => ({
     initialized: false,
     loading: false,
     contracts: [],
