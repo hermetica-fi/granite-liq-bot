@@ -19,7 +19,9 @@ const ContractPage = (_: RouteComponentProps) => {
   return (
     <>
       <AppMenu network={contract.network} />
-      <Box sx={{ ml: "12px", mr: "12px" }}>Contract</Box>
+      <Box sx={{ ml: "12px", mr: "12px" }}>
+        <Typography variant="h6">{id}</Typography>
+      </Box>
     </>
   );
 };
