@@ -1,6 +1,6 @@
 import { StacksNetworkName } from "@stacks/network";
 
-export type Contract = {
+export type ContractEntity = {
     id: string,
     address: string,
     name: string,
@@ -8,11 +8,10 @@ export type Contract = {
     operator_address: string
 }
 
-
 export type ContractsState = {
     initialized: boolean,
     loading: boolean,
-    contracts: Contract[],
+    contracts: ContractEntity[],
     loadContracts: () => Promise<void>,
     addContract: (address: string, mnemonic: string) => Promise<void>
 }
