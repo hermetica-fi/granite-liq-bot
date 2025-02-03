@@ -110,6 +110,7 @@ const getBorrowers = async (req: Request, url: URL) => {
         .then(r => r.rows).then(rows => rows.map(row => ({
             address: row.address,
             network: row.network,
+            ltv: Number(row.ltv),
             health: Number(row.health),
             debt: Number(row.debt),
             collateral: Number(row.collateral),

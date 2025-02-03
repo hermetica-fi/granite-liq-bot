@@ -18,6 +18,7 @@ export type ContractState = {
 export type Borrower = {
     address: string,
     network: StacksNetworkName,
+    ltv: number,
     health: number,
     debt: number,
     collateral: number,

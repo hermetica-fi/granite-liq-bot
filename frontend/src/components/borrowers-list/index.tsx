@@ -37,6 +37,7 @@ const BorrowersList = ({ borrowers }: { borrowers: Borrower[] }) => {
           <TableHead>
             <TableRow sx={{}}>
               <TableCell>{t("ACCOUNT")}</TableCell>
+              <TableCell align="right">{t("LTV")}</TableCell>
               <TableCell align="right">{t("COLLATERAL")}</TableCell>
               <TableCell align="right">{t("DEBT")}</TableCell>
               <TableCell align="right">{t("RISK")}</TableCell>
@@ -54,6 +55,7 @@ const BorrowersList = ({ borrowers }: { borrowers: Borrower[] }) => {
                 <TableCell component="th" scope="row">
                   {row.address}
                 </TableCell>
+                <TableCell align="right">{row.ltv}</TableCell>
                 <TableCell align="right">{row.collateral}</TableCell>
                 <TableCell align="right">{row.debt}</TableCell>
                 <TableCell align="right">

@@ -57,7 +57,8 @@ test("calcBorrowerStatus 1", () => {
         debt: 526735.7296664099,
         collateral: 754865.5289313,
         risk: 0.9798057184761282,
-        liquidateAmt: 0,
+        liquidateAmt: 526737.6671743527,
+        ltv: 0.6977958923269382,
     });
 });
 
@@ -116,6 +117,7 @@ test("calcBorrowerStatus 2", () => {
         debt: 15038.024870804698,
         collateral: 21555.903554761313,
         risk: 1.3679001300585538,
-        liquidateAmt: 9466.829096497871,
+        liquidateAmt: 15038.080185625755,
+        ltv: 0.6976290663298624,
       });
 });

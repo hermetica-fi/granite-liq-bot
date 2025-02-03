@@ -1,5 +1,5 @@
 import {
-    calculateAccountHealth, calculateAccountLiqLTV, calculateAccountMaxLTV,
+    calculateAccountHealth, calculateAccountLiqLTV,
     calculateLiquidationPoint, calculateMaxRepayAmount, calculateTotalCollateralValue, convertDebtSharesToAssets
 } from "granite-math-sdk";
 import { IR_PARAMS_SCALING_FACTOR } from "../../constants";
@@ -79,8 +79,6 @@ export const calcBorrowerStatus = (borrower: {
 
     const liquidationRisk = liquidationPoint / totalCollateralValue;
 
-    const weightedMaxLtv = calculateAccountMaxLTV(collaterals);
-
     const maxRepayAmount = calculateMaxRepayAmount(
         debtShares,
         openInterest,
@@ -90,11 +88,13 @@ export const calcBorrowerStatus = (borrower: {
         timeDelta
     );
 
+
     return {
         health,
         debt: debtAssets,
         collateral: totalCollateralValue,
         risk: liquidationRisk,
-        liquidateAmt: maxRepayAmount
+        liquidateAmt: maxRepayAmount,
+        ltv: debtAssets / totalCollateralValue,
     }
 }
