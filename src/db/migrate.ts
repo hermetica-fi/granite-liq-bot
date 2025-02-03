@@ -13,8 +13,8 @@ export const createDb = async (client: PoolClient) => {
         "address VARCHAR NOT NULL," +
         "name VARCHAR NOT NULL," +
         "network VARCHAR NOT NULL," +
-        "owner_address VARCHAR NOT NULL," +
-        "owner_priv VARCHAR NOT NULL," +
+        "operator_address VARCHAR NOT NULL," +
+        "operator_priv VARCHAR NOT NULL," +
         "created_at TIMESTAMP NOT NULL DEFAULT NOW()" +
         ");";
 

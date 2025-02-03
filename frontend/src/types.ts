@@ -5,7 +5,7 @@ export type Contract = {
     address: string,
     name: string,
     network: StacksNetworkName,
-    owner_address: string
+    operator_address: string
 }
 export type ContractState = {
     initialized: boolean,

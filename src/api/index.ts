@@ -8,7 +8,7 @@ import type { BorrowerStatus } from "../types";
 
 
 const getContractList = async (dbClient: PoolClient) => {
-    return dbClient.query('SELECT id, address, name, network, owner_address FROM contract ORDER BY created_at DESC').then(r => r.rows);
+    return dbClient.query('SELECT id, address, name, network, operator_address FROM contract ORDER BY created_at DESC').then(r => r.rows);
 }
 
 const getContracts = async (req: Request) => {
@@ -96,7 +96,7 @@ const addContract = async (req: Request) => {
     }
 
     dbClient = await pool.connect();
-    await dbClient.query('INSERT INTO contract (id, address, name, network, owner_address, owner_priv) VALUES ($1, $2, $3, $4, $5, $6)',
+    await dbClient.query('INSERT INTO contract (id, address, name, network, operator_address, owner_priv) VALUES ($1, $2, $3, $4, $5, $6)',
         [address, contractAddress, contractName, network, ownerAddress, owner.stxPrivateKey]);
     const contracts = await getContractList(dbClient);
     dbClient.release();
