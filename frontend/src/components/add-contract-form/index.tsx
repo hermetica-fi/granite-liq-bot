@@ -1,14 +1,14 @@
-import { Box, Typography, TextField, Button } from "@mui/material";
+import { Box, Button, TextField, Typography } from "@mui/material";
 import { useState } from "react";
-import ThemedBox from "../themed-box";
 import useToast from "../../hooks/use-toast";
-import { useContractsStore } from "../../store/contracts";
 import useTranslation from "../../hooks/use-translation";
+import { useContractsStore } from "../../store/contracts";
+import ThemedBox from "../themed-box";
 
 const AddContractForm = () => {
   const [t] = useTranslation();
   const [contractAddress, setContractAddress] = useState("");
-  const [contractOwnerSecretKey, setContractOwnerSecretKey] = useState("");
+  const [contractOperatorSecretKey, setContractOperatorSecretKey] = useState("");
   const [inProgress, setInProgress] = useState(false);
 
   const [showMessage] = useToast();
@@ -18,7 +18,7 @@ const AddContractForm = () => {
   const handleSubmit = async () => {
     setInProgress(true);
     try {
-      await addContract(contractAddress, contractOwnerSecretKey);
+      await addContract(contractAddress, contractOperatorSecretKey);
     } catch (error) {
       if (error instanceof Error) {
         showMessage(error.message, "error");
@@ -35,10 +35,10 @@ const AddContractForm = () => {
     setContractAddress(e.target.value);
   };
 
-  const handleContractOwnerSecretKeyChange = (
+  const handleContractOperatorSecretKeyChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setContractOwnerSecretKey(e.target.value);
+    setContractOperatorSecretKey(e.target.value);
   };
 
   return (
@@ -58,11 +58,11 @@ const AddContractForm = () => {
       </Box>
       <Box sx={{ mb: "12px", mt: "12px" }}>
         <TextField
-          label={t("Contract Owner Secret Key")}
+          label={t("Contract Operator Secret Key")}
           fullWidth
           helperText="24 word mnemonic"
-          value={contractOwnerSecretKey}
-          onChange={handleContractOwnerSecretKeyChange}
+          value={contractOperatorSecretKey}
+          onChange={handleContractOperatorSecretKeyChange}
         />
       </Box>
       <Box>

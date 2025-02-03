@@ -62,8 +62,8 @@ const addContract = async (req: Request) => {
         return errorResponse(error);
     }
 
-    const [owner] = wallet.accounts;
-    const ownerAddress = getAddressFromPrivateKey(owner.stxPrivateKey, network);
+    const [operator] = wallet.accounts;
+    const operatorAddress = getAddressFromPrivateKey(operator.stxPrivateKey, network);
 
     let contractInfo;
     try {
@@ -76,28 +76,28 @@ const addContract = async (req: Request) => {
         return errorResponse(contractInfo.message);
     }
 
-    let onChainOwnerAddress;
+    let onChainOperatorAddress;
     const [contractAddress, contractName] = address.trim().split('.');
     try {
-        onChainOwnerAddress = await fetchCallReadOnlyFunction({
+        onChainOperatorAddress = await fetchCallReadOnlyFunction({
             contractAddress,
             contractName,
-            functionName: 'get-owner',
+            functionName: 'get-operator',
             functionArgs: [],
-            senderAddress: ownerAddress,
+            senderAddress: operatorAddress,
             network: network,
         }).then(r => cvToJSON(r).value);
     } catch (error) {
-        return errorResponse('Could not fetch contract owner');
+        return errorResponse('Could not fetch contract operator');
     }
 
-    if (onChainOwnerAddress !== ownerAddress) {
-        return errorResponse('Contract owner does not match');
+    if (onChainOperatorAddress !== operatorAddress) {
+        return errorResponse('Contract operator does not match');
     }
 
     dbClient = await pool.connect();
-    await dbClient.query('INSERT INTO contract (id, address, name, network, operator_address, owner_priv) VALUES ($1, $2, $3, $4, $5, $6)',
-        [address, contractAddress, contractName, network, ownerAddress, owner.stxPrivateKey]);
+    await dbClient.query('INSERT INTO contract (id, address, name, network, operator_address, operator_priv) VALUES ($1, $2, $3, $4, $5, $6)',
+        [address, contractAddress, contractName, network, operatorAddress, operator.stxPrivateKey]);
     const contracts = await getContractList(dbClient);
     dbClient.release();
     return Response.json(contracts);
