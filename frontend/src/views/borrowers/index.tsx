@@ -1,4 +1,10 @@
-import { Box, MenuItem, Select, SelectChangeEvent, Typography } from "@mui/material";
+import {
+  Box,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  Typography,
+} from "@mui/material";
 import { navigate, RouteComponentProps, useParams } from "@reach/router";
 import { useCallback, useEffect, useState } from "react";
 import { fetchBorrowers } from "../../api";
@@ -15,11 +21,21 @@ const BorrowersPage = (_: RouteComponentProps) => {
     ? params.network
     : "mainnet";
 
-  useEffect(() => {
+  const load = useCallback(() => {
     fetchBorrowers(network).then((data) => {
       setBorrowers(data);
     });
   }, [network]);
+
+  useEffect(() => {
+    load();
+
+    const interval = setInterval(() => {
+      load();
+    }, 5_000);
+
+    return () => clearInterval(interval);
+  }, [load]);
 
   const handleNetworkChange = useCallback((event: SelectChangeEvent) => {
     navigate(`/borrowers/${event.target.value}`);
