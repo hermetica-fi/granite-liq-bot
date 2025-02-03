@@ -55,11 +55,11 @@ const BorrowersList = ({ borrowers }: { borrowers: Borrower[] }) => {
                 <TableCell component="th" scope="row">
                   {row.address}
                 </TableCell>
-                <TableCell align="right">{row.ltv}</TableCell>
+                <TableCell align="right">{row.ltv}{"%"}</TableCell>
                 <TableCell align="right">{row.collateral}</TableCell>
                 <TableCell align="right">{row.debt}</TableCell>
                 <TableCell align="right">
-                  {(row.risk * 100).toFixed(2)}%
+                  {(row.risk * 100).toFixed(2)}{"%"}
                 </TableCell>
                 <TableCell align="right">
                   {row.liquidateAmt.toFixed(2)}
