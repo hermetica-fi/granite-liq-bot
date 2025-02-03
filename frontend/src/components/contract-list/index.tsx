@@ -1,13 +1,13 @@
 import { Box, Typography, useTheme } from "@mui/material";
 import { grey } from "@mui/material/colors";
-import { useMemo } from "react";
 import { useNavigate } from "@reach/router";
+import { useMemo } from "react";
+import NetworkChip from "../../components/network-chip";
 import ThemedBox from "../../components/themed-box";
 import useTranslation from "../../hooks/use-translation";
-import NetworkChip from "../../components/network-chip";
-import { Contract } from "../../types";
+import { ContractEntity } from "../../types";
 
-const ContractList = ({ contracts }: { contracts: Contract[] }) => {
+const ContractList = ({ contracts }: { contracts: ContractEntity[] }) => {
   const [t] = useTranslation();
   const theme = useTheme();
   const navigate = useNavigate();

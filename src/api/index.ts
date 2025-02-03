@@ -8,7 +8,14 @@ import type { BorrowerStatus } from "../types";
 
 
 const getContractList = async (dbClient: PoolClient) => {
-    return dbClient.query('SELECT id, address, name, network, operator_address FROM contract ORDER BY created_at DESC').then(r => r.rows);
+    return dbClient.query('SELECT id, address, name, network, operator_address FROM contract ORDER BY created_at DESC')
+        .then(r => r.rows).then(rows => rows.map(row => ({
+            id: row.id,
+            address: row.address,
+            name: row.name,
+            network: row.network,
+            operatorAddress: row.operator_address,
+        })));
 }
 
 const getContracts = async (req: Request) => {

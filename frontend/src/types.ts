@@ -5,7 +5,22 @@ export type ContractEntity = {
     address: string,
     name: string,
     network: StacksNetworkName,
-    operator_address: string
+    operatorAddress: string
+}
+
+export type Contract = ContractEntity & {
+    operatorBalance: string,
+    ownerAddress: string,
+    unprofitabilityThreshold: number,
+    marketAssets: string[],
+    balances: Record<string, string>,
+}
+
+export type ContractState = {
+    initialized: boolean,
+    loading: boolean,
+    data: Contract | null,
+    loadContract: (address: string, name :string, network: StacksNetworkName) => Promise<void>,
 }
 
 export type ContractsState = {

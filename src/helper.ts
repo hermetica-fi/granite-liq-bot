@@ -2,7 +2,7 @@ import type { NetworkName } from "./types";
 
 
 export const getNetworkNameFromAddress = (address: string): NetworkName => {
-    if (address.startsWith('ST')) {
+    if (address.startsWith('ST') || address.startsWith('SN')) {
         return 'testnet';
     }
 
