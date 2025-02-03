@@ -1,6 +1,6 @@
 import {
     calculateAccountHealth, calculateAccountLiqLTV, calculateAccountMaxLTV,
-    calculateLiquidationPoint, calculateTotalCollateralValue, convertDebtSharesToAssets
+    calculateLiquidationPoint, calculateMaxRepayAmount, calculateTotalCollateralValue, convertDebtSharesToAssets
 } from "granite-math-sdk";
 import { IR_PARAMS_SCALING_FACTOR } from "../../constants";
 import type { BorrowerStatus, InterestRateParams, MarketState, PriceFeed } from "../../types";
@@ -16,12 +16,7 @@ const getCollateralPrice = (collateral: string, priceFeed: PriceFeed): number =>
     return 0;
 }
 
-const calcAmountToLiquidate = (debtAssets: number, weightedMaxLtv: number, totalCollateralValue: number) => {
-    const numerator = debtAssets - weightedMaxLtv * totalCollateralValue;
-    const denominator = 1 - weightedMaxLtv * (1 + 0.1);
-    const availableToLiquidate = numerator / denominator;
-    return availableToLiquidate;
-}
+
 
 export const calcBorrowerStatus = (borrower: {
     debtShares: number;
@@ -86,13 +81,20 @@ export const calcBorrowerStatus = (borrower: {
 
     const weightedMaxLtv = calculateAccountMaxLTV(collaterals);
 
-    const amountToLiquidate = liquidationRisk >= 1 ? calcAmountToLiquidate(debtAssets, weightedMaxLtv, totalCollateralValue) : 0;
+    const maxRepayAmount = calculateMaxRepayAmount(
+        debtShares,
+        openInterest,
+        totalDebtShares,
+        totalAssets,
+        irParams,
+        timeDelta
+    );
 
     return {
         health,
         debt: debtAssets,
         collateral: totalCollateralValue,
         risk: liquidationRisk,
-        liquidateAmt: amountToLiquidate
+        liquidateAmt: maxRepayAmount
     }
 }
