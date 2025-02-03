@@ -1,6 +1,7 @@
 import { networkFromName } from "@stacks/network";
 import { type TransactionEventsResponse } from "@stacks/stacks-blockchain-api-types";
 import { cvToHex, hexToCV, type ClarityValue } from "@stacks/transactions";
+import { sleep } from "bun";
 import { createLogger } from "../logger";
 import type { NetworkName } from "../types";
 
@@ -39,16 +40,16 @@ export const fetchWrapper = async (path: string, network: NetworkName, json?: an
             // Only retry if we haven't reached max attempts
             if (attempt < MAX_RETRIES - 1) {
                 const delay = INITIAL_DELAY * Math.pow(2, attempt);
-                logger.error(`Hiro api request failed, retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES})`);
-                await new Promise(resolve => setTimeout(resolve, delay));
+                logger.warn(`Hiro api request failed, retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES})`);
+                await sleep(delay);
             }
         } catch (error) {
             lastError = error as Error;
 
             if (attempt < MAX_RETRIES - 1) {
                 const delay = INITIAL_DELAY * Math.pow(2, attempt);
-                logger.error(`Hiro api request failed, retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES})`);
-                await new Promise(resolve => setTimeout(resolve, delay));
+                logger.warn(`Hiro api request failed, retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES})`);
+                await sleep(delay);
             }
         }
     }
