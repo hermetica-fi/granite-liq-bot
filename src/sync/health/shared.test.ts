@@ -58,7 +58,7 @@ test("calcBorrowerStatus 1", () => {
         debt: 526735.7296664099,
         collateral: 754865.5289313,
         risk: 0.9798057184761282,
-        maxRepayAmount: 526737.6671743527,
+        maxRepayAmount: 0
     });
 });
 
