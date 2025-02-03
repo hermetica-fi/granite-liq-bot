@@ -62,7 +62,7 @@ const BorrowersList = ({ borrowers }: { borrowers: Borrower[] }) => {
                   {(row.risk * 100).toFixed(2)}{"%"}
                 </TableCell>
                 <TableCell align="right">
-                  {row.liquidateAmt.toFixed(2)}
+                  {row.maxRepayAmount.toFixed(2)}
                 </TableCell>
                 <TableCell align="right">
                   <Button variant="contained" color="primary" onClick={() => handleLiquidateClicked(row.address)}>

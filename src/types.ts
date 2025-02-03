@@ -64,12 +64,12 @@ export type BorrowerCollateralEntity = {
 }
 
 export type BorrowerStatus = {
+    ltv: number,
     health: number,
     debt: number,
     collateral: number,
     risk: number,
-    liquidateAmt: number,
-    ltv: number
+    maxRepayAmount: number
 }
 
 export type BorrowerStatusEntity = BorrowerStatus & { address: string, network: NetworkName }

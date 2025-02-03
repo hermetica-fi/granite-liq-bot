@@ -23,7 +23,7 @@ export type Borrower = {
     debt: number,
     collateral: number,
     risk: number,
-    liquidateAmt: number,
+    maxRepayAmount: number,
 }
 
 

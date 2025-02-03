@@ -4,6 +4,7 @@ import type { PoolClient } from "pg";
 import { getContractInfo } from "../client/hiro";
 import { pool } from "../db";
 import { getNetworkNameFromAddress } from "../helper";
+import type { BorrowerStatus } from "../types";
 
 
 const getContractList = async (dbClient: PoolClient) => {
@@ -106,7 +107,7 @@ const addContract = async (req: Request) => {
 const getBorrowers = async (req: Request, url: URL) => {
     const network = url.searchParams.get('network') || 'mainnet';
     const dbClient = await pool.connect();
-    const borrowers = await dbClient.query('SELECT * FROM borrower_status WHERE network = $1 ORDER BY liquidate_amt DESC, risk DESC', [network])
+    const borrowers: BorrowerStatus[] = await dbClient.query('SELECT * FROM borrower_status WHERE network = $1 ORDER BY max_repay_amount DESC, risk DESC', [network])
         .then(r => r.rows).then(rows => rows.map(row => ({
             address: row.address,
             network: row.network,
@@ -115,7 +116,7 @@ const getBorrowers = async (req: Request, url: URL) => {
             debt: Number(row.debt),
             collateral: Number(row.collateral),
             risk: Number(row.risk),
-            liquidateAmt: Number(row.liquidate_amt),
+            maxRepayAmount: Number(row.max_repay_amount),
         })));
     dbClient.release();
     return Response.json(borrowers);

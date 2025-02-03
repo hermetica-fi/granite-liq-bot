@@ -48,7 +48,7 @@ export const createDb = async (client: PoolClient) => {
         "debt NUMERIC NOT NULL," +
         "collateral NUMERIC NOT NULL," +
         "risk NUMERIC NOT NULL," +
-        "liquidate_amt NUMERIC NOT NULL" +
+        "max_repay_amount NUMERIC NOT NULL" +
         ");";
 
     CREATE += "CREATE UNIQUE INDEX IF NOT EXISTS borrower_collateral_address_idx ON borrower_collaterals (address, collateral);";

@@ -94,7 +94,7 @@ export const calcBorrowerStatus = (borrower: {
         debt: debtAssets,
         collateral: totalCollateralValue,
         risk: liquidationRisk,
-        liquidateAmt: maxRepayAmount,
+        maxRepayAmount,
         ltv: debtAssets / totalCollateralValue,
     }
 }
