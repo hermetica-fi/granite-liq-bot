@@ -12,10 +12,10 @@ import { useModalStore } from "../../store/ui";
 import { Contract } from "../../types";
 import CloseModal from "../close-modal";
 
-const ManageAssetDialog = ({ contract }: { contract: Contract }) => {
+const ThresholdDialog = ({ contract }: { contract: Contract }) => {
   const [t] = useTranslation();
   const { setModal } = useModalStore();
-  const [assetId, setAssetId] = useState("");
+  const [threshold, setThreshold] = useState("");
   const [inProgress, setInProgress] = useState(false);
   const [showMessage] = useToast();
   const [txid, setTxid] = useState(null);
@@ -25,7 +25,7 @@ const ManageAssetDialog = ({ contract }: { contract: Contract }) => {
   };
 
   const handleSubmit = async () => {
-    if (assetId.trim() === "") {
+    if (threshold.trim() === "") {
       if (!confirm(t("This is going to reset market asset. Are you sure?"))) {
         return;
       }
@@ -33,7 +33,7 @@ const ManageAssetDialog = ({ contract }: { contract: Contract }) => {
 
     setInProgress(true);
     try {
-      const { txid } = await setMarketAsset(assetId, contract.id);
+      const { txid } = await setMarketAsset(threshold, contract.id);
 
       setTxid(txid);
     } catch (error) {
@@ -46,8 +46,8 @@ const ManageAssetDialog = ({ contract }: { contract: Contract }) => {
     setInProgress(false);
   };
 
-  const handleAssetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setAssetId(e.target.value);
+  const handleThresholdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setThreshold(e.target.value);
   };
 
   const txLink = useMemo(() => {
@@ -57,7 +57,7 @@ const ManageAssetDialog = ({ contract }: { contract: Contract }) => {
   return (
     <>
       <DialogTitle>
-        {t("Set Market Asset")}
+        {t("Set Unprofitability Threshold")}
         <CloseModal onClick={handleClose} />
       </DialogTitle>
       <DialogContent>
@@ -78,9 +78,9 @@ const ManageAssetDialog = ({ contract }: { contract: Contract }) => {
           ) : (
             <TextField
               fullWidth
-              label={t("Asset address")}
-              value={assetId}
-              onChange={handleAssetChange}
+              label={t("New Threshold")}
+              value={threshold}
+              onChange={handleThresholdChange}
             />
           )}
         </Box>
@@ -98,4 +98,4 @@ const ManageAssetDialog = ({ contract }: { contract: Contract }) => {
   );
 };
 
-export default ManageAssetDialog;
+export default ThresholdDialog;

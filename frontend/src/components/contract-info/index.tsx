@@ -13,6 +13,7 @@ import { useModalStore } from "../../store/ui";
 import { Contract } from "../../types";
 import ManageAssetDialog from "../market-asset-dialog";
 import NetworkChip from "../network-chip";
+import ThresholdDialog from "../threshold-dialog";
 
 export const ContractInfo = ({ data }: { data: Contract }) => {
   const [t] = useTranslation();
@@ -29,7 +30,9 @@ export const ContractInfo = ({ data }: { data: Contract }) => {
   };
 
   const thresholdSetClicked = () => {
-    setModal(null);
+    setModal({
+      body: <ThresholdDialog contract={data} />,
+    });
   };
 
   const renderAddress = useCallback(
