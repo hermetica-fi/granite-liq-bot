@@ -1,6 +1,5 @@
 import { ContractEntity, NetworkName } from "granite-liq-bot-common";
 
-
 export type Contract = ContractEntity & {
     operatorBalance: string,
     ownerAddress: string,
@@ -23,18 +22,6 @@ export type ContractsState = {
     loadContracts: () => Promise<void>,
     addContract: (address: string, mnemonic: string) => Promise<void>
 }
-
-export type Borrower = {
-    address: string,
-    network: NetworkName,
-    ltv: number,
-    health: number,
-    debt: number,
-    collateral: number,
-    risk: number,
-    maxRepayAmount: number,
-}
-
 
 export type ToastType = null | 'error' | 'warning' | 'info' | 'success';
 

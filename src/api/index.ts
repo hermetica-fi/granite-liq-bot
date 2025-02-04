@@ -1,13 +1,12 @@
 import { cvToJSON, fetchCallReadOnlyFunction, getAddressFromPrivateKey } from "@stacks/transactions";
 import { generateWallet } from "@stacks/wallet-sdk";
-import { getContractInfo } from "granite-liq-bot-common";
+import { getContractInfo, type BorrowerStatus, type ContractEntity } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
 import { pool } from "../db";
 import { getNetworkNameFromAddress } from "../helper";
-import type { BorrowerStatus } from "../types";
 
 
-const getContractList = async (dbClient: PoolClient) => {
+const getContractList = async (dbClient: PoolClient): Promise<ContractEntity[]> => {
     return dbClient.query('SELECT id, address, name, network, operator_address FROM contract ORDER BY created_at DESC')
         .then(r => r.rows).then(rows => rows.map(row => ({
             id: row.id,

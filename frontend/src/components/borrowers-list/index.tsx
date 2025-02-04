@@ -6,11 +6,11 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
+import type { BorrowerStatusEntity } from "granite-liq-bot-common";
 import { useCallback, useState } from "react";
 import useTranslation from "../../hooks/use-translation";
-import { Borrower } from "../../types";
 
-const BorrowersList = ({ borrowers }: { borrowers: Borrower[] }) => {
+const BorrowersList = ({ borrowers }: { borrowers: BorrowerStatusEntity[] }) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(40);
   const [t] = useTranslation();

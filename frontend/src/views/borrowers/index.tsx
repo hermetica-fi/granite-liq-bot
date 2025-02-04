@@ -6,16 +6,16 @@ import {
   Typography,
 } from "@mui/material";
 import { navigate, RouteComponentProps, useParams } from "@reach/router";
+import type { BorrowerStatusEntity } from "granite-liq-bot-common";
 import { useCallback, useEffect, useState } from "react";
 import { fetchBorrowers } from "../../api";
 import AppMenu from "../../components/app-menu";
 import BorrowersList from "../../components/borrowers-list";
 import useTranslation from "../../hooks/use-translation";
-import { Borrower } from "../../types";
 
 const BorrowersPage = (_: RouteComponentProps) => {
   const [t] = useTranslation();
-  const [borrowers, setBorrowers] = useState<Borrower[]>([]);
+  const [borrowers, setBorrowers] = useState<BorrowerStatusEntity[]>([]);
   const params = useParams();
   const network = ["mainnet", "testnet"].includes(params.network)
     ? params.network

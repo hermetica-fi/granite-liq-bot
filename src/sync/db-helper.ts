@@ -1,11 +1,11 @@
 import assert from "assert";
-import type { NetworkName } from "granite-liq-bot-common";
+import type { BorrowerStatus, NetworkName } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
 import { MARKET_ASSET_DECIMAL } from "../constants";
 import { kvStoreGet, kvStoreSet } from "../db/helper";
 import type {
     AccrueInterestParams, BorrowerCollateralEntity, BorrowerEntity,
-    BorrowerPositionEntity, BorrowerStatus,
+    BorrowerPositionEntity,
     CollateralParams, DebtParams, InterestRateParams, LpParams,
     MarketState, PriceFeed
 } from "../types";

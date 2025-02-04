@@ -1,10 +1,10 @@
+import type { BorrowerStatus } from "granite-liq-bot-common";
 import {
     calculateAccountHealth, calculateAccountLiqLTV,
     calculateLiquidationPoint, calculateMaxRepayAmount, calculateTotalCollateralValue, convertDebtSharesToAssets
 } from "granite-math-sdk";
 import { IR_PARAMS_SCALING_FACTOR } from "../../constants";
-import type { BorrowerStatus, InterestRateParams, MarketState, PriceFeed } from "../../types";
-
+import type { InterestRateParams, MarketState, PriceFeed } from "../../types";
 
 const getCollateralPrice = (collateral: string, priceFeed: PriceFeed): number => {
     for (const f of Object.keys(priceFeed)) {
