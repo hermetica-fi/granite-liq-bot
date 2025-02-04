@@ -112,20 +112,15 @@ const addContract = async (req: Request) => {
 
 const setMarketAsset = async (req: Request) => {
     const body = await req.json();
-    const assetId = body.assetId?.trim();
+    const assetId = body.assetId?.trim() || null;
     const contractId = body.contractId?.trim();
-
-    if (assetId === '') {
-        return errorResponse('Invalid asset id');
-    }
 
     if (contractId === '') {
         return errorResponse('Invalid contract id');
     }
 
     const dbClient = await pool.connect();
-    const contract = await dbClient.query('SELECT address, name, operator_priv, network FROM contract WHERE id = $1 LIMIT 1', [contractId])
-        .then(r => r.rows[0]);
+    const contract = await dbClient.query('SELECT address, name, operator_priv, network FROM contract WHERE id = $1 LIMIT 1', [contractId]).then(r => r.rows[0]);
     dbClient.release();
 
     if (!contract) {
@@ -136,15 +131,17 @@ const setMarketAsset = async (req: Request) => {
 
     const operatorAddress = getAddressFromPrivateKey(priv, network);
 
-    let assetContractInfo;
-    try {
-        assetContractInfo = await getContractInfo(assetId, network);
-    } catch (error) {
-        return errorResponse('Could not fetch contract info');
-    }
+    if (assetId) {
+        let assetContractInfo;
+        try {
+            assetContractInfo = await getContractInfo(assetId, network);
+        } catch (error) {
+            return errorResponse('Could not fetch contract info');
+        }
 
-    if (assetContractInfo.error && assetContractInfo.message) {
-        return errorResponse(assetContractInfo.message);
+        if (assetContractInfo.error && assetContractInfo.message) {
+            return errorResponse(assetContractInfo.message);
+        }
     }
 
     let onChainOperatorAddress;
@@ -164,7 +161,7 @@ const setMarketAsset = async (req: Request) => {
     if (onChainOperatorAddress !== operatorAddress) {
         return errorResponse('Contract operator does not match');
     }
-    
+
     let nonce;
     try {
         nonce = await getNonce(operatorAddress, network);
@@ -176,9 +173,9 @@ const setMarketAsset = async (req: Request) => {
         contractAddress: contract.address,
         contractName: contract.name,
         functionName: 'set-market-assets',
-        functionArgs: [
+        functionArgs: assetId ? [
             listCV([contractPrincipalCV(assetId.split('.')[0], assetId.split('.')[1])])
-        ],
+        ] : [listCV([])],
         senderKey: priv,
         senderAddress: operatorAddress,
         network: network,

@@ -102,7 +102,7 @@ export const ContractInfo = ({ data }: { data: Contract }) => {
             <TableCell sx={{ display: "flex", alignItems: "center" }}>
               <Box sx={{ mr: "12px" }}>
                 {data.marketAsset ? (
-                  renderAddress(data.marketAsset)
+                  renderAddress(data.marketAsset.address)
                 ) : (
                   <Typography> {t("-")} </Typography>
                 )}
@@ -126,10 +126,23 @@ export const ContractInfo = ({ data }: { data: Contract }) => {
           <TableRow>
             <TableCell component="th" scope="row" sx={{ fontWeight: "bold" }}>
               <Typography sx={{ fontWeight: "500" }}>
-                {t("Balances")}
+                {t("Market Asset Balance")}
               </Typography>
             </TableCell>
-            <TableCell>
+            <TableCell sx={{ display: "flex", alignItems: "center" }}>
+            <Typography sx={{ mr: "12px" }}>
+                {data.marketAsset ? (
+                  <>
+                    {formatUnits(
+                      data.marketAsset.balance,
+                      data.marketAsset.decimals
+                    )}{" "}
+                    {data.marketAsset.symbol}
+                  </>
+                ) : (
+                  t("-")
+                )}
+              </Typography>
               <Button size="small" onClick={depositClicked}>
                 {t("Deposit")}
               </Button>

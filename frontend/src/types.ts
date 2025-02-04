@@ -4,8 +4,12 @@ export type Contract = ContractEntity & {
     operatorBalance: number,
     ownerAddress: string,
     unprofitabilityThreshold: number,
-    marketAsset: string | null,
-    balances: Record<string, number>,
+    marketAsset: {
+        address: string,
+        symbol: string,
+        decimals: number,
+        balance: number,
+    } | null
 }
 
 export type ContractState = {
