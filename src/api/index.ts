@@ -1,4 +1,4 @@
-import { cvToJSON, fetchCallReadOnlyFunction, getAddressFromPrivateKey } from "@stacks/transactions";
+import { contractPrincipalCV, cvToJSON, fetchCallReadOnlyFunction, getAddressFromPrivateKey, listCV } from "@stacks/transactions";
 import { generateWallet } from "@stacks/wallet-sdk";
 import { getContractInfo, type BorrowerStatus, type ContractEntity } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
@@ -109,7 +109,80 @@ const addContract = async (req: Request) => {
     return Response.json(contracts);
 }
 
+const setMarketAsset = async (req: Request) => {
+    const body = await req.json();
+    const assetId = body.assetId?.trim();
+    const contractId = body.contractId?.trim();
 
+    if (assetId === '') {
+        return errorResponse('Invalid asset id');
+    }
+
+    if (contractId === '') {
+        return errorResponse('Invalid contract id');
+    }
+
+    const dbClient = await pool.connect();
+    const contract = await dbClient.query('SELECT address, name, operator_priv, network FROM contract WHERE id = $1', [contractId])
+        .then(r => r.rows[0]);
+    dbClient.release();
+
+    if (!contract) {
+        return errorResponse('Contract not found');
+    }
+
+    const operatorPrivateKey = contract.operator_priv;
+    const network = contract.network;
+
+    const operatorAddress = getAddressFromPrivateKey(contract.operator_priv, contract.network);
+
+    let assetContractInfo;
+    try {
+        assetContractInfo = await getContractInfo(assetId, network);
+    } catch (error) {
+        return errorResponse('Could not fetch contract info');
+    }
+
+    if (assetContractInfo.error && assetContractInfo.message) {
+        return errorResponse(assetContractInfo.message);
+    }
+
+    let onChainOperatorAddress;
+    try {
+        onChainOperatorAddress = await fetchCallReadOnlyFunction({
+            contractAddress: contract.address,
+            contractName: contract.name,
+            functionName: 'get-operator',
+            functionArgs: [],
+            senderAddress: operatorAddress,
+            network: network,
+        }).then(r => cvToJSON(r).value);
+    } catch (error) {
+        return errorResponse('Could not fetch contract operator');
+    }
+
+    if (onChainOperatorAddress !== operatorAddress) {
+        return errorResponse('Contract operator does not match');
+    }
+
+
+    let tx
+
+    const txOptions = {
+        contractAddress: contract.address,
+        contractName: contract.name,
+        functionName: 'set-market-asset',
+        functionArgs: [
+            listCV([contractPrincipalCV(assetId.split('.')[0], assetId.split('.')[1])])
+        ],
+        senderAddress: operatorAddress,
+        network: network,
+    }
+
+    tx = "";
+
+    return Response.json({ message: 'Market asset set' });
+}
 const getBorrowers = async (req: Request, url: URL) => {
     const network = url.searchParams.get('network') || 'mainnet';
     const dbClient = await pool.connect();
@@ -141,6 +214,8 @@ export const main = async () => {
                 res = await addContract(req);
             } else if (req.method === "GET" && url.pathname === "/borrowers") {
                 res = await getBorrowers(req, url);
+            } else if (req.method === "POST" && url.pathname === "/set-market-asset") {
+                res = await setMarketAsset(req);
             } else {
                 res = new Response("Not found", { status: 404 });
             }

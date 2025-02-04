@@ -20,7 +20,7 @@ export const ContractInfo = ({ data }: { data: Contract }) => {
 
   const manageAssetSetClicked = () => {
     setModal({
-      body: <ManageAssetDialog />,
+      body: <ManageAssetDialog contract={data} />,
     });
   };
 

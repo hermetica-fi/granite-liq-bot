@@ -18,10 +18,7 @@ export const postAddContract = (address: string, mnemonic: string) => wrapRespon
 
 export const fetchBorrowers = (network: string): Promise<BorrowerStatusEntity[]> => wrapResponse(fetch(`${API_BASE}/borrowers?network=${network}`));
 
-export const setMarketAsset = (assetAddress: string) => wrapResponse(fetch(`${API_BASE}/set-market-asset`, {
+export const setMarketAsset = (assetId: string, contractId: string) => wrapResponse(fetch(`${API_BASE}/set-market-asset`, {
     method: 'POST',
-    headers: {
-        'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ assetAddress })
+    body: JSON.stringify({ assetId, contractId })
 }));    

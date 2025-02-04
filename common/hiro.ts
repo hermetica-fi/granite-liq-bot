@@ -26,7 +26,7 @@ export const fetchWrapper = async (path: string, network: StacksNetworkName, jso
                 r = await fetch(url);
             }
 
-            if (r.status === 200) {
+            if (r.status === 200 || r.status === 404) {
                 return r;
             }
 

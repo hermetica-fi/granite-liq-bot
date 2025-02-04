@@ -4,25 +4,31 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import { useState } from "react";
+import { setMarketAsset } from "../../api";
 import useTranslation from "../../hooks/use-translation";
 import { useModalStore } from "../../store/ui";
+import { Contract } from "../../types";
 import CloseModal from "../close-modal";
 
-const ManageAssetDialog = () => {
+const ManageAssetDialog = ({ contract }: { contract: Contract }) => {
   const [t] = useTranslation();
   const { setModal } = useModalStore();
-  const [asset, setAsset] = useState("");
+  const [assetId, setAssetId] = useState("");
 
   const handleClose = () => {
     setModal(null);
   };
 
   const handleSave = () => {
-    setModal(null);
+    setMarketAsset(assetId, contract.id).then((r) => {
+      console.log(r);
+    });
+
+    //setModal(null);
   };
 
   const handleAssetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setAsset(e.target.value);
+    setAssetId(e.target.value);
   };
 
   return (
@@ -36,7 +42,7 @@ const ManageAssetDialog = () => {
           <TextField
             fullWidth
             label={t("Asset address")}
-            value={asset}
+            value={assetId}
             onChange={handleAssetChange}
           />
         </Box>
