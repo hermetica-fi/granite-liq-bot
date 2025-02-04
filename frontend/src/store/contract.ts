@@ -59,9 +59,10 @@ export const useContractStore = create<ContractState>((set, get) => ({
             );
 
             if (marketAsset) {
+                const [contractAddress, contractName] = marketAsset.split('.');
                 const name = await callReadOnly({
-                    contractAddress: marketAsset.split('.')[0],
-                    contractName: marketAsset.split('.')[1],
+                    contractAddress,
+                    contractName,
                     functionName: 'get-name',
                     functionArgs: [],
                     senderAddress: operatorAddress,
@@ -69,8 +70,8 @@ export const useContractStore = create<ContractState>((set, get) => ({
                 }).then(r => cvToJSON(r).value.value);
 
                 const symbol = await callReadOnly({
-                    contractAddress: marketAsset.split('.')[0],
-                    contractName: marketAsset.split('.')[1],
+                    contractAddress,
+                    contractName,
                     functionName: 'get-symbol',
                     functionArgs: [],
                     senderAddress: operatorAddress,
@@ -78,8 +79,8 @@ export const useContractStore = create<ContractState>((set, get) => ({
                 }).then(r => cvToJSON(r).value.value);
 
                 const decimals = await callReadOnly({
-                    contractAddress: marketAsset.split('.')[0],
-                    contractName: marketAsset.split('.')[1],
+                    contractAddress,
+                    contractName,
                     functionName: 'get-decimals',
                     functionArgs: [],
                     senderAddress: operatorAddress,
@@ -87,11 +88,11 @@ export const useContractStore = create<ContractState>((set, get) => ({
                 }).then(r => cvToJSON(r).value.value);
 
                 const balance = await callReadOnly({
-                    contractAddress: marketAsset.split('.')[0],
-                    contractName: marketAsset.split('.')[1],
+                    contractAddress,
+                    contractName,
                     functionName: 'get-balance',
                     functionArgs: [
-                        contractPrincipalCV(baseContract.address, baseContract.network)
+                        contractPrincipalCV(baseContract.address, baseContract.name)
                     ],
                     senderAddress: operatorAddress,
                     network: baseContract.network,
