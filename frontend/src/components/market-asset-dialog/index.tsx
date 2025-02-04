@@ -25,6 +25,12 @@ const ManageAssetDialog = ({ contract }: { contract: Contract }) => {
   };
 
   const handleSubmit = async () => {
+    if (assetId.trim() === "") {
+      if (!confirm(t("This is going to reset market asset. Are you sure?"))) {
+        return;
+      }
+    }
+
     setInProgress(true);
     try {
       const { txid } = await setMarketAsset(assetId, contract.id);
