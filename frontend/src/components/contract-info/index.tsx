@@ -15,13 +15,11 @@ import NetworkChip from "../network-chip";
 
 export const ContractInfo = ({ data }: { data: Contract }) => {
   const [t] = useTranslation();
- const {  setModal } = useModalStore();
-
-
+  const { setModal } = useModalStore();
 
   const depositClicked = () => {
     setModal(null);
-  }
+  };
 
   const renderAddress = useCallback(
     (address: string) => {
@@ -54,10 +52,13 @@ export const ContractInfo = ({ data }: { data: Contract }) => {
           </TableRow>
 
           <TableRow>
-            <TableCell component="th" scope="row" >
+            <TableCell component="th" scope="row">
               <Typography sx={{ fontWeight: "500" }}>{t("Network")}</Typography>
             </TableCell>
-            <TableCell> <NetworkChip network={data.network} /> </TableCell>
+            <TableCell>
+              {" "}
+              <NetworkChip network={data.network} />{" "}
+            </TableCell>
           </TableRow>
           <TableRow>
             <TableCell component="th" scope="row">
@@ -112,9 +113,7 @@ export const ContractInfo = ({ data }: { data: Contract }) => {
               <Typography sx={{ mr: "12px" }}>
                 {data.unprofitabilityThreshold}
               </Typography>
-              <Button size="small">
-                Set
-              </Button>
+              <Button size="small">Set</Button>
             </TableCell>
           </TableRow>
           <TableRow>
@@ -125,7 +124,7 @@ export const ContractInfo = ({ data }: { data: Contract }) => {
             </TableCell>
             <TableCell>
               <Button size="small" onClick={depositClicked}>
-              {t("Deposit")}
+                {t("Deposit")}
               </Button>
             </TableCell>
           </TableRow>
