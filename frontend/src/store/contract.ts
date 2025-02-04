@@ -32,7 +32,7 @@ export const useContractStore = create<ContractState>((set, get) => ({
         }).then(data => {
             const json = cvToJSON(data);
 
-            const marketAssets = json.value["market-assets"].value;
+            const marketAssets = json.value["market-assets"].value.map((x: {value: string}) => x.value)
             const operatorAddress = json.value["operator"].value;
             const ownerAddress = json.value["owner"].value;
             const unprofitabilityThreshold = Number(json.value["unprofitability-threshold"].value);

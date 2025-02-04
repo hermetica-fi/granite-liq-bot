@@ -102,9 +102,9 @@ export const ContractInfo = ({ data }: { data: Contract }) => {
             <TableCell sx={{ display: "flex", alignItems: "center" }}>
               <Box sx={{ mr: "12px" }}>
                 {data.marketAssets.length > 0 ? (
-                  <Typography>{data.marketAssets.join(", ")}</Typography>
+                  renderAddress(data.marketAssets[0])
                 ) : (
-                  <Typography>{t("-")}</Typography>
+                  <Typography> {t("-")} </Typography>
                 )}
               </Box>
               <Button onClick={manageAssetSetClicked}>Set</Button>
