@@ -1,6 +1,6 @@
 import type { NetworkName } from "granite-liq-bot-common";
+import { pythFetchgGetPriceFeed } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
-import { getPriceFeed } from "../../client/pyth";
 import { getAccrueInterestParams, getCollateralParams, getDebtParams, getIrParams, getLpParams } from "../../client/stacks";
 import { PRICE_FEED_IDS } from "../../constants";
 import { pool } from "../../db";
@@ -81,9 +81,9 @@ const syncMarketState = async (dbClient: PoolClient) => {
     }
 
     const priceFeed: PriceFeed = {
-        btc: await getPriceFeed(PRICE_FEED_IDS.btc),
-        eth: await getPriceFeed(PRICE_FEED_IDS.eth),
-        usdc: await getPriceFeed(PRICE_FEED_IDS.usdc),
+        btc: await pythFetchgGetPriceFeed(PRICE_FEED_IDS.btc),
+        eth: await pythFetchgGetPriceFeed(PRICE_FEED_IDS.eth),
+        usdc: await pythFetchgGetPriceFeed(PRICE_FEED_IDS.usdc),
     }
 
     await setPriceFeedLocal(dbClient, priceFeed);
