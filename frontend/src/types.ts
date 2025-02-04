@@ -25,8 +25,15 @@ export type ContractsListState = {
 
 export type ToastType = null | 'error' | 'warning' | 'info' | 'success';
 
-export interface ToastState {
+export type ToastState = {
     message: null | string,
     type: ToastType,
     setToast: (message: null | string, type: ToastType) => void,
+}
+
+export type Modal = { body: JSX.Element, fullScreen?: boolean } | null;
+
+export type ModalState = {
+    modal: Modal | null,
+    setModal: (modal: Modal | null) => void,   
 }

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { ToastState, ToastType } from '../types';
+import { Modal, ModalState, ToastState, ToastType } from '../types';
 
 export const useToastStore = create<ToastState>((set) => ({
     message: null, 
@@ -7,4 +7,11 @@ export const useToastStore = create<ToastState>((set) => ({
     setToast: (message: null | string, type: ToastType) => {
         set({ message, type });
     }
+}));
+
+export const useModalStore = create<ModalState>((set) => ({
+    modal: null,
+    setModal: (modal: Modal | null) => {
+        set({ modal });
+    }   
 }));

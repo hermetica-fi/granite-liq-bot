@@ -1,10 +1,13 @@
 import React from "react";
 
+import ModalProvider from "./modal";
 import ToastProvider from "./toast";
 
 const Providers = ({ children }: { children: React.ReactNode }) => {
   return (
-    <ToastProvider>{children}</ToastProvider>
+    <ModalProvider>
+      <ToastProvider>{children}</ToastProvider>
+    </ModalProvider>
   );
 };
 

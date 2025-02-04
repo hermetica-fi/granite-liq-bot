@@ -9,11 +9,19 @@ import TableRow from "@mui/material/TableRow";
 import { addressLink, formatUnits } from "granite-liq-bot-common";
 import { useCallback } from "react";
 import useTranslation from "../../hooks/use-translation";
+import { useModalStore } from "../../store/ui";
 import { Contract } from "../../types";
 import NetworkChip from "../network-chip";
 
 export const ContractInfo = ({ data }: { data: Contract }) => {
   const [t] = useTranslation();
+ const {  setModal } = useModalStore();
+
+
+
+  const depositClicked = () => {
+    setModal(null);
+  }
 
   const renderAddress = useCallback(
     (address: string) => {
@@ -116,7 +124,7 @@ export const ContractInfo = ({ data }: { data: Contract }) => {
               </Typography>
             </TableCell>
             <TableCell>
-              <Button size="small">
+              <Button size="small" onClick={depositClicked}>
               {t("Deposit")}
               </Button>
             </TableCell>
