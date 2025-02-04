@@ -11,11 +11,18 @@ import { useCallback } from "react";
 import useTranslation from "../../hooks/use-translation";
 import { useModalStore } from "../../store/ui";
 import { Contract } from "../../types";
+import ManageAssetDialog from "../market-asset-dialog";
 import NetworkChip from "../network-chip";
 
 export const ContractInfo = ({ data }: { data: Contract }) => {
   const [t] = useTranslation();
   const { setModal } = useModalStore();
+
+  const manageAssetSetClicked = () => {
+    setModal({
+      body: <ManageAssetDialog />,
+    });
+  };
 
   const depositClicked = () => {
     setModal(null);
@@ -89,7 +96,7 @@ export const ContractInfo = ({ data }: { data: Contract }) => {
           <TableRow>
             <TableCell component="th" scope="row">
               <Typography sx={{ fontWeight: "500" }}>
-                {t("Market assets")}
+                {t("Market asset")}
               </Typography>
             </TableCell>
             <TableCell sx={{ display: "flex", alignItems: "center" }}>
@@ -100,7 +107,7 @@ export const ContractInfo = ({ data }: { data: Contract }) => {
                   <Typography>{t("-")}</Typography>
                 )}
               </Box>
-              <Button>Add</Button>
+              <Button onClick={manageAssetSetClicked}>Set</Button>
             </TableCell>
           </TableRow>
           <TableRow>
