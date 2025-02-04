@@ -6,6 +6,7 @@ export type Contract = ContractEntity & {
     unprofitabilityThreshold: number,
     marketAsset: {
         address: string,
+        name: string,
         symbol: string,
         decimals: number,
         balance: number,

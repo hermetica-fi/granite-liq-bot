@@ -59,6 +59,15 @@ export const useContractStore = create<ContractState>((set, get) => ({
             );
 
             if (marketAsset) {
+                const name = await callReadOnly({
+                    contractAddress: marketAsset.split('.')[0],
+                    contractName: marketAsset.split('.')[1],
+                    functionName: 'get-name',
+                    functionArgs: [],
+                    senderAddress: operatorAddress,
+                    network: baseContract.network,
+                }).then(r => cvToJSON(r).value.value);
+
                 const symbol = await callReadOnly({
                     contractAddress: marketAsset.split('.')[0],
                     contractName: marketAsset.split('.')[1],
@@ -94,6 +103,7 @@ export const useContractStore = create<ContractState>((set, get) => ({
                         ...state.data!,
                         marketAsset: {
                             address: marketAsset,
+                            name,
                             symbol,
                             decimals,
                             balance

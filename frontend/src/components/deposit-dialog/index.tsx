@@ -11,7 +11,7 @@ import {
   deserializeTransaction,
   makeUnsignedContractCall,
   Pc,
-  uintCV,
+  uintCV
 } from "@stacks/transactions";
 import { TESTNET_FEE } from "granite-liq-bot-common";
 import { useState } from "react";
@@ -32,15 +32,21 @@ const DepositDialog = ({ contract }: { contract: Contract }) => {
   };
 
   const handleSubmit = async () => {
+    const marketAsset = contract.marketAsset!;
+
     const response = await window.LeatherProvider?.request("getAddresses");
     if (!response) {
       return;
     }
     const { addresses } = response.result;
-
+    const stxAddress = addresses.find(
+      (address) => address.symbol === "STX"
+    )!.address;
     const publicKey = addresses.find(
       (address) => address.symbol === "STX"
     )!.publicKey;
+
+
 
     const txOptions = {
       contractAddress: contract.address,
@@ -48,8 +54,8 @@ const DepositDialog = ({ contract }: { contract: Contract }) => {
       functionName: "deposit",
       functionArgs: [
         contractPrincipalCV(
-          contract.marketAsset!.address.split(".")[0],
-          contract.marketAsset!.address.split(".")[1]
+          marketAsset.address.split(".")[0],
+          marketAsset.address.split(".")[1]
         ),
         uintCV(100),
       ],
@@ -57,11 +63,11 @@ const DepositDialog = ({ contract }: { contract: Contract }) => {
       publicKey,
       fee: contract.network === "testnet" ? TESTNET_FEE : undefined,
       postConditions: [
-        Pc.principal(contract.id)
+        Pc.principal(stxAddress)
           .willSendGte(100)
           .ft(
             contract.marketAsset!.address as ContractIdString,
-            contract.marketAsset!.symbol
+            contract.marketAsset!.name
           ),
       ],
     };
