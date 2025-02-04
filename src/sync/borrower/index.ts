@@ -1,5 +1,5 @@
 import type { PoolClient } from "pg";
-import { getUserCollateralAmount, getUserPosition } from "../../client/stacks";
+import { getUserCollateralAmount, getUserPosition } from "../../client/read-only-call";
 import { pool } from "../../db";
 import { createLogger } from "../../logger";
 import { getBorrowersToSync, switchBorrowerSyncFlagOff, syncBorrowerCollaterals, syncBorrowerPosition } from "../db-helper";
