@@ -1,8 +1,9 @@
 import { StacksNetworkName } from '@stacks/network';
 import { cvToJSON } from '@stacks/transactions';
+import { callReadOnly } from 'granite-liq-bot-common';
 import { create } from 'zustand';
-import { callReadOnly } from '../api/hiro';
 import { ContractState } from '../types';
+
 export const useContractStore = create<ContractState>((set, get) => ({
     initialized: false,
     loading: false,
