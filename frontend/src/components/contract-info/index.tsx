@@ -18,13 +18,17 @@ export const ContractInfo = ({ data }: { data: Contract }) => {
   const [t] = useTranslation();
   const { setModal } = useModalStore();
 
-  const manageAssetSetClicked = () => {
+  const setMarketAssetClicked = () => {
     setModal({
       body: <ManageAssetDialog contract={data} />,
     });
   };
 
   const depositClicked = () => {
+    setModal(null);
+  };
+
+  const thresholdSetClicked = () => {
     setModal(null);
   };
 
@@ -100,50 +104,52 @@ export const ContractInfo = ({ data }: { data: Contract }) => {
               </Typography>
             </TableCell>
             <TableCell sx={{ display: "flex", alignItems: "center" }}>
-              <Box sx={{ mr: "12px" }}>
-                {data.marketAsset ? (
-                  renderAddress(data.marketAsset.address)
-                ) : (
-                  <Typography> {t("-")} </Typography>
-                )}
-              </Box>
-              <Button onClick={manageAssetSetClicked}>Set</Button>
+              {data.marketAsset ? (
+                <Box sx={{ mr: "12px" }}>
+                  {renderAddress(data.marketAsset.address)}
+                </Box>
+              ) : (
+                <Typography sx={{ width: "30px" }}> {t("-")} </Typography>
+              )}
+              <Button variant="outlined" size="small" onClick={setMarketAssetClicked}>
+                {t("Set")}
+              </Button>
             </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell component="th" scope="row" sx={{ fontWeight: "bold" }}>
+            <TableCell component="th" scope="row">
               <Typography sx={{ fontWeight: "500" }}>
                 {t("Unprofitability threshold")}
               </Typography>
             </TableCell>
             <TableCell sx={{ display: "flex", alignItems: "center" }}>
-              <Typography sx={{ mr: "12px" }}>
+              <Typography sx={{ width: "30px" }}>
                 {data.unprofitabilityThreshold}
               </Typography>
-              <Button size="small">Set</Button>
+              <Button variant="outlined" size="small" onClick={thresholdSetClicked}>
+                {t("Set")}
+              </Button>
             </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell component="th" scope="row" sx={{ fontWeight: "bold" }}>
+            <TableCell component="th" scope="row">
               <Typography sx={{ fontWeight: "500" }}>
                 {t("Market Asset Balance")}
               </Typography>
             </TableCell>
             <TableCell sx={{ display: "flex", alignItems: "center" }}>
-            <Typography sx={{ mr: "12px" }}>
-                {data.marketAsset ? (
-                  <>
-                    {formatUnits(
-                      data.marketAsset.balance,
-                      data.marketAsset.decimals
-                    )}{" "}
-                    {data.marketAsset.symbol}
-                  </>
-                ) : (
-                  t("-")
-                )}
-              </Typography>
-              <Button size="small" onClick={depositClicked}>
+              {data.marketAsset ? (
+                <Typography sx={{ mr: "12px" }}>
+                  {formatUnits(
+                    data.marketAsset.balance,
+                    data.marketAsset.decimals
+                  )}{" "}
+                  {data.marketAsset.symbol}
+                </Typography>
+              ) : (
+                <Typography sx={{ width: "30px" }}>{t("-")} </Typography>
+              )}
+              <Button variant="outlined" size="small" onClick={depositClicked}>
                 {t("Deposit")}
               </Button>
             </TableCell>
