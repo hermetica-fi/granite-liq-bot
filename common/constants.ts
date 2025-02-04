@@ -1,0 +1,1 @@
+export const TESTNET_FEE = 1_00000; // 0.1 STX

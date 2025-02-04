@@ -11,6 +11,7 @@ import { useCallback } from "react";
 import useTranslation from "../../hooks/use-translation";
 import { useModalStore } from "../../store/ui";
 import { Contract } from "../../types";
+import DepositDialog from "../deposit-dialog";
 import ManageAssetDialog from "../market-asset-dialog";
 import NetworkChip from "../network-chip";
 import ThresholdDialog from "../threshold-dialog";
@@ -26,7 +27,9 @@ export const ContractInfo = ({ data }: { data: Contract }) => {
   };
 
   const depositClicked = () => {
-    setModal(null);
+    setModal({
+      body: <DepositDialog contract={data} />
+    });
   };
 
   const thresholdSetClicked = () => {
