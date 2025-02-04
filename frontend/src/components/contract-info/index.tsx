@@ -101,8 +101,8 @@ export const ContractInfo = ({ data }: { data: Contract }) => {
             </TableCell>
             <TableCell sx={{ display: "flex", alignItems: "center" }}>
               <Box sx={{ mr: "12px" }}>
-                {data.marketAssets.length > 0 ? (
-                  renderAddress(data.marketAssets[0])
+                {data.marketAsset ? (
+                  renderAddress(data.marketAsset)
                 ) : (
                   <Typography> {t("-")} </Typography>
                 )}

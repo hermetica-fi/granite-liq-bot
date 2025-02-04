@@ -17,7 +17,7 @@ export const useContractStore = create<ContractState>((set, get) => ({
                 operatorBalance: 0,
                 ownerAddress: '',
                 unprofitabilityThreshold: 0,
-                marketAssets: [],
+                marketAsset: null,
                 balances: {}
             }
         });
@@ -32,7 +32,7 @@ export const useContractStore = create<ContractState>((set, get) => ({
         }).then(data => {
             const json = cvToJSON(data);
 
-            const marketAssets = json.value["market-assets"].value.map((x: {value: string}) => x.value)
+            const marketAsset = json.value["market-assets"].value.map((x: {value: string}) => x.value)[0] || null;
             const operatorAddress = json.value["operator"].value;
             const ownerAddress = json.value["owner"].value;
             const unprofitabilityThreshold = Number(json.value["unprofitability-threshold"].value);
@@ -41,7 +41,7 @@ export const useContractStore = create<ContractState>((set, get) => ({
                 ...state,
                 data: {
                     ...state.data!,
-                    marketAssets,
+                    marketAsset,
                     operatorAddress,
                     ownerAddress,
                     unprofitabilityThreshold
