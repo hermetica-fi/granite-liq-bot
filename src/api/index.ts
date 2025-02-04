@@ -217,6 +217,7 @@ const setMarketAsset = async (req: Request) => {
 
     return Response.json({ txid: result.txid });
 }
+
 const getBorrowers = async (req: Request, url: URL) => {
     const network = url.searchParams.get('network') || 'mainnet';
     const dbClient = await pool.connect();
