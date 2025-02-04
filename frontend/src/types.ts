@@ -1,12 +1,5 @@
-import { StacksNetworkName } from "@stacks/network";
+import { ContractEntity, NetworkName } from "granite-liq-bot-common";
 
-export type ContractEntity = {
-    id: string,
-    address: string,
-    name: string,
-    network: StacksNetworkName,
-    operatorAddress: string
-}
 
 export type Contract = ContractEntity & {
     operatorBalance: string,
@@ -20,7 +13,7 @@ export type ContractState = {
     initialized: boolean,
     loading: boolean,
     data: Contract | null,
-    loadContract: (address: string, name :string, network: StacksNetworkName) => Promise<void>,
+    loadContract: (address: string, name :string, network: NetworkName) => Promise<void>,
 }
 
 export type ContractsState = {
@@ -33,7 +26,7 @@ export type ContractsState = {
 
 export type Borrower = {
     address: string,
-    network: StacksNetworkName,
+    network: NetworkName,
     ltv: number,
     health: number,
     debt: number,

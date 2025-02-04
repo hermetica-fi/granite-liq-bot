@@ -1,14 +1,14 @@
 import type { TransactionEventSmartContractLog } from "@stacks/stacks-blockchain-api-types";
 import { cvToJSON, hexToCV } from "@stacks/transactions";
-import { getContractEvents } from "granite-liq-bot-common";
+import { getContractEvents, type NetworkName } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
 import { CONTRACTS } from "../../constants";
 import { pool } from "../../db";
 import { kvStoreGet, kvStoreSet } from "../../db/helper";
 import { getNetworkNameFromAddress } from "../../helper";
 import { createLogger } from "../../logger";
-import type { NetworkName } from "../../types";
 import { upsertBorrower } from "../db-helper";
+
 
 const logger = createLogger("event-sync");
 

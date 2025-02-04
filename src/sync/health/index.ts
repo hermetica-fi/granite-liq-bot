@@ -1,9 +1,10 @@
 import assert from "assert";
+import type { NetworkName } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
 import { pool } from "../../db";
-import type { NetworkName } from "../../types";
 import { clearBorrowerStatuses, getBorrowerCollateralAmount, getBorrowersForHealthCheck, getMarketState, insertBorrowerStatus } from "../db-helper";
 import { calcBorrowerStatus } from "./shared";
+
 
 export const worker = async (dbClient: PoolClient) => {
   await dbClient.query("BEGIN");

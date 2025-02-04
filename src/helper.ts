@@ -1,4 +1,4 @@
-import type { NetworkName } from "./types";
+import type { NetworkName } from "granite-liq-bot-common";
 
 
 export const getNetworkNameFromAddress = (address: string): NetworkName => {

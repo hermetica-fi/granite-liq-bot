@@ -1,6 +1,6 @@
+import type { NetworkName } from "granite-liq-bot-common";
 import type { CollateralParams as CollateralParams_, Collateral as Collateral_, InterestRateParams as InterestRateParams_ } from "granite-math-sdk";
 
-export type NetworkName = "mainnet" | "testnet";
 
 export type InterestRateParams = InterestRateParams_;
 

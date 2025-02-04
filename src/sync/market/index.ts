@@ -1,3 +1,4 @@
+import type { NetworkName } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
 import { getPriceFeed } from "../../client/pyth";
 import { getAccrueInterestParams, getCollateralParams, getDebtParams, getIrParams, getLpParams } from "../../client/stacks";
@@ -5,7 +6,7 @@ import { PRICE_FEED_IDS } from "../../constants";
 import { pool } from "../../db";
 import { getNetworkNameFromAddress } from "../../helper";
 import { createLogger } from "../../logger";
-import type { CollateralParams, NetworkName, PriceFeed } from "../../types";
+import type { CollateralParams, PriceFeed } from "../../types";
 import { epoch } from "../../util";
 import {
     getDistinctCollateralList, setAccrueInterestParamsLocal, setCollateralParamsLocal,

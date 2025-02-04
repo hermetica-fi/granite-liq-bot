@@ -1,4 +1,5 @@
 import assert from "assert";
+import type { NetworkName } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
 import { MARKET_ASSET_DECIMAL } from "../constants";
 import { kvStoreGet, kvStoreSet } from "../db/helper";
@@ -6,8 +7,9 @@ import type {
     AccrueInterestParams, BorrowerCollateralEntity, BorrowerEntity,
     BorrowerPositionEntity, BorrowerStatus,
     CollateralParams, DebtParams, InterestRateParams, LpParams,
-    MarketState, NetworkName, PriceFeed
+    MarketState, PriceFeed
 } from "../types";
+
 
 export const upsertBorrower = async (dbClient: PoolClient, network: NetworkName, address: string): Promise< 0 | 1 | 2> => {
     const rec = await dbClient.query("SELECT sync_flag FROM borrower WHERE address = $1", [address]).then((r) => r.rows[0]);
