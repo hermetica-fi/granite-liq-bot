@@ -1,6 +1,6 @@
 import { networkFromName, type StacksNetworkName } from "@stacks/network";
 import type { AddressBalanceResponse, TransactionEventsResponse } from "@stacks/stacks-blockchain-api-types";
-import { cvToHex, hexToCV, type ClarityValue } from "@stacks/transactions";
+import { cvToHex, hexToCV, type ClarityValue, type FeeEstimateResponse } from "@stacks/transactions";
 
 const MAX_RETRIES = 5;
 const INITIAL_DELAY = 5000;
@@ -85,5 +85,15 @@ export const getContractEvents = async (contractId: string, limit: number, offse
 
 export const getAccountBalances = async (principal: string, network: StacksNetworkName): Promise<AddressBalanceResponse> => {
     return fetchWrapper(`/extended/v1/address/${principal}/balances`, network).then(r => r.json())
+}
+
+export const getFeeEstimate = async (tx: string, network: StacksNetworkName): Promise<FeeEstimateResponse> => {
+    return fetchWrapper(`/v2/fees/transaction`, network, {
+        transaction_payload: tx
+    }).then(r => r.json())
+}
+
+export const getNonce = async (principal: string, network: StacksNetworkName): Promise<FeeEstimateResponse> => {
+    return fetchWrapper(`/extended/v1/address/${principal}/nonces`, network).then(r => r.json()).then(r => r.possible_next_nonce);
 }
 

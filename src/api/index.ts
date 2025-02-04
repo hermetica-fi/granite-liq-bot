@@ -1,7 +1,8 @@
-import { contractPrincipalCV, cvToJSON, fetchCallReadOnlyFunction, getAddressFromPrivateKey, listCV } from "@stacks/transactions";
+import { broadcastTransaction, contractPrincipalCV, cvToJSON, fetchCallReadOnlyFunction, getAddressFromPrivateKey, listCV, makeContractCall, serializePayload } from "@stacks/transactions";
 import { generateWallet } from "@stacks/wallet-sdk";
-import { getContractInfo, type BorrowerStatus, type ContractEntity } from "granite-liq-bot-common";
+import { getContractInfo, getFeeEstimate, getNonce, type BorrowerStatus, type ContractEntity } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
+import { MAINNET_MAX_FEE, TESTNET_FEE } from "../constants";
 import { pool } from "../db";
 import { getNetworkNameFromAddress } from "../helper";
 
@@ -123,7 +124,7 @@ const setMarketAsset = async (req: Request) => {
     }
 
     const dbClient = await pool.connect();
-    const contract = await dbClient.query('SELECT address, name, operator_priv, network FROM contract WHERE id = $1', [contractId])
+    const contract = await dbClient.query('SELECT address, name, operator_priv, network FROM contract WHERE id = $1 LIMIT 1', [contractId])
         .then(r => r.rows[0]);
     dbClient.release();
 
@@ -131,10 +132,9 @@ const setMarketAsset = async (req: Request) => {
         return errorResponse('Contract not found');
     }
 
-    const operatorPrivateKey = contract.operator_priv;
-    const network = contract.network;
+    const { operator_priv: priv, network } = contract;
 
-    const operatorAddress = getAddressFromPrivateKey(contract.operator_priv, contract.network);
+    const operatorAddress = getAddressFromPrivateKey(priv, network);
 
     let assetContractInfo;
     try {
@@ -164,24 +164,58 @@ const setMarketAsset = async (req: Request) => {
     if (onChainOperatorAddress !== operatorAddress) {
         return errorResponse('Contract operator does not match');
     }
-
-
-    let tx
+    
+    let nonce;
+    try {
+        nonce = await getNonce(operatorAddress, network);
+    } catch (error) {
+        return errorResponse('Could not get nonce');
+    }
 
     const txOptions = {
         contractAddress: contract.address,
         contractName: contract.name,
-        functionName: 'set-market-asset',
+        functionName: 'set-market-assets',
         functionArgs: [
             listCV([contractPrincipalCV(assetId.split('.')[0], assetId.split('.')[1])])
         ],
+        senderKey: priv,
         senderAddress: operatorAddress,
         network: network,
+        fee: TESTNET_FEE,
+        validateWithAbi: true,
+        nonce
     }
 
-    tx = "";
+    let transaction;
+    try {
+        transaction = await makeContractCall(txOptions);
+    } catch (e) {
+        return errorResponse('Could not make contract call');
+    }
 
-    return Response.json({ message: 'Market asset set' });
+    if (network === 'mainnet') {
+        let feeEstimate;
+
+        try {
+            feeEstimate = await getFeeEstimate(serializePayload(transaction.payload), network);
+        } catch (e) {
+            return errorResponse('Could not get fee estimate');
+        }
+
+        const fee = feeEstimate.estimations[1].fee;
+        transaction.setFee(fee > MAINNET_MAX_FEE ? MAINNET_MAX_FEE : fee);
+    }
+
+    let result;
+
+    try {
+        result = await broadcastTransaction({ transaction, network });
+    } catch (e) {
+        return errorResponse('Could not broadcast transaction');
+    }
+
+    return Response.json({ txid: result.txid });
 }
 const getBorrowers = async (req: Request, url: URL) => {
     const network = url.searchParams.get('network') || 'mainnet';
