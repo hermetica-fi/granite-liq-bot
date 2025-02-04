@@ -1,4 +1,4 @@
-import { Borrower } from "../types";
+import { BorrowerStatusEntity } from "granite-liq-bot-common";
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8081';
 
@@ -16,7 +16,7 @@ export const postAddContract = (address: string, mnemonic: string) => wrapRespon
     body: JSON.stringify({ address, mnemonic })
 }));
 
-export const fetchBorrowers = (network: string): Promise<Borrower[]> => wrapResponse(fetch(`${API_BASE}/borrowers?network=${network}`));
+export const fetchBorrowers = (network: string): Promise<BorrowerStatusEntity[]> => wrapResponse(fetch(`${API_BASE}/borrowers?network=${network}`));
 
 export const setMarketAsset = (assetAddress: string) => wrapResponse(fetch(`${API_BASE}/set-market-asset`, {
     method: 'POST',
