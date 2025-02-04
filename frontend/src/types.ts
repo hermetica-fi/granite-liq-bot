@@ -15,7 +15,7 @@ export type ContractState = {
     loadContract: (baseContract: ContractEntity) => Promise<void>,
 }
 
-export type ContractsState = {
+export type ContractsListState = {
     initialized: boolean,
     loading: boolean,
     contracts: ContractEntity[],

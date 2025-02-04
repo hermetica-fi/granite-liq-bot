@@ -2,7 +2,7 @@ import { Box, Button, TextField, Typography } from "@mui/material";
 import { useState } from "react";
 import useToast from "../../hooks/use-toast";
 import useTranslation from "../../hooks/use-translation";
-import { useContractsStore } from "../../store/contracts";
+import { useContractsListStore } from "../../store/contracts-list";
 import ThemedBox from "../themed-box";
 
 const AddContractForm = () => {
@@ -13,7 +13,7 @@ const AddContractForm = () => {
 
   const [showMessage] = useToast();
 
-  const { addContract } = useContractsStore()
+  const { addContract } = useContractsListStore()
 
   const handleSubmit = async () => {
     setInProgress(true);

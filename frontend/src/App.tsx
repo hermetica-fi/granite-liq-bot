@@ -4,7 +4,7 @@ import "./App.css";
 import useToast from "./hooks/use-toast";
 import Layout from "./layout";
 import Providers from "./providers";
-import { useContractsStore } from "./store/contracts";
+import { useContractsListStore } from "./store/contracts-list";
 import BorrowersPage from "./views/borrowers";
 import ContractPage from "./views/contract";
 import HomePage from "./views/home";
@@ -14,7 +14,7 @@ function App() {
     initialized,
     loading: contractsLoading,
     loadContracts,
-  } = useContractsStore();
+  } = useContractsListStore();
   const [showMessage] = useToast();
 
   useEffect(() => {

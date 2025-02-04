@@ -10,10 +10,10 @@ import { useEffect } from "react";
 import AppMenu from "../../components/app-menu";
 import useTranslation from "../../hooks/use-translation";
 import { useContractStore } from "../../store/contract";
-import { useContractsStore } from "../../store/contracts";
+import { useContractsListStore } from "../../store/contracts-list";
 
 const ContractPage = (_: RouteComponentProps) => {
-  const { contracts } = useContractsStore();
+  const { contracts } = useContractsListStore();
   const { loadContract, data, loading } = useContractStore();
   const params = useParams();
   const { id } = params;

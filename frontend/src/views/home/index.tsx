@@ -3,10 +3,10 @@ import { RouteComponentProps } from "@reach/router";
 import AddContractForm from "../../components/add-contract-form";
 import AppMenu from "../../components/app-menu";
 import ContractList from "../../components/contract-list";
-import { useContractsStore } from "../../store/contracts";
+import { useContractsListStore } from "../../store/contracts-list";
 
 const HomePage = (_: RouteComponentProps) => {
-  const { contracts } = useContractsStore();
+  const { contracts } = useContractsListStore();
   return (
     <>
       <AppMenu />
