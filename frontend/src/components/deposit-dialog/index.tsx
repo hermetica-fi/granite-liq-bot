@@ -21,11 +21,13 @@ import {
 import { useCallback, useMemo, useState } from "react";
 import useToast from "../../hooks/use-toast";
 import useTranslation from "../../hooks/use-translation";
+import { useContractStore } from "../../store/contract";
 import { useModalStore } from "../../store/ui";
-import { Contract } from "../../types";
 import CloseModal from "../close-modal";
 
-const DepositDialog = ({ contract }: { contract: Contract }) => {
+const DepositDialog = () => {
+  const store = useContractStore();
+  const contract = store.data!;
   const [t] = useTranslation();
   const { setModal } = useModalStore();
   const [showMessage] = useToast();

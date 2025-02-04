@@ -8,11 +8,13 @@ import { useMemo, useState } from "react";
 import { setContractValue } from "../../api";
 import useToast from "../../hooks/use-toast";
 import useTranslation from "../../hooks/use-translation";
+import { useContractStore } from "../../store/contract";
 import { useModalStore } from "../../store/ui";
-import { Contract } from "../../types";
 import CloseModal from "../close-modal";
 
-const ThresholdDialog = ({ contract }: { contract: Contract }) => {
+const ThresholdDialog = () => {
+  const store = useContractStore();
+  const contract = store.data!;
   const [t] = useTranslation();
   const { setModal } = useModalStore();
   const [threshold, setThreshold] = useState("");
@@ -33,7 +35,11 @@ const ThresholdDialog = ({ contract }: { contract: Contract }) => {
 
     setInProgress(true);
     try {
-      const { txid } = await setContractValue(contract.id, 'set-unprofitability-threshold', threshold);
+      const { txid } = await setContractValue(
+        contract.id,
+        "set-unprofitability-threshold",
+        threshold
+      );
 
       setTxid(txid);
     } catch (error) {
@@ -65,9 +71,7 @@ const ThresholdDialog = ({ contract }: { contract: Contract }) => {
           {txid ? (
             <Box sx={{ wordBreak: "break-word" }}>
               <Typography>
-                {t(
-                  "A transaction successfully sent to update state:"
-                )}
+                {t("A transaction successfully sent to update state:")}
               </Typography>
               <Typography sx={{ fontSize: "90%" }}>
                 <Link href={txLink} target="_blank" rel="noopener noreferrer">

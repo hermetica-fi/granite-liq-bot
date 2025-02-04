@@ -8,11 +8,13 @@ import { useMemo, useState } from "react";
 import { setContractValue } from "../../api";
 import useToast from "../../hooks/use-toast";
 import useTranslation from "../../hooks/use-translation";
+import { useContractStore } from "../../store/contract";
 import { useModalStore } from "../../store/ui";
-import { Contract } from "../../types";
 import CloseModal from "../close-modal";
 
-const ManageAssetDialog = ({ contract }: { contract: Contract }) => {
+const ManageAssetDialog = () => {
+  const store = useContractStore();
+  const contract = store.data!;
   const [t] = useTranslation();
   const { setModal } = useModalStore();
   const [assetId, setAssetId] = useState("");
@@ -33,7 +35,11 @@ const ManageAssetDialog = ({ contract }: { contract: Contract }) => {
 
     setInProgress(true);
     try {
-      const { txid } = await setContractValue(contract.id, 'set-market-assets', assetId);
+      const { txid } = await setContractValue(
+        contract.id,
+        "set-market-assets",
+        assetId
+      );
 
       setTxid(txid);
     } catch (error) {
@@ -65,9 +71,7 @@ const ManageAssetDialog = ({ contract }: { contract: Contract }) => {
           {txid ? (
             <Box sx={{ wordBreak: "break-word" }}>
               <Typography>
-                {t(
-                  "A transaction successfully sent to update state:"
-                )}
+                {t("A transaction successfully sent to update state:")}
               </Typography>
               <Typography sx={{ fontSize: "90%" }}>
                 <Link href={txLink} target="_blank" rel="noopener noreferrer">
@@ -81,7 +85,9 @@ const ManageAssetDialog = ({ contract }: { contract: Contract }) => {
               label={t("Asset address")}
               value={assetId}
               autoComplete="off"
-              helperText={t("e.g. SP3Y2ZSH8P7D50B0VBTSX11S7XSG24M1VB9YFQA4K.token-aeusdc")}
+              helperText={t(
+                "e.g. SP3Y2ZSH8P7D50B0VBTSX11S7XSG24M1VB9YFQA4K.token-aeusdc"
+              )}
               onChange={handleAssetChange}
             />
           )}

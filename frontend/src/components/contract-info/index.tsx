@@ -9,32 +9,34 @@ import TableRow from "@mui/material/TableRow";
 import { addressLink, formatUnits } from "granite-liq-bot-common";
 import { useCallback } from "react";
 import useTranslation from "../../hooks/use-translation";
+import { useContractStore } from "../../store/contract";
 import { useModalStore } from "../../store/ui";
-import { Contract } from "../../types";
 import DepositDialog from "../deposit-dialog";
 import ManageAssetDialog from "../market-asset-dialog";
 import NetworkChip from "../network-chip";
 import ThresholdDialog from "../threshold-dialog";
 
-export const ContractInfo = ({ data }: { data: Contract }) => {
+export const ContractInfo = () => {
   const [t] = useTranslation();
   const { setModal } = useModalStore();
+  const store = useContractStore();
+  const contract = store.data!;
 
   const setMarketAssetClicked = () => {
     setModal({
-      body: <ManageAssetDialog contract={data} />,
+      body: <ManageAssetDialog />,
     });
   };
 
   const depositClicked = () => {
     setModal({
-      body: <DepositDialog contract={data} />
+      body: <DepositDialog />,
     });
   };
 
   const thresholdSetClicked = () => {
     setModal({
-      body: <ThresholdDialog contract={data} />,
+      body: <ThresholdDialog  />,
     });
   };
 
@@ -44,7 +46,7 @@ export const ContractInfo = ({ data }: { data: Contract }) => {
         <Typography sx={{ display: "flex", alignItems: "center" }}>
           {address}
           <Link
-            href={addressLink(address, data.network)}
+            href={addressLink(address, contract.network)}
             target="_blank"
             rel="noopener noreferrer"
             sx={{ display: "flex", alignItems: "center", ml: "10px" }}
@@ -54,7 +56,7 @@ export const ContractInfo = ({ data }: { data: Contract }) => {
         </Typography>
       );
     },
-    [data.network]
+    [contract.network]
   );
 
   return (
@@ -65,7 +67,7 @@ export const ContractInfo = ({ data }: { data: Contract }) => {
             <TableCell component="th" scope="row" sx={{ width: "200px" }}>
               <Typography sx={{ fontWeight: "500" }}>{t("Address")}</Typography>
             </TableCell>
-            <TableCell>{renderAddress(data.id)}</TableCell>
+            <TableCell>{renderAddress(contract.id)}</TableCell>
           </TableRow>
           <TableRow>
             <TableCell component="th" scope="row">
@@ -73,14 +75,14 @@ export const ContractInfo = ({ data }: { data: Contract }) => {
             </TableCell>
             <TableCell>
               {" "}
-              <NetworkChip network={data.network} />{" "}
+              <NetworkChip network={contract.network} />{" "}
             </TableCell>
           </TableRow>
           <TableRow>
             <TableCell component="th" scope="row">
               <Typography sx={{ fontWeight: "500" }}>{t("Owner")}</Typography>
             </TableCell>
-            <TableCell>{renderAddress(data.ownerAddress)}</TableCell>
+            <TableCell>{renderAddress(contract.ownerAddress)}</TableCell>
           </TableRow>
           <TableRow>
             <TableCell component="th" scope="row">
@@ -88,7 +90,7 @@ export const ContractInfo = ({ data }: { data: Contract }) => {
                 {t("Operator")}
               </Typography>
             </TableCell>
-            <TableCell>{renderAddress(data.operatorAddress)}</TableCell>
+            <TableCell>{renderAddress(contract.operatorAddress)}</TableCell>
           </TableRow>
           <TableRow>
             <TableCell component="th" scope="row">
@@ -98,7 +100,7 @@ export const ContractInfo = ({ data }: { data: Contract }) => {
             </TableCell>
             <TableCell>
               <Typography>
-                {formatUnits(data.operatorBalance, 6)} {"STX"}
+                {formatUnits(contract.operatorBalance, 6)} {"STX"}
               </Typography>
             </TableCell>
           </TableRow>
@@ -109,14 +111,18 @@ export const ContractInfo = ({ data }: { data: Contract }) => {
               </Typography>
             </TableCell>
             <TableCell sx={{ display: "flex", alignItems: "center" }}>
-              {data.marketAsset ? (
+              {contract.marketAsset ? (
                 <Box sx={{ mr: "12px" }}>
-                  {renderAddress(data.marketAsset.address)}
+                  {renderAddress(contract.marketAsset.address)}
                 </Box>
               ) : (
                 <Typography sx={{ width: "40px" }}> {t("-")} </Typography>
               )}
-              <Button variant="outlined" size="small" onClick={setMarketAssetClicked}>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={setMarketAssetClicked}
+              >
                 {t("Set")}
               </Button>
             </TableCell>
@@ -129,9 +135,13 @@ export const ContractInfo = ({ data }: { data: Contract }) => {
             </TableCell>
             <TableCell sx={{ display: "flex", alignItems: "center" }}>
               <Typography sx={{ width: "40px" }}>
-                {data.unprofitabilityThreshold}
+                {contract.unprofitabilityThreshold}
               </Typography>
-              <Button variant="outlined" size="small" onClick={thresholdSetClicked}>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={thresholdSetClicked}
+              >
                 {t("Set")}
               </Button>
             </TableCell>
@@ -143,13 +153,13 @@ export const ContractInfo = ({ data }: { data: Contract }) => {
               </Typography>
             </TableCell>
             <TableCell sx={{ display: "flex", alignItems: "center" }}>
-              {data.marketAsset ? (
+              {contract.marketAsset ? (
                 <Typography sx={{ mr: "12px" }}>
                   {formatUnits(
-                    data.marketAsset.balance,
-                    data.marketAsset.decimals
+                    contract.marketAsset.balance,
+                    contract.marketAsset.decimals
                   )}{" "}
-                  {data.marketAsset.symbol}
+                  {contract.marketAsset.symbol}
                 </Typography>
               ) : (
                 <Typography sx={{ width: "40px" }}>{t("-")} </Typography>

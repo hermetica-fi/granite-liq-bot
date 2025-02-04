@@ -33,7 +33,7 @@ const ContractPage = (_: RouteComponentProps) => {
         {loading ? (
           <CircularProgress />
         ) : data ? (
-          <ContractInfo data={data} />
+          <ContractInfo />
         ) : null}
       </Box>
     </>
