@@ -17,10 +17,10 @@ const ContractPage = (_: RouteComponentProps) => {
   const contract = contracts.find((c) => c.id === id);
 
   useEffect(() => {
-    if (contract) {
+    if (contract && contract.id !== data?.id) {
       loadContract(contract);
     }
-  }, [contract, loadContract]);
+  }, [contract, loadContract, data]);
 
   if (!contract) {
     return <Typography>{t("Not found")}</Typography>;
