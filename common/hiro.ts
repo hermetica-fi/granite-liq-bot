@@ -1,5 +1,5 @@
 import { networkFromName, type StacksNetworkName } from "@stacks/network";
-import type { TransactionEventsResponse } from "@stacks/stacks-blockchain-api-types";
+import type { AddressBalanceResponse, TransactionEventsResponse } from "@stacks/stacks-blockchain-api-types";
 import { cvToHex, hexToCV, type ClarityValue } from "@stacks/transactions";
 
 const MAX_RETRIES = 5;
@@ -81,3 +81,9 @@ export const getContractInfo = async (contractId: string, network: StacksNetwork
 export const getContractEvents = async (contractId: string, limit: number, offset: number, network: StacksNetworkName): Promise<TransactionEventsResponse> => {
     return fetchWrapper(`/extended/v1/contract/${contractId}/events?limit=${limit}&offset=${offset}`, network).then(r => r.json())
 }
+
+
+export const getAccountBalances = async (principal: string, network: StacksNetworkName): Promise<AddressBalanceResponse> => {
+    return fetchWrapper(`/extended/v1/address/${principal}/balances`, network).then(r => r.json())
+}
+

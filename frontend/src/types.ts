@@ -1,18 +1,18 @@
-import { ContractEntity, NetworkName } from "granite-liq-bot-common";
+import { ContractEntity } from "granite-liq-bot-common";
 
 export type Contract = ContractEntity & {
-    operatorBalance: string,
+    operatorBalance: number,
     ownerAddress: string,
     unprofitabilityThreshold: number,
     marketAssets: string[],
-    balances: Record<string, string>,
+    balances: Record<string, number>,
 }
 
 export type ContractState = {
     initialized: boolean,
     loading: boolean,
     data: Contract | null,
-    loadContract: (address: string, name :string, network: NetworkName) => Promise<void>,
+    loadContract: (baseContract: ContractEntity) => Promise<void>,
 }
 
 export type ContractsState = {

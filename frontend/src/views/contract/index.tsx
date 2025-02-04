@@ -7,7 +7,7 @@ import { useContractStore } from "../../store/contract";
 import { useContractsStore } from "../../store/contracts";
 const ContractPage = (_: RouteComponentProps) => {
   const { contracts } = useContractsStore();
-  const { loadContract } = useContractStore();
+  const {  loadContract, loading } = useContractStore();
   const params = useParams();
   const { id } = params;
   const [t] = useTranslation();
@@ -16,13 +16,15 @@ const ContractPage = (_: RouteComponentProps) => {
 
   useEffect(() => {
     if (contract) {
-      loadContract(contract.address, contract.name, contract.network);
+      loadContract(contract);
     }
   }, [contract, loadContract]);
 
   if (!contract) {
     return <Typography>{t("Not found")}</Typography>;
   }
+
+  console.log(loading)
 
   return (
     <>
