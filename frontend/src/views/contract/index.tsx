@@ -2,6 +2,7 @@ import { Box, CircularProgress, Typography } from "@mui/material";
 import { RouteComponentProps, useParams } from "@reach/router";
 import { useEffect } from "react";
 import AppMenu from "../../components/app-menu";
+import BorrowersList from "../../components/borrowers-list";
 import { ContractInfo } from "../../components/contract-info";
 import useTranslation from "../../hooks/use-translation";
 import { useContractStore } from "../../store/contract";
@@ -25,7 +26,7 @@ const ContractPage = (_: RouteComponentProps) => {
   if (!contract) {
     return <Typography>{t("Not found")}</Typography>;
   }
-  
+
   return (
     <>
       <AppMenu network={contract.network} />
@@ -33,7 +34,19 @@ const ContractPage = (_: RouteComponentProps) => {
         {loading ? (
           <CircularProgress />
         ) : data ? (
-          <ContractInfo />
+          <>
+            <ContractInfo />
+            <Typography
+              variant="h6"
+              sx={{
+                m: "20px 0 12px 0",
+                "::first-letter": { textTransform: "capitalize" },
+              }}
+            >
+              {t(`${contract.network.toWellFormed()} Borrowers`)}
+            </Typography>
+            <BorrowersList network={contract.network} />
+          </>
         ) : null}
       </Box>
     </>

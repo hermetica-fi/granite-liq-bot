@@ -5,7 +5,6 @@ import useToast from "./hooks/use-toast";
 import Layout from "./layout";
 import Providers from "./providers";
 import { useContractsListStore } from "./store/contracts-list";
-import BorrowersPage from "./views/borrowers";
 import ContractPage from "./views/contract";
 import HomePage from "./views/home";
 
@@ -39,8 +38,6 @@ function App() {
         >
           <HomePage path="/" />
           <ContractPage path="/contract/:id" />
-          <BorrowersPage path="/borrowers" />  
-          <BorrowersPage path="/borrowers/:network" />  
         </Router>
       </Layout>
     </Providers>

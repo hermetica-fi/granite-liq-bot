@@ -7,24 +7,44 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import type { BorrowerStatusEntity } from "granite-liq-bot-common";
-import { useCallback, useState } from "react";
+import { NetworkName } from "granite-liq-bot-common";
+import { useCallback, useEffect, useState } from "react";
+import { fetchBorrowers } from "../../api";
 import useTranslation from "../../hooks/use-translation";
 
-const BorrowersList = ({ borrowers }: { borrowers: BorrowerStatusEntity[] }) => {
+const BorrowersList = ({ network }: { network: NetworkName }) => {
+  const [borrowers, setBorrowers] = useState<BorrowerStatusEntity[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(40);
   const [t] = useTranslation();
+
+  const load = useCallback(() => {
+    fetchBorrowers(network).then((data) => {
+      setBorrowers(data);
+    });
+  }, [network]);
+
+  useEffect(() => {
+    load();
+
+    const interval = setInterval(() => {
+      load();
+    }, 5_000);
+
+    return () => clearInterval(interval);
+  }, [load]);
 
   const handleChangePage = useCallback((_: unknown, newPage: number) => {
     setPage(newPage);
   }, []);
 
-  const handleChangeRowsPerPage = useCallback((
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  }, []);
+  const handleChangeRowsPerPage = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setRowsPerPage(parseInt(event.target.value, 10));
+      setPage(0);
+    },
+    []
+  );
 
   const handleLiquidateClicked = useCallback((address: string) => {
     console.log("liquidate", address);
@@ -55,17 +75,26 @@ const BorrowersList = ({ borrowers }: { borrowers: BorrowerStatusEntity[] }) => 
                 <TableCell component="th" scope="row">
                   {row.address}
                 </TableCell>
-                <TableCell align="right">{row.ltv}{"%"}</TableCell>
+                <TableCell align="right">
+                  {row.ltv}
+                  {"%"}
+                </TableCell>
                 <TableCell align="right">{row.collateral}</TableCell>
                 <TableCell align="right">{row.debt}</TableCell>
                 <TableCell align="right">
-                  {(row.risk * 100).toFixed(2)}{"%"}
+                  {(row.risk * 100).toFixed(2)}
+                  {"%"}
                 </TableCell>
                 <TableCell align="right">
                   {row.maxRepayAmount.toFixed(2)}
                 </TableCell>
                 <TableCell align="right">
-                  <Button variant="contained" color="primary" onClick={() => handleLiquidateClicked(row.address)}>
+                  <Button
+                    size="small"
+                    variant="outlined"
+      
+                    onClick={() => handleLiquidateClicked(row.address)}
+                  >
                     {t("LIQUIDATE")}
                   </Button>
                 </TableCell>
