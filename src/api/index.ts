@@ -1,7 +1,7 @@
 import { cvToJSON, fetchCallReadOnlyFunction, getAddressFromPrivateKey } from "@stacks/transactions";
 import { generateWallet } from "@stacks/wallet-sdk";
+import { getContractInfo } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
-import { getContractInfo } from "../client/hiro";
 import { pool } from "../db";
 import { getNetworkNameFromAddress } from "../helper";
 import type { BorrowerStatus } from "../types";

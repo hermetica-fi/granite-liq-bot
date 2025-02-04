@@ -1,7 +1,7 @@
 import type { TransactionEventSmartContractLog } from "@stacks/stacks-blockchain-api-types";
 import { cvToJSON, hexToCV } from "@stacks/transactions";
+import { getContractEvents } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
-import { getContractEvents } from "../../client/hiro";
 import { CONTRACTS } from "../../constants";
 import { pool } from "../../db";
 import { kvStoreGet, kvStoreSet } from "../../db/helper";

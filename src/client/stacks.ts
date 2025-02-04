@@ -1,7 +1,7 @@
 import { contractPrincipalCV, cvToJSON, principalCV } from "@stacks/transactions";
+import { callReadOnly } from "granite-liq-bot-common";
 import { CONTRACTS } from "../constants";
 import type { AccrueInterestParams, BorrowerPositionEntity, CollateralParams, DebtParams, InterestRateParams, LpParams, NetworkName } from "../types";
-import { callReadOnly } from "./hiro";
 
 
 export const getIrParams = async (network: NetworkName): Promise<InterestRateParams> => {
