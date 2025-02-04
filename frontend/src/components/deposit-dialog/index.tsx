@@ -90,7 +90,7 @@ const DepositDialog = ({ contract }: { contract: Contract }) => {
       network: contract.network,
     });
 
-    console.log(response3);
+    console.log(response3.txid);
   };
 
   return (
