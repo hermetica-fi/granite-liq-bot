@@ -4,13 +4,11 @@ import { create } from 'zustand';
 import { ContractState } from '../types';
 
 export const useContractStore = create<ContractState>((set, get) => ({
-    initialized: false,
     loading: false,
     data: null,
     loadContract: async (baseContract: ContractEntity) => {
         if (get().loading) return;
         set({
-            initialized: true,
             loading: true,
             data: {
                 ...baseContract,

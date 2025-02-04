@@ -14,7 +14,6 @@ export type Contract = ContractEntity & {
 }
 
 export type ContractState = {
-    initialized: boolean,
     loading: boolean,
     data: Contract | null,
     loadContract: (baseContract: ContractEntity) => Promise<void>,
