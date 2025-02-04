@@ -64,7 +64,6 @@ export const ContractInfo = ({ data }: { data: Contract }) => {
             </TableCell>
             <TableCell>{renderAddress(data.id)}</TableCell>
           </TableRow>
-
           <TableRow>
             <TableCell component="th" scope="row">
               <Typography sx={{ fontWeight: "500" }}>{t("Network")}</Typography>
@@ -112,7 +111,7 @@ export const ContractInfo = ({ data }: { data: Contract }) => {
                   {renderAddress(data.marketAsset.address)}
                 </Box>
               ) : (
-                <Typography sx={{ width: "30px" }}> {t("-")} </Typography>
+                <Typography sx={{ width: "40px" }}> {t("-")} </Typography>
               )}
               <Button variant="outlined" size="small" onClick={setMarketAssetClicked}>
                 {t("Set")}
@@ -126,7 +125,7 @@ export const ContractInfo = ({ data }: { data: Contract }) => {
               </Typography>
             </TableCell>
             <TableCell sx={{ display: "flex", alignItems: "center" }}>
-              <Typography sx={{ width: "30px" }}>
+              <Typography sx={{ width: "40px" }}>
                 {data.unprofitabilityThreshold}
               </Typography>
               <Button variant="outlined" size="small" onClick={thresholdSetClicked}>
@@ -150,7 +149,7 @@ export const ContractInfo = ({ data }: { data: Contract }) => {
                   {data.marketAsset.symbol}
                 </Typography>
               ) : (
-                <Typography sx={{ width: "30px" }}>{t("-")} </Typography>
+                <Typography sx={{ width: "40px" }}>{t("-")} </Typography>
               )}
               <Button variant="outlined" size="small" onClick={depositClicked}>
                 {t("Deposit")}
