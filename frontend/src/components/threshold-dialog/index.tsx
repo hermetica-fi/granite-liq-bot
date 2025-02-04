@@ -5,7 +5,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import { transactionLink } from "granite-liq-bot-common";
 import { useMemo, useState } from "react";
-import { setMarketAsset } from "../../api";
+import { setContractValue } from "../../api";
 import useToast from "../../hooks/use-toast";
 import useTranslation from "../../hooks/use-translation";
 import { useModalStore } from "../../store/ui";
@@ -26,14 +26,14 @@ const ThresholdDialog = ({ contract }: { contract: Contract }) => {
 
   const handleSubmit = async () => {
     if (threshold.trim() === "") {
-      if (!confirm(t("This is going to reset market asset. Are you sure?"))) {
+      if (!confirm(t("This is going to reset the threshold. Are you sure?"))) {
         return;
       }
     }
 
     setInProgress(true);
     try {
-      const { txid } = await setMarketAsset(threshold, contract.id);
+      const { txid } = await setContractValue(contract.id, 'set-unprofitability-threshold', threshold);
 
       setTxid(txid);
     } catch (error) {
@@ -81,6 +81,8 @@ const ThresholdDialog = ({ contract }: { contract: Contract }) => {
               label={t("New Threshold")}
               value={threshold}
               onChange={handleThresholdChange}
+              type="number"
+              helperText={t("Enter a value between 0 and 1000")}
             />
           )}
         </Box>

@@ -5,7 +5,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import { transactionLink } from "granite-liq-bot-common";
 import { useMemo, useState } from "react";
-import { setMarketAsset } from "../../api";
+import { setContractValue } from "../../api";
 import useToast from "../../hooks/use-toast";
 import useTranslation from "../../hooks/use-translation";
 import { useModalStore } from "../../store/ui";
@@ -33,7 +33,7 @@ const ManageAssetDialog = ({ contract }: { contract: Contract }) => {
 
     setInProgress(true);
     try {
-      const { txid } = await setMarketAsset(assetId, contract.id);
+      const { txid } = await setContractValue(contract.id, 'set-market-assets', assetId);
 
       setTxid(txid);
     } catch (error) {
@@ -80,6 +80,8 @@ const ManageAssetDialog = ({ contract }: { contract: Contract }) => {
               fullWidth
               label={t("Asset address")}
               value={assetId}
+              autoComplete="off"
+              helperText={t("e.g. SP3Y2ZSH8P7D50B0VBTSX11S7XSG24M1VB9YFQA4K.token-aeusdc")}
               onChange={handleAssetChange}
             />
           )}

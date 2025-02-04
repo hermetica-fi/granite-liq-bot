@@ -1,4 +1,8 @@
-import { broadcastTransaction, contractPrincipalCV, cvToJSON, fetchCallReadOnlyFunction, getAddressFromPrivateKey, listCV, makeContractCall, serializePayload } from "@stacks/transactions";
+import {
+    broadcastTransaction, contractPrincipalCV, cvToJSON, fetchCallReadOnlyFunction,
+    getAddressFromPrivateKey, listCV, makeContractCall,
+    serializePayload, uintCV, type ClarityValue
+} from "@stacks/transactions";
 import { generateWallet } from "@stacks/wallet-sdk";
 import { getContractInfo, getFeeEstimate, getNonce, type BorrowerStatus, type ContractEntity } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
@@ -110,10 +114,20 @@ const addContract = async (req: Request) => {
     return Response.json(contracts);
 }
 
-const setMarketAsset = async (req: Request) => {
+const setContractValue = async (req: Request) => {
     const body = await req.json();
-    const assetId = body.assetId?.trim() || null;
     const contractId = body.contractId?.trim();
+    const fn = body.fn;
+    const value = body.value?.trim();
+
+    if (contractId === '') {
+        return errorResponse('Invalid contract id');
+    }
+
+    if (['set-market-assets', 'set-unprofitability-threshold'].indexOf(fn) === -1) {
+        return errorResponse('Invalid key');
+    }
+
 
     if (contractId === '') {
         return errorResponse('Invalid contract id');
@@ -131,10 +145,10 @@ const setMarketAsset = async (req: Request) => {
 
     const operatorAddress = getAddressFromPrivateKey(priv, network);
 
-    if (assetId) {
+    if (fn === 'set-market-assets' && value) {
         let assetContractInfo;
         try {
-            assetContractInfo = await getContractInfo(assetId, network);
+            assetContractInfo = await getContractInfo(value, network);
         } catch (error) {
             return errorResponse('Could not fetch contract info');
         }
@@ -169,13 +183,22 @@ const setMarketAsset = async (req: Request) => {
         return errorResponse('Could not get nonce');
     }
 
+    let functionArgs: ClarityValue[] = [];
+    if (fn === 'set-market-assets') {
+        if (value) {
+            functionArgs = [listCV([contractPrincipalCV(value.split('.')[0], value.split('.')[1])])]
+        } else {
+            functionArgs = [listCV([])];
+        }
+    } else if (fn === 'set-unprofitability-threshold') {
+        functionArgs = [uintCV(value || 0)];
+    }
+
     const txOptions = {
         contractAddress: contract.address,
         contractName: contract.name,
-        functionName: 'set-market-assets',
-        functionArgs: assetId ? [
-            listCV([contractPrincipalCV(assetId.split('.')[0], assetId.split('.')[1])])
-        ] : [listCV([])],
+        functionName: fn,
+        functionArgs,
         senderKey: priv,
         senderAddress: operatorAddress,
         network: network,
@@ -246,8 +269,8 @@ export const main = async () => {
                 res = await addContract(req);
             } else if (req.method === "GET" && url.pathname === "/borrowers") {
                 res = await getBorrowers(req, url);
-            } else if (req.method === "POST" && url.pathname === "/set-market-asset") {
-                res = await setMarketAsset(req);
+            } else if (req.method === "POST" && url.pathname === "/set-contract-value") {
+                res = await setContractValue(req);
             } else {
                 res = new Response("Not found", { status: 404 });
             }
