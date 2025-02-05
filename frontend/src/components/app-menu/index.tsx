@@ -1,10 +1,8 @@
 import { Box, Typography, useTheme } from "@mui/material";
 import { useNavigate } from "@reach/router";
-import { StacksNetworkName } from "@stacks/network";
-import { t } from "i18next";
 import { useCallback } from "react";
 
-const AppMenu = ({ network }: { network?: StacksNetworkName  }) => {
+const AppMenu = () => {
   const theme = useTheme();
   const navigate = useNavigate();
 
@@ -40,19 +38,6 @@ const AppMenu = ({ network }: { network?: StacksNetworkName  }) => {
           alt="Granite Liqudiation Bot"
         />
         Liquidation Bot
-      </Typography>
-      <Typography
-        component="div"
-        sx={{
-          ml: "20px",
-          cursor: "pointer",
-          "&:hover": { color: theme.palette.primary.main },
-        }}
-        onClick={useCallback(() => {
-          navigate(network ? `/borrowers/${network}` : "/borrowers");
-        }, [navigate, network])}
-      >
-        {t("Borrowers")}
       </Typography>
     </Box>
   );

@@ -29,7 +29,7 @@ const ContractPage = (_: RouteComponentProps) => {
 
   return (
     <>
-      <AppMenu network={contract.network} />
+      <AppMenu  />
       <Box sx={{ ml: "12px", mr: "12px" }}>
         {loading ? (
           <CircularProgress />
