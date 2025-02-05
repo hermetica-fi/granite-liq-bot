@@ -22,10 +22,10 @@ const worker = async (dbClient: PoolClient) => {
             continue;
         }
 
-        const marketAsset = await fetchCallReadOnlyFunction({
+        const contractInfo = await fetchCallReadOnlyFunction({
             contractAddress: contract.address,
             contractName: contract.name,
-            functionName: 'get-market-assets',
+            functionName: 'get-info',
             functionArgs: [],
             senderAddress: contract.operator_address,
             network: contract.network,
