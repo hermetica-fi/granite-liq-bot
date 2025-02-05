@@ -46,7 +46,6 @@ export const fetchGetWrapper = async (path: string, network: StacksNetworkName, 
     return fetch(url);
 }
 
-
 export const getContractInfo = async (contractId: string, network: StacksNetworkName) => {
     return fetchGetWrapper(`/extended/v1/contract/${contractId}`, network).then(r => r.json())
 }
