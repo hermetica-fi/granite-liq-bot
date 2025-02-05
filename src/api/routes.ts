@@ -141,7 +141,7 @@ export const routes = {
             return errorResponse('Invalid contract id');
         }
 
-        if (['set-market-assets', 'set-unprofitability-threshold'].indexOf(fn) === -1) {
+        if (['set-market-assets', 'set-collateral-assets', 'set-unprofitability-threshold'].indexOf(fn) === -1) {
             return errorResponse('Invalid key');
         }
 
@@ -161,7 +161,7 @@ export const routes = {
 
         const operatorAddress = getAddressFromPrivateKey(priv, network);
 
-        if (fn === 'set-market-assets' && value) {
+        if (['set-market-assets', 'set-collateral-assets'].includes(fn) && value) {
             let assetContractInfo;
             try {
                 assetContractInfo = await getContractInfo(value, network);
@@ -200,7 +200,7 @@ export const routes = {
         }
 
         let functionArgs: ClarityValue[] = [];
-        if (fn === 'set-market-assets') {
+        if (['set-market-assets', 'set-collateral-assets'].includes(fn) ) {
             if (value) {
                 functionArgs = [listCV([contractPrincipalCV(value.split('.')[0], value.split('.')[1])])]
             } else {

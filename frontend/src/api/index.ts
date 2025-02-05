@@ -18,7 +18,7 @@ export const postAddContract = (address: string, mnemonic: string) => wrapRespon
 
 export const fetchBorrowers = (network: string): Promise<BorrowerStatusEntity[]> => wrapResponse(fetch(`${API_BASE}/borrowers?network=${network}`));
 
-export const setContractValue = (contractId: string, fn: "set-market-assets" | "set-unprofitability-threshold", value: string) => wrapResponse(fetch(`${API_BASE}/set-contract-value`, {
+export const setContractValue = (contractId: string, fn: "set-market-assets" | "set-collateral-assets" | "set-unprofitability-threshold", value: string) => wrapResponse(fetch(`${API_BASE}/set-contract-value`, {
     method: 'POST',
     body: JSON.stringify({ contractId, fn, value })
 }));    

@@ -12,7 +12,7 @@ import { useContractStore } from "../../store/contract";
 import { useModalStore } from "../../store/ui";
 import CloseModal from "../close-modal";
 
-const ManageAssetDialog = () => {
+const SetAssetDialog = ({ type }: { type: "market" | "collateral" }) => {
   const store = useContractStore();
   const contract = store.data!;
   const [t] = useTranslation();
@@ -28,7 +28,7 @@ const ManageAssetDialog = () => {
 
   const handleSubmit = async () => {
     if (assetId.trim() === "") {
-      if (!confirm(t("This is going to reset market asset. Are you sure?"))) {
+      if (!confirm(t("This is going to reset asset. Are you sure?"))) {
         return;
       }
     }
@@ -37,7 +37,7 @@ const ManageAssetDialog = () => {
     try {
       const { txid } = await setContractValue(
         contract.id,
-        "set-market-assets",
+        type === "market" ? "set-market-assets" : "set-collateral-assets",
         assetId
       );
 
@@ -63,7 +63,7 @@ const ManageAssetDialog = () => {
   return (
     <>
       <DialogTitle>
-        {t("Set Market Asset")}
+        {type === "market" ? t("Set Market Asset") : t("Set Collateral Asset")}
         <CloseModal onClick={handleClose} />
       </DialogTitle>
       <DialogContent>
@@ -86,7 +86,9 @@ const ManageAssetDialog = () => {
               value={assetId}
               autoComplete="off"
               helperText={t(
-                "e.g. SP3Y2ZSH8P7D50B0VBTSX11S7XSG24M1VB9YFQA4K.token-aeusdc"
+                type === "market"
+                  ? "e.g. SP3Y2ZSH8P7D50B0VBTSX11S7XSG24M1VB9YFQA4K.token-aeusdc"
+                  : "SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token"
               )}
               onChange={handleAssetChange}
             />
@@ -106,4 +108,4 @@ const ManageAssetDialog = () => {
   );
 };
 
-export default ManageAssetDialog;
+export default SetAssetDialog;

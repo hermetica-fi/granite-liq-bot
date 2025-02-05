@@ -12,8 +12,8 @@ import useTranslation from "../../hooks/use-translation";
 import { useContractStore } from "../../store/contract";
 import { useModalStore } from "../../store/ui";
 import DepositDialog from "../deposit-dialog";
-import ManageAssetDialog from "../market-asset-dialog";
 import NetworkChip from "../network-chip";
+import SetAssetDialog from "../set-asset-dialog";
 import ThresholdDialog from "../threshold-dialog";
 
 export const ContractInfo = () => {
@@ -24,7 +24,13 @@ export const ContractInfo = () => {
 
   const setMarketAssetClicked = () => {
     setModal({
-      body: <ManageAssetDialog />,
+      body: <SetAssetDialog type="market" />,
+    });
+  };
+
+  const setCollateralAssetClicked = () => {
+    setModal({
+      body: <SetAssetDialog type="collateral" />,
     });
   };
 
@@ -130,25 +136,6 @@ export const ContractInfo = () => {
           <TableRow>
             <TableCell component="th" scope="row">
               <Typography sx={{ fontWeight: "500" }}>
-                {t("Unprofitability threshold")}
-              </Typography>
-            </TableCell>
-            <TableCell sx={{ display: "flex", alignItems: "center" }}>
-              <Typography sx={{ width: "40px" }}>
-                {contract.unprofitabilityThreshold}
-              </Typography>
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={thresholdSetClicked}
-              >
-                {t("Set")}
-              </Button>
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell component="th" scope="row">
-              <Typography sx={{ fontWeight: "500" }}>
                 {t("Market Asset Balance")}
               </Typography>
             </TableCell>
@@ -169,6 +156,73 @@ export const ContractInfo = () => {
               </Button>
             </TableCell>
           </TableRow>
+
+          <TableRow>
+            <TableCell component="th" scope="row">
+              <Typography sx={{ fontWeight: "500" }}>
+                {t("Collateral asset")}
+              </Typography>
+            </TableCell>
+            <TableCell sx={{ display: "flex", alignItems: "center" }}>
+              {contract.collateralAsset ? (
+                <Box sx={{ mr: "12px" }}>
+                  {renderAddress(contract.collateralAsset.address)}
+                </Box>
+              ) : (
+                <Typography sx={{ width: "40px" }}> {t("-")} </Typography>
+              )}
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={setCollateralAssetClicked}
+              >
+                {t("Set")}
+              </Button>
+            </TableCell>
+          </TableRow>
+
+          <TableRow>
+            <TableCell component="th" scope="row">
+              <Typography sx={{ fontWeight: "500" }}>
+                {t("Collateral Asset Balance")}
+              </Typography>
+            </TableCell>
+            <TableCell sx={{ display: "flex", alignItems: "center" }}>
+              {contract.collateralAsset ? (
+                <Typography sx={{ mr: "12px" }}>
+                  {formatUnits(
+                    contract.collateralAsset.balance,
+                    contract.collateralAsset.decimals
+                  )}{" "}
+                  {contract.collateralAsset.symbol}
+                </Typography>
+              ) : (
+                <Typography sx={{ width: "40px" }}>{t("-")} </Typography>
+              )}
+            </TableCell>
+          </TableRow>
+
+
+          <TableRow>
+            <TableCell component="th" scope="row">
+              <Typography sx={{ fontWeight: "500" }}>
+                {t("Unprofitability threshold")}
+              </Typography>
+            </TableCell>
+            <TableCell sx={{ display: "flex", alignItems: "center" }}>
+              <Typography sx={{ width: "40px" }}>
+                {contract.unprofitabilityThreshold}
+              </Typography>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={thresholdSetClicked}
+              >
+                {t("Set")}
+              </Button>
+            </TableCell>
+          </TableRow>
+         
         </TableBody>
       </Table>
     </TableContainer>
