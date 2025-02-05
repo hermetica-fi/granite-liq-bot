@@ -43,7 +43,7 @@ export const fetchFn = async (
 export const fetchGetWrapper = async (path: string, network: StacksNetworkName, json?: any) => {
     const networkObj = networkFromName(network);
     const url = `${networkObj.client.baseUrl}${path}`;
-    return fetch(url);
+    return fetchFn(url);
 }
 
 export const getContractInfo = async (contractId: string, network: StacksNetworkName) => {
