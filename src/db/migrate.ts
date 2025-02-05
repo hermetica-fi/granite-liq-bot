@@ -15,6 +15,8 @@ export const createDb = async (client: PoolClient) => {
         "network VARCHAR NOT NULL," +
         "operator_address VARCHAR NOT NULL," +
         "operator_priv VARCHAR NOT NULL," +
+        "market_asset JSON," +
+        "collateral_asset JSON," +
         "created_at TIMESTAMP NOT NULL DEFAULT NOW()" +
         ");";
 

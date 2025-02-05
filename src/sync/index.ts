@@ -1,5 +1,6 @@
 import { sleep } from "bun";
 import { main as borrowerSync } from "./borrower";
+import { main as contractSync } from "./contract";
 import { main as eventSync } from "./event";
 import { main as healthSync } from "./health";
 import { main as marketSync } from "./market";
@@ -13,6 +14,7 @@ export const main = async () => {
         await borrowerSync();
         await marketSync();
         await healthSync();
+        await contractSync();
         const end = Date.now();
         const delay = BASE_DELAY - (end - start);
         if(delay > 0){
