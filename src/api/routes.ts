@@ -26,8 +26,14 @@ const getContractList = async (dbClient: PoolClient): Promise<ContractEntity[]> 
             name: row.name,
             network: row.network,
             operatorAddress: row.operator_address,
-            marketAsset: row.market_asset,
-            collateralAsset: row.collateral_asset,
+            marketAsset: row.market_asset ? {
+                ...row.market_asset,
+                balance: row.market_asset_balance
+            }: null,
+            collateralAsset: row.collateral_asset ? {
+                ...row.collateral_asset,
+                balance: row.collateral_asset_balance
+            }: null,
         })));
 }
 

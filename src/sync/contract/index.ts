@@ -45,6 +45,13 @@ const getAssetInfo = async (assetAddress: string, contractId: string, network: N
         }
     }).then(r => cvToJSON(r).value.value);
 
+    return {
+        name, symbol, decimals
+    }
+}
+
+const getAssetBalance = async (assetAddress: string, contractId: string, network: NetworkName) => {
+    const [contractAddress, contractName] = assetAddress.split(".");
     const balance = await fetchCallReadOnlyFunction({
         contractAddress,
         contractName,
@@ -58,10 +65,6 @@ const getAssetInfo = async (assetAddress: string, contractId: string, network: N
             fetch: fetchFn,
         }
     }).then(r => cvToJSON(r).value.value);
-
-    return {
-        name, symbol, decimals, balance
-    }
 }
 
 
@@ -94,6 +97,14 @@ export const worker = async (dbClient: PoolClient) => {
             logger.info(`Market asset updated for ${contract.id} as ${JSON.stringify(val)}`);
         }
 
+        if(marketAsset) {
+            const balance = await getAssetBalance(marketAsset, contract.id, contract.network);
+            await dbClient.query("UPDATE contract SET market_asset_balance = $1 WHERE id = $2", [balance, contract.id]);
+        } else {
+            await dbClient.query("UPDATE contract SET market_asset_balance = 0 WHERE id = $1", [contract.id]);
+        }
+
+
         const collateralAsset = info.value["collateral-assets"].value.map((x: { value: string }) => x.value)[0] as string || null;
         if (!collateralAsset && contract.collateral_asset) {
             await dbClient.query("UPDATE contract SET collateral_asset = NULL WHERE id = $1", [contract.id]);
@@ -103,6 +114,13 @@ export const worker = async (dbClient: PoolClient) => {
             const val = { address: collateralAsset, ...assetInfo };
             await dbClient.query("UPDATE contract SET collateral_asset = $1 WHERE id = $2", [val, contract.id]);
             logger.info(`Collateral asset updated for ${contract.id} as ${JSON.stringify(val)}`);
+        }
+
+        if(collateralAsset) {
+            const balance = await getAssetBalance(collateralAsset, contract.id, contract.network);
+            await dbClient.query("UPDATE contract SET collateral_asset_balance = $1 WHERE id = $2", [balance, contract.id]);
+        } else {
+            await dbClient.query("UPDATE contract SET collateral_asset_balance = 0 WHERE id = $1", [contract.id]);
         }
     }
     await dbClient.query("COMMIT");
