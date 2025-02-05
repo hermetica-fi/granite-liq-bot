@@ -1,8 +1,8 @@
-import { broadcastTransaction, bufferCV, contractPrincipalCV, cvToJSON, fetchCallReadOnlyFunction, fetchFeeEstimateTransaction, makeContractCall, noneCV, principalCV, serializePayload, someCV, uintCV } from "@stacks/transactions";
-import { fetchFn, formatUnits, getAccountNonces, parseUnits, pythFetchgGetPriceFeed, TESTNET_FEE, type ContractEntity } from "granite-liq-bot-common";
+import { broadcastTransaction, bufferCV, contractPrincipalCV, fetchFeeEstimateTransaction, makeContractCall, noneCV, PostConditionMode, principalCV, serializePayload, someCV, uintCV } from "@stacks/transactions";
+import { fetchFn, formatUnits, getAccountNonces, parseUnits, pythFetchgGetPriceFeed, TESTNET_FEE } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
 import { errorResponse } from "../api/routes";
-import { CONTRACTS, MAINNET_MAX_FEE, PRICE_FEED_IDS } from "../constants";
+import { MAINNET_MAX_FEE, PRICE_FEED_IDS } from "../constants";
 import { pool } from "../db";
 import { getContractList } from "../db-helper";
 import { hexToUint8Array } from "../helper";
@@ -11,22 +11,6 @@ import type { PriceFeed } from "../types";
 import { epoch } from "../util";
 
 const logger = createLogger("liquidate");
-
-
-const isContractAllowed = async (contract: ContractEntity) => {
-    const [stateContractAddress, stateContractName] = CONTRACTS[contract.network].state.split(".");
-    return fetchCallReadOnlyFunction({
-        contractAddress: stateContractAddress,
-        contractName: stateContractName,
-        functionName: "is-allowed-contract",
-        functionArgs: [
-            contractPrincipalCV(contract.address, contract.name)
-        ],
-        senderAddress: contract.operatorAddress,
-        network: contract.network,
-        client: { fetch: fetchFn }
-    }).then(r => cvToJSON(r).success !== false);
-}
 
 const worker = async (dbClient: PoolClient) => {
     const borrowers = await dbClient.query("SELECT address, network, max_repay_amount FROM borrower_status WHERE max_repay_amount>0 ORDER BY max_repay_amount DESC").then(r => r.rows);
@@ -39,12 +23,9 @@ const worker = async (dbClient: PoolClient) => {
             orderBy: 'market_asset_balance DESC'
         }))[0];
 
+        // if it is testnet, see if we have price data
+        
 
-        const isAllowed = await isContractAllowed(contract);
-        if (!isAllowed) {
-            logger.info(`Contract ${contract.address} is not allowed`);
-            continue;
-        }
 
         if (!contract) {
             logger.info(`No contract to liquidate ${borrower.address}`);
@@ -100,9 +81,9 @@ const worker = async (dbClient: PoolClient) => {
         console.log("minCollateralExpected", minCollateralExpected)
         console.log("minCollateralExpectedBn", minCollateralExpectedBn)
 
-        const mainnetPyth = someCV(bufferCV(priceAttestationBuff))
+
         const functionArgs = [
-            noneCV(),
+            someCV(bufferCV(priceAttestationBuff)),
             principalCV(borrower.address),
             contractPrincipalCV(marketAsset.address.split(".")[0], marketAsset.address.split(".")[1]),
             contractPrincipalCV(collateralAsset.address.split(".")[0], collateralAsset.address.split(".")[1]),
@@ -116,6 +97,7 @@ const worker = async (dbClient: PoolClient) => {
 
         const nonce = (await getAccountNonces(contract.operatorAddress, contract.network)).possible_next_nonce;
 
+        // (contract-call? .pyth-adapter-v1 read-price .mock-usdc)
 
         const txOptions = {
             contractAddress: contract.address,
@@ -127,6 +109,7 @@ const worker = async (dbClient: PoolClient) => {
             network: contract.network,
             fee: TESTNET_FEE,
             validateWithAbi: true,
+            postConditionMode: PostConditionMode.Allow,
             nonce
         }
         const transaction = await makeContractCall(txOptions);
