@@ -3,14 +3,7 @@ import { ContractEntity } from "granite-liq-bot-common";
 export type Contract = ContractEntity & {
     operatorBalance: number,
     ownerAddress: string,
-    unprofitabilityThreshold: number,
-    marketAsset: {
-        address: string,
-        name: string,
-        symbol: string,
-        decimals: number,
-        balance: number,
-    } | null
+    unprofitabilityThreshold: number
 }
 
 export type ContractState = {

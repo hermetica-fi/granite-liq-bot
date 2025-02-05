@@ -19,13 +19,15 @@ export const errorResponse = (error: any) => {
 }
 
 const getContractList = async (dbClient: PoolClient): Promise<ContractEntity[]> => {
-    return dbClient.query('SELECT id, address, name, network, operator_address FROM contract ORDER BY created_at DESC')
+    return dbClient.query('SELECT id, address, name, network, operator_address, market_asset, collateral_asset FROM contract ORDER BY created_at DESC')
         .then(r => r.rows).then(rows => rows.map(row => ({
             id: row.id,
             address: row.address,
             name: row.name,
             network: row.network,
             operatorAddress: row.operator_address,
+            marketAsset: row.market_asset,
+            collateralAsset: row.collateral_asset,
         })));
 }
 

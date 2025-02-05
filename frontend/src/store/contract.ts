@@ -1,4 +1,4 @@
-import { contractPrincipalCV, cvToJSON, fetchCallReadOnlyFunction } from '@stacks/transactions';
+import { cvToJSON, fetchCallReadOnlyFunction } from '@stacks/transactions';
 import { ContractEntity, fetchFn, getAccountBalances } from 'granite-liq-bot-common';
 import { create } from 'zustand';
 import { ContractState } from '../types';
@@ -15,7 +15,6 @@ export const useContractStore = create<ContractState>((set, get) => ({
                 operatorBalance: 0,
                 ownerAddress: '',
                 unprofitabilityThreshold: 0,
-                marketAsset: null,
             }
         });
 
@@ -32,7 +31,7 @@ export const useContractStore = create<ContractState>((set, get) => ({
                 }
             }).then(r => cvToJSON(r));
 
-            const marketAsset = info.value["market-assets"].value.map((x: { value: string }) => x.value)[0] as string || null;
+
             const operatorAddress = info.value["operator"].value;
             const ownerAddress = info.value["owner"].value;
             const unprofitabilityThreshold = Number(info.value["unprofitability-threshold"].value);
@@ -55,78 +54,11 @@ export const useContractStore = create<ContractState>((set, get) => ({
                     data: {
                         ...state.data!,
                         operatorBalance
-                    }
+                    },
+
+                    loading: false
                 })
             );
-
-            if (marketAsset) {
-                const [contractAddress, contractName] = marketAsset.split('.');
-                const name = await fetchCallReadOnlyFunction({
-                    contractAddress,
-                    contractName,
-                    functionName: 'get-name',
-                    functionArgs: [],
-                    senderAddress: operatorAddress,
-                    network: baseContract.network,
-                    client: {
-                        fetch: fetchFn,
-                    }
-                }).then(r => cvToJSON(r).value.value);
-
-                const symbol = await fetchCallReadOnlyFunction({
-                    contractAddress,
-                    contractName,
-                    functionName: 'get-symbol',
-                    functionArgs: [],
-                    senderAddress: operatorAddress,
-                    network: baseContract.network,
-                    client: {
-                        fetch: fetchFn,
-                    }
-                }).then(r => cvToJSON(r).value.value);
-
-                const decimals = await fetchCallReadOnlyFunction({
-                    contractAddress,
-                    contractName,
-                    functionName: 'get-decimals',
-                    functionArgs: [],
-                    senderAddress: operatorAddress,
-                    network: baseContract.network,
-                    client: {
-                        fetch: fetchFn,
-                    }
-                }).then(r => cvToJSON(r).value.value);
-
-                const balance = await fetchCallReadOnlyFunction({
-                    contractAddress,
-                    contractName,
-                    functionName: 'get-balance',
-                    functionArgs: [
-                        contractPrincipalCV(baseContract.address, baseContract.name)
-                    ],
-                    senderAddress: operatorAddress,
-                    network: baseContract.network,
-                    client: {
-                        fetch: fetchFn,
-                    }
-                }).then(r => cvToJSON(r).value.value);
-
-                set((state) => ({
-                    ...state,
-                    data: {
-                        ...state.data!,
-                        marketAsset: {
-                            address: marketAsset,
-                            name,
-                            symbol,
-                            decimals,
-                            balance
-                        }
-                    }
-                }));
-            }
-
-            set({ loading: false });
         } catch (error) {
             set({ loading: false });
             throw error;
