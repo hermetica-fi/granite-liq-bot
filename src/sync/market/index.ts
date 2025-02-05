@@ -81,9 +81,9 @@ const syncMarketState = async (dbClient: PoolClient) => {
     }
 
     const priceFeed: PriceFeed = {
-        btc: await pythFetchgGetPriceFeed(PRICE_FEED_IDS.btc),
-        eth: await pythFetchgGetPriceFeed(PRICE_FEED_IDS.eth),
-        usdc: await pythFetchgGetPriceFeed(PRICE_FEED_IDS.usdc),
+        btc: (await pythFetchgGetPriceFeed(PRICE_FEED_IDS.btc)).price,
+        eth: (await pythFetchgGetPriceFeed(PRICE_FEED_IDS.eth)).price,
+        usdc: (await pythFetchgGetPriceFeed(PRICE_FEED_IDS.usdc)).price,
     }
 
     await setPriceFeedLocal(dbClient, priceFeed);
