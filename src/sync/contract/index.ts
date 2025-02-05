@@ -3,7 +3,6 @@ import { fetchFn, type NetworkName } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
 import { pool } from "../../db";
 import { createLogger } from "../../logger";
-import { clearBorrowerStatuses } from "../db-helper";
 
 const logger = createLogger("sync-contract");
 
@@ -70,7 +69,6 @@ const getAssetBalance = async (assetAddress: string, contractId: string, network
 
 export const worker = async (dbClient: PoolClient) => {
     await dbClient.query("BEGIN");
-    await clearBorrowerStatuses(dbClient);
     const contracts = await dbClient.query("SELECT id, address, name, network, operator_address, market_asset, collateral_asset FROM contract");
     for (const contract of contracts.rows) {
 
