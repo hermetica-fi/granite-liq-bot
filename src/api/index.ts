@@ -1,10 +1,12 @@
 import {
     broadcastTransaction, contractPrincipalCV, cvToJSON, fetchCallReadOnlyFunction,
+    fetchFeeEstimateTransaction,
     getAddressFromPrivateKey, listCV, makeContractCall,
-    serializePayload, uintCV, type ClarityValue
+    serializePayload,
+    uintCV, type ClarityValue
 } from "@stacks/transactions";
 import { generateWallet } from "@stacks/wallet-sdk";
-import { fetchFn, getContractInfo, getFeeEstimate, getNonce, TESTNET_FEE, type BorrowerStatus, type ContractEntity } from "granite-liq-bot-common";
+import { fetchFn, getAccountNonces, getContractInfo, TESTNET_FEE, type BorrowerStatus, type ContractEntity } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
 import { MAINNET_MAX_FEE } from "../constants";
 import { pool } from "../db";
@@ -178,7 +180,7 @@ const setContractValue = async (req: Request) => {
 
     let nonce;
     try {
-        nonce = await getNonce(operatorAddress, network);
+        nonce = (await getAccountNonces(operatorAddress, network)).possible_next_nonce;
     } catch (error) {
         return errorResponse('Could not get nonce');
     }
@@ -218,12 +220,12 @@ const setContractValue = async (req: Request) => {
         let feeEstimate;
 
         try {
-            feeEstimate = await getFeeEstimate(serializePayload(transaction.payload), network);
+            feeEstimate = await fetchFeeEstimateTransaction({ payload: serializePayload(transaction.payload), network, client: { fetch: fetchFn } });
         } catch (e) {
             return errorResponse('Could not get fee estimate');
         }
 
-        const fee = feeEstimate.estimations[1].fee;
+        const fee = feeEstimate[1].fee;
         transaction.setFee(fee > MAINNET_MAX_FEE ? MAINNET_MAX_FEE : fee);
     }
 

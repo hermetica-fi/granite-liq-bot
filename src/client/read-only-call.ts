@@ -1,18 +1,21 @@
-import { contractPrincipalCV, cvToJSON, principalCV } from "@stacks/transactions";
-import { callReadOnly, type NetworkName } from "granite-liq-bot-common";
+import { contractPrincipalCV, cvToJSON, fetchCallReadOnlyFunction, principalCV } from "@stacks/transactions";
+import { fetchFn, type NetworkName } from "granite-liq-bot-common";
 import { CONTRACTS } from "../constants";
 import type { AccrueInterestParams, BorrowerPositionEntity, CollateralParams, DebtParams, InterestRateParams, LpParams } from "../types";
 
 
 export const getIrParams = async (network: NetworkName): Promise<InterestRateParams> => {
   const [contractAddress, contractName] = CONTRACTS[network].ir.split(".");
-  return callReadOnly({
+  return fetchCallReadOnlyFunction({
     contractAddress,
     contractName,
     functionName: "get-ir-params",
     functionArgs: [],
     senderAddress: contractAddress,
     network,
+    client: {
+      fetch: fetchFn,
+    }
   }).then(r => {
     const json = cvToJSON(r);
     return {
@@ -26,13 +29,16 @@ export const getIrParams = async (network: NetworkName): Promise<InterestRatePar
 
 export const getLpParams = async (network: NetworkName): Promise<LpParams> => {
   const [contractAddress, contractName] = CONTRACTS[network].state.split(".");
-  return callReadOnly({
+  return fetchCallReadOnlyFunction({
     contractAddress,
     contractName,
     functionName: "get-lp-params",
     functionArgs: [],
     senderAddress: contractAddress,
     network,
+    client: {
+      fetch: fetchFn,
+    }
   }).then(r => {
     const json = cvToJSON(r);
     return {
@@ -44,13 +50,16 @@ export const getLpParams = async (network: NetworkName): Promise<LpParams> => {
 
 export const getAccrueInterestParams = async (network: NetworkName): Promise<AccrueInterestParams> => {
   const [contractAddress, contractName] = CONTRACTS[network].state.split(".");
-  return callReadOnly({
+  return fetchCallReadOnlyFunction({
     contractAddress,
     contractName,
     functionName: "get-accrue-interest-params",
     functionArgs: [],
     senderAddress: contractAddress,
     network,
+    client: {
+      fetch: fetchFn,
+    }
   }).then(r => {
     const json = cvToJSON(r);
 
@@ -62,13 +71,16 @@ export const getAccrueInterestParams = async (network: NetworkName): Promise<Acc
 
 export const getDebtParams = async (network: NetworkName): Promise<DebtParams> => {
   const [contractAddress, contractName] = CONTRACTS[network].state.split(".");
-  return callReadOnly({
+  return fetchCallReadOnlyFunction({
     contractAddress,
     contractName,
     functionName: "get-debt-params",
     functionArgs: [],
     senderAddress: contractAddress,
     network,
+    client: {
+      fetch: fetchFn,
+    }
   }).then(r => {
     const json = cvToJSON(r);
 
@@ -81,7 +93,7 @@ export const getDebtParams = async (network: NetworkName): Promise<DebtParams> =
 
 export const getCollateralParams = async (collateral: string, network: NetworkName): Promise<CollateralParams> => {
   const [contractAddress, contractName] = CONTRACTS[network].state.split(".");
-  return callReadOnly({
+  return fetchCallReadOnlyFunction({
     contractAddress,
     contractName,
     functionName: "get-collateral",
@@ -90,6 +102,9 @@ export const getCollateralParams = async (collateral: string, network: NetworkNa
     ],
     senderAddress: contractAddress,
     network,
+    client: {
+      fetch: fetchFn,
+    }
   }).then(r => {
     const json = cvToJSON(r);
 
@@ -103,7 +118,7 @@ export const getCollateralParams = async (collateral: string, network: NetworkNa
 
 export const getUserPosition = async (address: string, network: NetworkName): Promise<Pick<BorrowerPositionEntity, 'debtShares' | 'collaterals'>> => {
   const [contractAddress, contractName] = CONTRACTS[network].state.split(".");
-  return callReadOnly({
+  return fetchCallReadOnlyFunction({
     contractAddress,
     contractName,
     functionName: "get-user-position",
@@ -111,7 +126,10 @@ export const getUserPosition = async (address: string, network: NetworkName): Pr
       principalCV(address),
     ],
     senderAddress: address,
-    network
+    network,
+    client: {
+      fetch: fetchFn,
+    }
   }).then(r => {
     const json = cvToJSON(r);
 
@@ -131,7 +149,7 @@ export const getUserPosition = async (address: string, network: NetworkName): Pr
 
 export const getUserCollateralAmount = async (address: string, collateral: string, network: NetworkName): Promise<number> => {
   const [contractAddress, contractName] = CONTRACTS[network].state.split(".");
-  return callReadOnly({
+  return fetchCallReadOnlyFunction({
     contractAddress,
     contractName,
     functionName: "get-user-collateral",
@@ -140,7 +158,10 @@ export const getUserCollateralAmount = async (address: string, collateral: strin
       contractPrincipalCV(collateral.split(".")[0], collateral.split(".")[1])
     ],
     senderAddress: address,
-    network
+    network,
+    client: {
+      fetch: fetchFn,
+    }
   }).then(r => {
     const json = cvToJSON(r);
     return Number(json.value.value.amount.value);

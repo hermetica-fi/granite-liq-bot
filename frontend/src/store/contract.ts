@@ -1,5 +1,5 @@
-import { contractPrincipalCV, cvToJSON } from '@stacks/transactions';
-import { callReadOnly, ContractEntity, getAccountBalances } from 'granite-liq-bot-common';
+import { contractPrincipalCV, cvToJSON, fetchCallReadOnlyFunction } from '@stacks/transactions';
+import { ContractEntity, fetchFn, getAccountBalances } from 'granite-liq-bot-common';
 import { create } from 'zustand';
 import { ContractState } from '../types';
 
@@ -20,13 +20,16 @@ export const useContractStore = create<ContractState>((set, get) => ({
         });
 
         try {
-            const info = await callReadOnly({
+            const info = await fetchCallReadOnlyFunction({
                 contractAddress: baseContract.address,
                 contractName: baseContract.name,
                 functionName: 'get-info',
                 functionArgs: [],
                 senderAddress: baseContract.address,
                 network: baseContract.network,
+                client: {
+                    fetch: fetchFn,
+                }
             }).then(r => cvToJSON(r));
 
             const marketAsset = info.value["market-assets"].value.map((x: { value: string }) => x.value)[0] as string || null;
@@ -58,34 +61,43 @@ export const useContractStore = create<ContractState>((set, get) => ({
 
             if (marketAsset) {
                 const [contractAddress, contractName] = marketAsset.split('.');
-                const name = await callReadOnly({
+                const name = await fetchCallReadOnlyFunction({
                     contractAddress,
                     contractName,
                     functionName: 'get-name',
                     functionArgs: [],
                     senderAddress: operatorAddress,
                     network: baseContract.network,
+                    client: {
+                        fetch: fetchFn,
+                    }
                 }).then(r => cvToJSON(r).value.value);
 
-                const symbol = await callReadOnly({
+                const symbol = await fetchCallReadOnlyFunction({
                     contractAddress,
                     contractName,
                     functionName: 'get-symbol',
                     functionArgs: [],
                     senderAddress: operatorAddress,
                     network: baseContract.network,
+                    client: {
+                        fetch: fetchFn,
+                    }
                 }).then(r => cvToJSON(r).value.value);
 
-                const decimals = await callReadOnly({
+                const decimals = await fetchCallReadOnlyFunction({
                     contractAddress,
                     contractName,
                     functionName: 'get-decimals',
                     functionArgs: [],
                     senderAddress: operatorAddress,
                     network: baseContract.network,
+                    client: {
+                        fetch: fetchFn,
+                    }
                 }).then(r => cvToJSON(r).value.value);
 
-                const balance = await callReadOnly({
+                const balance = await fetchCallReadOnlyFunction({
                     contractAddress,
                     contractName,
                     functionName: 'get-balance',
@@ -94,6 +106,9 @@ export const useContractStore = create<ContractState>((set, get) => ({
                     ],
                     senderAddress: operatorAddress,
                     network: baseContract.network,
+                    client: {
+                        fetch: fetchFn,
+                    }
                 }).then(r => cvToJSON(r).value.value);
 
                 set((state) => ({
