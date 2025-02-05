@@ -4,9 +4,9 @@ import {
     serializePayload, uintCV, type ClarityValue
 } from "@stacks/transactions";
 import { generateWallet } from "@stacks/wallet-sdk";
-import { getContractInfo, getFeeEstimate, getNonce, type BorrowerStatus, type ContractEntity } from "granite-liq-bot-common";
+import { fetchFn, getContractInfo, getFeeEstimate, getNonce, TESTNET_FEE, type BorrowerStatus, type ContractEntity } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
-import { MAINNET_MAX_FEE, TESTNET_FEE } from "../constants";
+import { MAINNET_MAX_FEE } from "../constants";
 import { pool } from "../db";
 import { getNetworkNameFromAddress } from "../helper";
 
@@ -230,7 +230,7 @@ const setContractValue = async (req: Request) => {
     let result;
 
     try {
-        result = await broadcastTransaction({ transaction, network });
+        result = await broadcastTransaction({ transaction, network, client: { fetch: fetchFn } });
     } catch (e) {
         return errorResponse('Could not broadcast transaction');
     }

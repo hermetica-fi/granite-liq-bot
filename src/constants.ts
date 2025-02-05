@@ -26,5 +26,4 @@ export const PRICE_FEED_IDS = {
     "usdc": "0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a"
 }
 
-export const TESTNET_FEE = 1_00000; // 0.1 STX
 export const MAINNET_MAX_FEE = 7_000_00; // 0.7 STX

@@ -14,9 +14,10 @@ import {
   uintCV,
 } from "@stacks/transactions";
 import {
+  fetchFn,
   parseUnits,
   TESTNET_FEE,
-  transactionLink,
+  transactionLink
 } from "granite-liq-bot-common";
 import { useCallback, useMemo, useState } from "react";
 import useToast from "../../hooks/use-toast";
@@ -24,6 +25,7 @@ import useTranslation from "../../hooks/use-translation";
 import { useContractStore } from "../../store/contract";
 import { useModalStore } from "../../store/ui";
 import CloseModal from "../close-modal";
+
 
 const DepositDialog = () => {
   const store = useContractStore();
@@ -108,6 +110,9 @@ const DepositDialog = () => {
     const { txid } = await broadcastTransaction({
       transaction: deserializeTransaction(sign.result.txHex),
       network: contract.network,
+      client: {
+        fetch: fetchFn,
+      }
     });
 
     setTxid(txid);

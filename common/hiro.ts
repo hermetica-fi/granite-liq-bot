@@ -5,6 +5,44 @@ import { cvToHex, hexToCV, type ClarityValue, type FeeEstimateResponse } from "@
 const MAX_RETRIES = 5;
 const INITIAL_DELAY = 5000;
 
+export const fetchFn = async (
+    input: string | URL,
+    init?: RequestInit,
+): Promise<Response> => {
+    let lastError: Error | null = null;
+
+    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+        try {
+
+            const r = await fetch(input, init);
+            if (r.status !== 429) {
+                return r;
+            }
+
+            lastError = new Error(`HTTP ${r.status}: ${await r.text()}`);
+
+            // Only retry if we haven't reached max attempts
+            if (attempt < MAX_RETRIES - 1) {
+                const delay = INITIAL_DELAY * Math.pow(2, attempt);
+                console.warn(`Hiro api rate limit exceeded, retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES})`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        } catch (error) {
+            lastError = error as Error;
+
+            if (attempt < MAX_RETRIES - 1) {
+                const delay = INITIAL_DELAY * Math.pow(2, attempt);
+                console.warn(`Hiro api rate limit exceeded, retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES})`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        }
+    }
+
+    throw lastError || new Error('Request failed after max retries');
+}
+
+
+
 export const fetchWrapper = async (path: string, network: StacksNetworkName, json?: any) => {
     const networkObj = networkFromName(network);
     const url = `${networkObj.client.baseUrl}${path}`;
@@ -26,7 +64,7 @@ export const fetchWrapper = async (path: string, network: StacksNetworkName, jso
                 r = await fetch(url);
             }
 
-            if (r.status === 200 || r.status === 404) {
+            if (r.status !== 429) {
                 return r;
             }
 
@@ -35,7 +73,7 @@ export const fetchWrapper = async (path: string, network: StacksNetworkName, jso
             // Only retry if we haven't reached max attempts
             if (attempt < MAX_RETRIES - 1) {
                 const delay = INITIAL_DELAY * Math.pow(2, attempt);
-                console.warn(`Hiro api request failed, retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES})`);
+                console.warn(`Hiro api rate limit exceeded, retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES})`);
                 await new Promise(resolve => setTimeout(resolve, delay));
             }
         } catch (error) {
@@ -43,8 +81,8 @@ export const fetchWrapper = async (path: string, network: StacksNetworkName, jso
 
             if (attempt < MAX_RETRIES - 1) {
                 const delay = INITIAL_DELAY * Math.pow(2, attempt);
-                console.warn(`Hiro api request failed, retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES})`);
-                await  new Promise(resolve => setTimeout(resolve, delay));
+                console.warn(`Hiro api rate limit exceeded, retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES})`);
+                await new Promise(resolve => setTimeout(resolve, delay));
             }
         }
     }
@@ -66,7 +104,7 @@ export const callReadOnly = async ({ contractName, contractAddress, functionName
     };
 
     return fetchWrapper(`/v2/contracts/call-read/${contractAddress}/${contractName}/${functionName}`, network, json).then(r => r.json()).then((r) => {
-        if(r.okay){
+        if (r.okay) {
             return hexToCV(r.result)
         }
 
