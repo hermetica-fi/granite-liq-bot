@@ -52,7 +52,7 @@ const getAssetInfo = async (assetAddress: string, contractId: string, network: N
 
 const getAssetBalance = async (assetAddress: string, contractId: string, network: NetworkName) => {
     const [contractAddress, contractName] = assetAddress.split(".");
-    const balance = await fetchCallReadOnlyFunction({
+    return await fetchCallReadOnlyFunction({
         contractAddress,
         contractName,
         functionName: 'get-balance',
