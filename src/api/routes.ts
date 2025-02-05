@@ -3,10 +3,10 @@ import {
     getAddressFromPrivateKey, listCV, makeContractCall, serializePayload, uintCV, type ClarityValue
 } from "@stacks/transactions";
 import { generateWallet } from "@stacks/wallet-sdk";
-import { fetchFn, getAccountNonces, getContractInfo, TESTNET_FEE, type BorrowerStatus, type ContractEntity } from "granite-liq-bot-common";
-import type { PoolClient } from "pg";
+import { fetchFn, getAccountNonces, getContractInfo, TESTNET_FEE, type BorrowerStatus } from "granite-liq-bot-common";
 import { MAINNET_MAX_FEE } from "../constants";
 import { pool } from "../db";
+import { getContractList } from "../db-helper";
 import { getNetworkNameFromAddress } from "../helper";
 
 export const errorResponse = (error: any) => {
@@ -16,25 +16,6 @@ export const errorResponse = (error: any) => {
 
     const message = error instanceof Error ? error.message : 'Server error';
     return Response.json({ error: message }, { status: 400 });
-}
-
-const getContractList = async (dbClient: PoolClient): Promise<ContractEntity[]> => {
-    return dbClient.query('SELECT id, address, name, network, operator_address, market_asset, market_asset_balance, collateral_asset, collateral_asset_balance FROM contract ORDER BY created_at DESC')
-        .then(r => r.rows).then(rows => rows.map(row => ({
-            id: row.id,
-            address: row.address,
-            name: row.name,
-            network: row.network,
-            operatorAddress: row.operator_address,
-            marketAsset: row.market_asset ? {
-                ...row.market_asset,
-                balance: row.market_asset_balance
-            }: null,
-            collateralAsset: row.collateral_asset ? {
-                ...row.collateral_asset,
-                balance: row.collateral_asset_balance
-            }: null,
-        })));
 }
 
 export const routes = {
