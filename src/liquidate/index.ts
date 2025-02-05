@@ -1,5 +1,4 @@
-import { contractPrincipalCV, cvToJSON, fetchCallReadOnlyFunction } from "@stacks/transactions";
-import { fetchFn, parseUnits } from "granite-liq-bot-common";
+import { parseUnits } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
 import { pythFetchgGetPriceFeed } from "../../common/pyth";
 import { PRICE_FEED_IDS } from "../constants";
@@ -9,92 +8,48 @@ const logger = createLogger("liquidate");
 
 const worker = async (dbClient: PoolClient) => {
     const borrowers = await dbClient.query("SELECT address, network, max_repay_amount FROM borrower_status WHERE max_repay_amount>0 ORDER BY max_repay_amount DESC").then(r => r.rows);
-    //console.log(borrowers)
+    console.log(borrowers)
     for (const borrower of borrowers) {
-        // logger.info(`${borrower.address} on ${borrower.network} able to liquidate ${borrower.max_repay_amount} debt`);
-
-        // Adjust down max repay amount %0,05 to prevent transaction failure in case high volatility
-        const repayAmountAdjusted = borrower.max_repay_amount * 0.95;
-
-        const contract = await dbClient.query("SELECT address, name, operator_address, network FROM contract WHERE network = $1 LIMIT 1", [borrower.network]).then(r => r.rows[0]);
+       
+        const contract = await dbClient.query("SELECT address, name, operator_address, network, market_asset, market_asset_balance, collateral_asset FROM contract WHERE network = $1 LIMIT 1", [borrower.network]).then(r => r.rows[0]);
         if (!contract) {
             logger.info(`Contract not found for ${borrower.network}`);
             continue;
         }
 
-        const contractInfo = await fetchCallReadOnlyFunction({
-            contractAddress: contract.address,
-            contractName: contract.name,
-            functionName: 'get-info',
-            functionArgs: [],
-            senderAddress: contract.operator_address,
-            network: contract.network,
-            client: {
-                fetch: fetchFn,
-            }
-        }).then(r => cvToJSON(r).value[0]?.value);
-
-        if (!marketAsset) {
+        if (!contract.market_asset) {
             logger.info(`Market asset not found for contract ${contract.address} on ${contract.network}`);
             continue;
         }
 
+        if (!contract.market_asset.balance) {
+            logger.info(`Market asset balance is 0 for contract ${contract.address} on ${contract.network}`);
+            continue;
+        }
+
+        if (!contract.collateral_asset) {
+            logger.info(`Collateral asset not found for contract ${contract.address} on ${contract.network}`);
+            continue;
+        }
 
 
+        // Adjust down max repay amount %0,05 to prevent transaction failure in case high volatility
+        const repayAmountAdjusted = borrower.max_repay_amount * 0.95;
 
-        const marketAssetBalance = await fetchCallReadOnlyFunction({
-            contractAddress: marketAsset.split(".")[0],
-            contractName: marketAsset.split(".")[1],
-            functionName: 'get-balance',
-            functionArgs: [
-                contractPrincipalCV(contract.address, contract.name)
-            ],
-            senderAddress: contract.operator_address,
-            network: contract.network,
-            client: {
-                fetch: fetchFn,
-            }
-        }).then(r => Number(cvToJSON(r).value.value));
+        const repayAmountAdjustedBn = parseUnits(repayAmountAdjusted, contract.market_asset.decimals);
+        const repayAmountFinalBn = Math.min(contract.market_asset_balance, repayAmountAdjustedBn);
 
-        const marketAssetDecimals = await fetchCallReadOnlyFunction({
-            contractAddress: marketAsset.split(".")[0],
-            contractName: marketAsset.split(".")[1],
-            functionName: 'get-decimals',
-            functionArgs: [],
-            senderAddress: contract.operator_address,
-            network: contract.network,
-            client: {
-                fetch: fetchFn,
-            }
-        }).then(r => cvToJSON(r).value.value);
-
-        const marketAssetSymbol = await fetchCallReadOnlyFunction({
-            contractAddress: marketAsset.split(".")[0],
-            contractName: marketAsset.split(".")[1],
-            functionName: 'get-symbol',
-            functionArgs: [
-
-            ],
-            senderAddress: contract.operator_address,
-            network: contract.network,
-            client: {
-                fetch: fetchFn,
-            }
-        }).then(r => cvToJSON(r).value.value);
-
-        const repayAmountAdjustedBn = parseUnits(repayAmountAdjusted, marketAssetDecimals);
-        const repayAmountFinalBn = Math.min(marketAssetBalance, repayAmountAdjustedBn);
-
-
-        const priceFeedKey = Object.keys(PRICE_FEED_IDS).find(key => marketAssetSymbol.toLowerCase().indexOf(key.toLowerCase()) !== -1);
+        const priceFeedKey = Object.keys(PRICE_FEED_IDS).find(key => contract.market_asset.symbol.toLowerCase().indexOf(key.toLowerCase()) !== -1);
         if (!priceFeedKey) {
-            logger.error(`Price feed key not exists for ${marketAssetSymbol}`);
+            logger.error(`Price feed key not exists for ${contract.market_asset.symbol}`);
             continue;
         }
 
         const priceFeed = await pythFetchgGetPriceFeed(PRICE_FEED_IDS[priceFeedKey as "btc" | "eth" | "usdc"]);
 
-        console.log(priceFeed)
+
+        console.log( borrower.max_repay_amount)
+
 
 
 
