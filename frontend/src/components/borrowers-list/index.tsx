@@ -1,4 +1,4 @@
-import { Button, TablePagination } from "@mui/material";
+import { TablePagination } from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -46,10 +46,6 @@ const BorrowersList = ({ network }: { network: NetworkName }) => {
     []
   );
 
-  const handleLiquidateClicked = useCallback((address: string) => {
-    console.log("liquidate", address);
-  }, []);
-
   return (
     <>
       <TableContainer component={Paper}>
@@ -62,7 +58,6 @@ const BorrowersList = ({ network }: { network: NetworkName }) => {
               <TableCell align="right">{t("DEBT")}</TableCell>
               <TableCell align="right">{t("RISK")}</TableCell>
               <TableCell align="right">{t("AVAILABLE TO LIQUIDATE")}</TableCell>
-              <TableCell align="right"></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -87,16 +82,6 @@ const BorrowersList = ({ network }: { network: NetworkName }) => {
                 </TableCell>
                 <TableCell align="right">
                   {row.maxRepayAmount.toFixed(2)}
-                </TableCell>
-                <TableCell align="right">
-                  <Button
-                    size="small"
-                    variant="outlined"
-      
-                    onClick={() => handleLiquidateClicked(row.address)}
-                  >
-                    {t("LIQUIDATE")}
-                  </Button>
                 </TableCell>
               </TableRow>
             ))}
