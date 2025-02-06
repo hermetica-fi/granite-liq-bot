@@ -73,8 +73,8 @@ export const worker = async (dbClient: PoolClient) => {
     const contracts = await getContractList(dbClient);
     for (const contract of contracts) {
 
-        let marketAsset = contract.marketAsset;
-        let collateralAsset = contract.collateralAsset;
+        let marketAsset = contract.marketAsset?.address;
+        let collateralAsset = contract.collateralAsset?.address;
 
         if (!marketAsset || !collateralAsset) {
             const info = await fetchCallReadOnlyFunction({
@@ -90,16 +90,16 @@ export const worker = async (dbClient: PoolClient) => {
             }).then(r => cvToJSON(r));
 
             if (!marketAsset) {
-                const marketAsset = info.value["market-assets"].value;
-                const assetInfo = await getAssetInfo(marketAsset, contract.id, contract.network);
+                marketAsset = info.value["market-asset"].value;
+                const assetInfo = await getAssetInfo(marketAsset!, contract.id, contract.network);
                 const val = { address: marketAsset, ...assetInfo };
                 await dbClient.query("UPDATE contract SET market_asset = $1 WHERE id = $2", [val, contract.id]);
                 logger.info(`Market asset updated for ${contract.id} as ${JSON.stringify(val)}`);
             }
 
             if (!collateralAsset) {
-                const collateralAsset = info.value["collateral-assets"].value;
-                const assetInfo = await getAssetInfo(collateralAsset, contract.id, contract.network);
+                collateralAsset = info.value["collateral-asset"].value;
+                const assetInfo = await getAssetInfo(collateralAsset!, contract.id, contract.network);
                 const val = { address: collateralAsset, ...assetInfo };
                 await dbClient.query("UPDATE contract SET collateral_asset = $1 WHERE id = $2", [val, contract.id]);
                 logger.info(`Collateral asset updated for ${contract.id} as ${JSON.stringify(val)}`);
@@ -107,10 +107,10 @@ export const worker = async (dbClient: PoolClient) => {
         }
 
 
-        const balance1 = await getAssetBalance(marketAsset!.address, contract.id, contract.network);
+        const balance1 = await getAssetBalance(marketAsset!, contract.id, contract.network);
         await dbClient.query("UPDATE contract SET market_asset_balance = $1 WHERE id = $2", [balance1, contract.id]);
 
-        const balance2 = await getAssetBalance(collateralAsset!.address, contract.id, contract.network);
+        const balance2 = await getAssetBalance(collateralAsset!, contract.id, contract.network);
         await dbClient.query("UPDATE contract SET collateral_asset_balance = $1 WHERE id = $2", [balance2, contract.id])
     }
     await dbClient.query("COMMIT");
