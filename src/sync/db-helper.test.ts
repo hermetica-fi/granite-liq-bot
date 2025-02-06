@@ -250,12 +250,10 @@ describe("sync db helper", () => {
         await setCollateralParamsLocal(client, 'mainnet', {
             'SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth': {
                 liquidationLTV: 100,
-                decimals: 18,
                 maxLTV: 200,
             },
             'SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc': {
                 liquidationLTV: 120,
-                decimals: 19,
                 maxLTV: 209,
             },
         });
@@ -263,12 +261,10 @@ describe("sync db helper", () => {
         expect(resp).toEqual({
             'SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth': {
                 liquidationLTV: 100,
-                decimals: 18,
                 maxLTV: 200,
             },
             'SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc': {
                 liquidationLTV: 120,
-                decimals: 19,
                 maxLTV: 209,
             },
         });
@@ -310,12 +306,10 @@ describe("sync db helper", () => {
         await setCollateralParamsLocal(client, 'mainnet', {
             'SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth': {
                 liquidationLTV: 100,
-                decimals: 18,
                 maxLTV: 200,
             },
             'SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc': {
                 liquidationLTV: 120,
-                decimals: 19,
                 maxLTV: 209,
             },
         });
@@ -344,12 +338,10 @@ describe("sync db helper", () => {
             collateralParams: {
                 "SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth": {
                     liquidationLTV: 100,
-                    decimals: 18,
                     maxLTV: 200,
                 },
                 "SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": {
                     liquidationLTV: 120,
-                    decimals: 19,
                     maxLTV: 209,
                 },
             },

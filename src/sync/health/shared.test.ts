@@ -91,12 +91,10 @@ test("calcBorrowerStatus 1", () => {
         collateralParams: {
             "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": {
                 liquidationLTV: 80000000,
-                decimals: 8,
                 maxLTV: 70000000,
             },
             "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth": {
                 liquidationLTV: 51000000,
-                decimals: 8,
                 maxLTV: 50000000,
             },
         },
@@ -154,12 +152,10 @@ test("calcBorrowerStatus 2", () => {
         collateralParams: {
             "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": {
                 liquidationLTV: 80000000,
-                decimals: 8,
                 maxLTV: 70000000,
             },
             "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth": {
                 liquidationLTV: 51000000,
-                decimals: 8,
                 maxLTV: 50000000,
             },
         },
