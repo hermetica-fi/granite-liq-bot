@@ -22,6 +22,8 @@ export const createDb = async (client: PoolClient) => {
         "created_at TIMESTAMP NOT NULL DEFAULT NOW()" +
         ");";
 
+    CREATE += "CREATE INDEX IF NOT EXISTS contract_network_idx ON contract (network);";
+
     CREATE += "CREATE TABLE IF NOT EXISTS public.borrower(" +
         "address VARCHAR PRIMARY KEY NOT NULL," +
         "network VARCHAR NOT NULL," +

@@ -38,13 +38,6 @@ export const routes = {
             return errorResponse('Enter a mnemonic');
         }
 
-        let dbClient = await pool.connect();
-        if (await dbClient.query('SELECT * FROM contract WHERE address = $1', [address]).then(r => r.rows.length > 0)) {
-            dbClient.release();
-            return errorResponse('Contract already exists');
-        }
-        dbClient.release();
-
         let network;
 
         try {
@@ -52,6 +45,13 @@ export const routes = {
         } catch (error) {
             return errorResponse(error);
         }
+
+        let dbClient = await pool.connect();
+        if (await dbClient.query('SELECT * FROM contract WHERE network = $1', [network]).then(r => r.rows.length > 0)) {
+            dbClient.release();
+            return errorResponse(`A contract for ${network} already exists`);
+        }
+        dbClient.release();
 
         let wallet;
         try {
