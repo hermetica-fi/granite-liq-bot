@@ -4,7 +4,7 @@ import type { PoolClient } from "pg";
 import { errorResponse } from "../api/routes";
 import { MAINNET_MAX_FEE, PRICE_FEED_IDS } from "../constants";
 import { pool } from "../db";
-import { getContractList } from "../db-helper";
+import { getBorrowerStatusList, getContractList } from "../db-helper";
 import { hexToUint8Array } from "../helper";
 import { createLogger } from "../logger";
 import type { PriceFeed } from "../types";
@@ -12,7 +12,9 @@ import { epoch } from "../util";
 
 const logger = createLogger("liquidate");
 
-const worker = async (dbClient: PoolClient) => {
+
+
+const worker2 = async (dbClient: PoolClient) => {
     const borrowers = await dbClient.query("SELECT address, network, max_repay_amount FROM borrower_status WHERE max_repay_amount>0 ORDER BY max_repay_amount DESC").then(r => r.rows);
     for (const borrower of borrowers) {
 
@@ -24,7 +26,7 @@ const worker = async (dbClient: PoolClient) => {
         }))[0];
 
         // if it is testnet, see if we have price data
-        
+
 
 
         if (!contract) {
@@ -134,6 +136,32 @@ const worker = async (dbClient: PoolClient) => {
         // lock contract
 
     }
+}
+
+
+const worker = async (dbClient: PoolClient) => {
+
+    const contract = (await getContractList(dbClient, {
+        filters: {
+            network: 'testnet',
+        },
+        orderBy: 'market_asset_balance DESC'
+    }))[0];
+
+    if (!contract) {
+        logger.info("No testnet contract found");
+        return;
+    }
+
+    const borrowers = await getBorrowerStatusList(dbClient, {
+        filters: {
+            network: 'testnet',
+        },
+        orderBy: 'max_repay_amount DESC'
+    });
+
+    console.log(borrowers);
+
 }
 
 export const main = async () => {

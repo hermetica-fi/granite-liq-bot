@@ -3,10 +3,10 @@ import {
     getAddressFromPrivateKey, listCV, makeContractCall, serializePayload, uintCV, type ClarityValue
 } from "@stacks/transactions";
 import { generateWallet } from "@stacks/wallet-sdk";
-import { fetchFn, getAccountNonces, getContractInfo, TESTNET_FEE, type BorrowerStatus } from "granite-liq-bot-common";
+import { fetchFn, getAccountNonces, getContractInfo, TESTNET_FEE } from "granite-liq-bot-common";
 import { MAINNET_MAX_FEE } from "../constants";
 import { pool } from "../db";
-import { getContractList } from "../db-helper";
+import { getBorrowerStatusList, getContractList } from "../db-helper";
 import { getNetworkNameFromAddress } from "../helper";
 
 export const errorResponse = (error: any) => {
@@ -104,17 +104,12 @@ export const routes = {
     getBorrowers: async (req: Request, url: URL) => {
         const network = url.searchParams.get('network') || 'mainnet';
         const dbClient = await pool.connect();
-        const borrowers: BorrowerStatus[] = await dbClient.query('SELECT * FROM borrower_status WHERE network = $1 ORDER BY max_repay_amount DESC, risk DESC', [network])
-            .then(r => r.rows).then(rows => rows.map(row => ({
-                address: row.address,
-                network: row.network,
-                ltv: Number(row.ltv),
-                health: Number(row.health),
-                debt: Number(row.debt),
-                collateral: Number(row.collateral),
-                risk: Number(row.risk),
-                maxRepayAmount: Number(row.max_repay_amount),
-            })));
+        const borrowers = await getBorrowerStatusList(dbClient, {
+            filters: {
+                network: network
+            },
+            orderBy: 'max_repay_amount DESC, risk DESC'
+        });
         dbClient.release();
         return Response.json(borrowers);
     },
@@ -187,7 +182,7 @@ export const routes = {
         }
 
         let functionArgs: ClarityValue[] = [];
-        if (['set-market-assets', 'set-collateral-assets'].includes(fn) ) {
+        if (['set-market-assets', 'set-collateral-assets'].includes(fn)) {
             if (value) {
                 functionArgs = [listCV([contractPrincipalCV(value.split('.')[0], value.split('.')[1])])]
             } else {
