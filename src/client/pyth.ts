@@ -1,3 +1,5 @@
+import { PRICE_FEED_IDS } from "../constants";
+
 type PriceFeedItem = {
   id: string,
   price: {
@@ -24,8 +26,8 @@ type FeedResponse = {
   items: Record<string, PriceFeedItem>
 }
 
-export async function fetchAndProcessPriceFeed(tokens: { ticker: string, price_feed: string }[]): Promise<FeedResponse> {
-  const feedParams = tokens.map((t) => `ids[]=${t.price_feed}`).join('&');
+export async function fetchAndProcessPriceFeed(): Promise<FeedResponse> {
+  const feedParams = PRICE_FEED_IDS.map((t) => `ids[]=${t.feed_id}`).join('&');
   const url = `https://hermes.pyth.network/v2/updates/price/latest?${feedParams}&binary=true`;
 
   const data = await fetch(url).then(r => r.arrayBuffer())
@@ -37,7 +39,7 @@ export async function fetchAndProcessPriceFeed(tokens: { ticker: string, price_f
   const attestation = result.binary.data[0];
   const items = result.parsed.reduce(
     (acc: any, item: any, index: number) => {
-      acc[tokens[index].ticker] = item
+      acc[PRICE_FEED_IDS[index].ticker] = item
       return acc;
     },
     {}

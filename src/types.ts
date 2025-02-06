@@ -26,6 +26,8 @@ export type MarketAssetParams = {
     decimals: number;
 }
 
+export type Ticker = "btc" | "eth" | "usdc";
+
 export type PriceFeed = {
     btc: number;
     eth: number;

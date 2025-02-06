@@ -2,7 +2,6 @@ import { broadcastTransaction, bufferCV, Cl, contractPrincipalCV, intCV, listCV,
 import { fetchFn, formatUnits, getAccountNonces, parseUnits, TESTNET_FEE } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
 import { fetchAndProcessPriceFeed } from "../client/pyth";
-import { PRICE_FEED_IDS } from "../constants";
 import { pool } from "../db";
 import { getBorrowerStatusList, getContractList } from "../db-helper";
 import { hexToUint8Array, symbolToTicker } from "../helper";
@@ -47,11 +46,7 @@ const worker = async (dbClient: PoolClient) => {
     const mTicker = symbolToTicker(marketAsset.symbol);
     const cTicker = symbolToTicker(collateralAsset.symbol);
     const eTicker = "eth";
-    const priceFeed = await fetchAndProcessPriceFeed([
-        { ticker: mTicker, price_feed: PRICE_FEED_IDS[mTicker] },
-        { ticker: cTicker, price_feed: PRICE_FEED_IDS[cTicker] },
-        { ticker: eTicker, price_feed: PRICE_FEED_IDS[eTicker] },
-    ]);
+    const priceFeed = await fetchAndProcessPriceFeed();
     const mFeed = priceFeed.items[mTicker];
     const cFeed = priceFeed.items[cTicker];
     const eFeed = priceFeed.items[eTicker];
