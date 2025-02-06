@@ -1,142 +1,15 @@
-import { broadcastTransaction, bufferCV, contractPrincipalCV, fetchFeeEstimateTransaction, makeContractCall, noneCV, PostConditionMode, principalCV, serializePayload, someCV, uintCV } from "@stacks/transactions";
-import { fetchFn, formatUnits, getAccountNonces, parseUnits, pythFetchgGetPriceFeed, TESTNET_FEE } from "granite-liq-bot-common";
+import { broadcastTransaction, bufferCV, Cl, contractPrincipalCV, intCV, listCV, makeContractCall, noneCV, PostConditionMode, principalCV, serializeCVBytes, someCV, tupleCV, uintCV } from "@stacks/transactions";
+import { fetchFn, formatUnits, getAccountNonces, parseUnits, TESTNET_FEE } from "granite-liq-bot-common";
+import { fetchAndProcessPriceFeed } from "granite-liq-bot-common/pyth";
 import type { PoolClient } from "pg";
-import { errorResponse } from "../api/routes";
-import { MAINNET_MAX_FEE, PRICE_FEED_IDS } from "../constants";
+import { PRICE_FEED_IDS } from "../constants";
 import { pool } from "../db";
 import { getBorrowerStatusList, getContractList } from "../db-helper";
-import { hexToUint8Array } from "../helper";
+import { hexToUint8Array, symbolToTicker } from "../helper";
 import { createLogger } from "../logger";
-import type { PriceFeed } from "../types";
 import { epoch } from "../util";
 
 const logger = createLogger("liquidate");
-
-
-
-const worker2 = async (dbClient: PoolClient) => {
-    const borrowers = await dbClient.query("SELECT address, network, max_repay_amount FROM borrower_status WHERE max_repay_amount>0 ORDER BY max_repay_amount DESC").then(r => r.rows);
-    for (const borrower of borrowers) {
-
-        const contract = (await getContractList(dbClient, {
-            filters: {
-                network: borrower.network,
-            },
-            orderBy: 'market_asset_balance DESC'
-        }))[0];
-
-        // if it is testnet, see if we have price data
-
-
-
-        if (!contract) {
-            logger.info(`No contract to liquidate ${borrower.address}`);
-            continue;
-        }
-
-        if (!contract.marketAsset) {
-            logger.info(`Market asset not configured of contract ${contract.address} on ${contract.network}`);
-            continue;
-        }
-
-        if (!contract.marketAsset.balance) {
-            logger.info(`Market asset balance is 0 of contract ${contract.address} on ${contract.network}`);
-            continue;
-        }
-
-        if (!contract.collateralAsset) {
-            logger.info(`Collateral asset not configured of contract ${contract.address} on ${contract.network}`);
-            continue;
-        }
-
-        const { marketAsset, collateralAsset } = contract;
-
-
-        const repayAmount = Number(borrower.max_repay_amount);
-        // Adjust down max repay amount %0,05 to prevent transaction failure in case high volatility
-        const repayAmountAdjusted = repayAmount * 0.95;
-        const repayAmountAdjustedBn = parseUnits(repayAmountAdjusted, marketAsset.decimals);
-        const repayAmountFinalBn = Math.min(contract.marketAsset.balance, repayAmountAdjustedBn);
-        const repayAmountFinal = formatUnits(repayAmountFinalBn, marketAsset.decimals);
-
-
-        const priceFeedKey = Object.keys(PRICE_FEED_IDS).find(key => collateralAsset.symbol.toLowerCase().indexOf(key.toLowerCase()) !== -1);
-        if (!priceFeedKey) {
-            logger.error(`Price feed key not exists for ${marketAsset.symbol}`);
-            continue;
-        }
-
-        const priceFeed = await pythFetchgGetPriceFeed(PRICE_FEED_IDS[priceFeedKey as keyof PriceFeed]);
-        const collateralPriceBn = priceFeed.price;
-        const collateralPrice = formatUnits(collateralPriceBn, -1 * priceFeed.expo);
-        const minCollateralExpected = Number((repayAmountFinal / collateralPrice).toFixed(collateralAsset.decimals));
-        const minCollateralExpectedBn = parseUnits(minCollateralExpected, collateralAsset.decimals);
-        const priceAttestationBuff = hexToUint8Array(priceFeed.attestation);
-
-        console.log("repayAmount", repayAmount);
-        console.log("repayAmountAdjusted", repayAmountAdjusted);
-        console.log("repayAmountAdjustedBn", repayAmountAdjustedBn);
-        console.log("repayAmountFinalBn", repayAmountFinalBn);
-        console.log("repayAmountFinal", repayAmountFinal);
-        console.log("collateralPriceBn", collateralPriceBn);
-        console.log("collateralPrice", collateralPrice);
-        console.log("minCollateralExpected", minCollateralExpected)
-        console.log("minCollateralExpectedBn", minCollateralExpectedBn)
-
-
-        const functionArgs = [
-            someCV(bufferCV(priceAttestationBuff)),
-            principalCV(borrower.address),
-            contractPrincipalCV(marketAsset.address.split(".")[0], marketAsset.address.split(".")[1]),
-            contractPrincipalCV(collateralAsset.address.split(".")[0], collateralAsset.address.split(".")[1]),
-            uintCV(repayAmountFinalBn),
-            uintCV(minCollateralExpectedBn),
-            uintCV(epoch() + (60 * 4)),
-            noneCV()
-        ];
-
-        const priv = await dbClient.query("SELECT operator_priv FROM contract WHERE id = $1", [contract.id]).then(r => r.rows[0].operator_priv);
-
-        const nonce = (await getAccountNonces(contract.operatorAddress, contract.network)).possible_next_nonce;
-
-        // (contract-call? .pyth-adapter-v1 read-price .mock-usdc)
-
-        const txOptions = {
-            contractAddress: contract.address,
-            contractName: contract.name,
-            functionName: "liquidate",
-            functionArgs,
-            senderKey: priv,
-            senderAddress: contract.operatorAddress,
-            network: contract.network,
-            fee: TESTNET_FEE,
-            validateWithAbi: true,
-            postConditionMode: PostConditionMode.Allow,
-            nonce
-        }
-        const transaction = await makeContractCall(txOptions);
-
-        if (contract.network === 'mainnet') {
-            let feeEstimate;
-
-            try {
-                feeEstimate = await fetchFeeEstimateTransaction({ payload: serializePayload(transaction.payload), network: contract.network, client: { fetch: fetchFn } });
-            } catch (e) {
-                return errorResponse('Could not get fee estimate');
-            }
-
-            const fee = feeEstimate[1].fee;
-            transaction.setFee(Math.min(fee, MAINNET_MAX_FEE));
-        }
-
-        const tx = await broadcastTransaction({ transaction, network: contract.network, client: { fetch: fetchFn } });
-        console.log("tx", tx)
-        process.exit(1)
-
-        // lock contract
-
-    }
-}
 
 
 const worker = async (dbClient: PoolClient) => {
@@ -171,18 +44,31 @@ const worker = async (dbClient: PoolClient) => {
         orderBy: 'max_repay_amount DESC'
     });
 
+    const mTicker = symbolToTicker(marketAsset.symbol);
+    const cTicker = symbolToTicker(collateralAsset.symbol);
+    const eTicker = "eth";
+    const priceFeed = await fetchAndProcessPriceFeed([
+        { ticker: mTicker, price_feed: PRICE_FEED_IDS[mTicker] },
+        { ticker: cTicker, price_feed: PRICE_FEED_IDS[cTicker] },
+        { ticker: eTicker, price_feed: PRICE_FEED_IDS[eTicker] },
+    ]);
+    const mFeed = priceFeed.items[mTicker];
+    const cFeed = priceFeed.items[cTicker];
+    const eFeed = priceFeed.items[eTicker];
 
-    const priceFeedKey = Object.keys(PRICE_FEED_IDS).find(key => collateralAsset.symbol.toLowerCase().indexOf(key.toLowerCase()) !== -1);
-    if (!priceFeedKey) {
-        logger.error(`Price feed key not exists for ${collateralAsset.symbol}`);
-        return;
+
+    if (!mFeed) {
+        throw new Error("Market asset price feed not found");
     }
 
-    const priceFeed = await pythFetchgGetPriceFeed(PRICE_FEED_IDS[priceFeedKey as keyof PriceFeed]);
-    const priceAttestationBuff = hexToUint8Array(priceFeed.attestation);
-    const collateralPrice = formatUnits(priceFeed.price, -1 * priceFeed.expo);
-    const collateralPriceBn = parseUnits(collateralPrice, collateralAsset.decimals);
+    if (!cFeed) {
+        throw new Error("Collateral asset price feed not found");
+    }
 
+    const priceAttestationBuff = hexToUint8Array(priceFeed.attestation);
+
+    const collateralPrice = formatUnits(Number(cFeed.price.price), -1 * cFeed.price.expo);
+    const collateralPriceBn = parseUnits(collateralPrice, collateralAsset.decimals);
 
     const batch: {
         user: string,
@@ -225,9 +111,106 @@ const worker = async (dbClient: PoolClient) => {
         */
     }
 
-    console.log("batch", batch)
-    
-    process.exit(1)
+    if (batch.length === 0) {
+        // Nothing to liquidate
+        return;
+    }
+
+
+    const testnetPriceDataCV = someCV(
+        bufferCV(
+            serializeCVBytes(
+                listCV([
+                    tupleCV({
+                        "price-identifier": Cl.bufferFromHex(cFeed.id),
+                        "price": intCV(cFeed.price.price),
+                        "conf": uintCV(cFeed.price.conf),
+                        "expo": intCV(cFeed.price.expo),
+                        "ema-price": intCV(cFeed.ema_price.price),
+                        "ema-conf": uintCV(cFeed.ema_price.conf),
+                        "publish-time": uintCV(cFeed.price.publish_time),
+                        "prev-publish-time": uintCV(cFeed.metadata.prev_publish_time)
+                    }),
+                    tupleCV({
+                        "price-identifier": Cl.bufferFromHex(mFeed.id),
+                        "price": intCV(mFeed.price.price),
+                        "conf": uintCV(mFeed.price.conf),
+                        "expo": intCV(mFeed.price.expo),
+                        "ema-price": intCV(mFeed.ema_price.price),
+                        "ema-conf": uintCV(mFeed.ema_price.conf),
+                        "publish-time": uintCV(mFeed.price.publish_time),
+                        "prev-publish-time": uintCV(mFeed.metadata.prev_publish_time)
+                    }),
+                    tupleCV({
+                        "price-identifier": Cl.bufferFromHex(eFeed.id),
+                        "price": intCV(eFeed.price.price),
+                        "conf": uintCV(eFeed.price.conf),
+                        "expo": intCV(eFeed.price.expo),
+                        "ema-price": intCV(eFeed.ema_price.price),
+                        "ema-conf": uintCV(eFeed.ema_price.conf),
+                        "publish-time": uintCV(eFeed.price.publish_time),
+                        "prev-publish-time": uintCV(eFeed.metadata.prev_publish_time)
+                    }),
+                ])
+            )
+        )
+    )
+
+    const batchCV = listCV(batch.map(b => someCV(
+        tupleCV({
+            "user": principalCV(b.user),
+            "liquidator-repay-amount": uintCV(b.liquidatorRepayAmount),
+            "min-collateral-expected": uintCV(b.minCollateralExpected)
+        }))))
+
+    const functionArgs = [
+        someCV(bufferCV(priceAttestationBuff)),
+        contractPrincipalCV(marketAsset.address.split(".")[0], marketAsset.address.split(".")[1]),
+        contractPrincipalCV(collateralAsset.address.split(".")[0], collateralAsset.address.split(".")[1]),
+        batchCV,
+        uintCV(epoch() + (60 * 4)),
+        noneCV(),
+        testnetPriceDataCV
+    ];
+
+
+    const priv = await dbClient.query("SELECT operator_priv FROM contract WHERE id = $1", [contract.id]).then(r => r.rows[0].operator_priv);
+
+    const nonce = (await getAccountNonces(contract.operatorAddress, contract.network)).possible_next_nonce;
+
+    const txOptions = {
+        contractAddress: contract.address,
+        contractName: contract.name,
+        functionName: "batch-liquidate",
+        functionArgs,
+        senderKey: priv,
+        senderAddress: contract.operatorAddress,
+        network: contract.network,
+        fee: TESTNET_FEE,
+        validateWithAbi: true,
+        postConditionMode: PostConditionMode.Allow,
+        nonce
+    }
+
+    /*
+
+        if (contract.network === 'mainnet') {
+            let feeEstimate;
+
+            try {
+                feeEstimate = await fetchFeeEstimateTransaction({ payload: serializePayload(transaction.payload), network: contract.network, client: { fetch: fetchFn } });
+            } catch (e) {
+                return errorResponse('Could not get fee estimate');
+            }
+
+            const fee = feeEstimate[1].fee;
+            transaction.setFee(Math.min(fee, MAINNET_MAX_FEE));
+        }
+    */
+
+    const transaction = await makeContractCall(txOptions);
+    const tx = await broadcastTransaction({ transaction, network: contract.network, client: { fetch: fetchFn } });
+    console.log("tx", tx)
 }
 
 export const main = async () => {

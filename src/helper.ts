@@ -1,5 +1,6 @@
 import type { NetworkName } from "granite-liq-bot-common";
-
+import { PRICE_FEED_IDS } from "./constants";
+import type { PriceFeed } from "./types";
 
 export const getNetworkNameFromAddress = (address: string): NetworkName => {
     if (address.startsWith('ST') || address.startsWith('SN')) {
@@ -29,4 +30,12 @@ export function hexToUint8Array(hexString: string): Uint8Array {
       bytes[i / 2] = parseInt(hexString.substr(i, 2), 16);
     }
     return bytes;
+  }
+
+  export const symbolToTicker = (symbol: string) => {
+    const key = Object.keys(PRICE_FEED_IDS).find(key => symbol.toLowerCase().indexOf(key.toLowerCase()) !== -1);
+    if (!key) {
+        throw new Error(`Price feed key not exists for ${symbol}`);
+    }
+    return key as keyof PriceFeed
   }
