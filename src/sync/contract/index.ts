@@ -2,6 +2,7 @@ import { contractPrincipalCV, cvToJSON, fetchCallReadOnlyFunction } from "@stack
 import { fetchFn, type NetworkName } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
 import { pool } from "../../db";
+import { getContractList } from "../../db-helper";
 import { createLogger } from "../../logger";
 
 const logger = createLogger("sync-contract");
@@ -69,57 +70,48 @@ const getAssetBalance = async (assetAddress: string, contractId: string, network
 
 export const worker = async (dbClient: PoolClient) => {
     await dbClient.query("BEGIN");
-    const contracts = await dbClient.query("SELECT id, address, name, network, operator_address, market_asset, collateral_asset FROM contract");
-    for (const contract of contracts.rows) {
+    const contracts = await getContractList(dbClient);
+    for (const contract of contracts) {
 
-        const info = await fetchCallReadOnlyFunction({
-            contractAddress: contract.address,
-            contractName: contract.name,
-            functionName: 'get-info',
-            functionArgs: [],
-            senderAddress: contract.operator_address,
-            network: contract.network,
-            client: {
-                fetch: fetchFn,
+        let marketAsset = contract.marketAsset;
+        let collateralAsset = contract.collateralAsset;
+
+        if (!marketAsset || !collateralAsset) {
+            const info = await fetchCallReadOnlyFunction({
+                contractAddress: contract.address,
+                contractName: contract.name,
+                functionName: 'get-info',
+                functionArgs: [],
+                senderAddress: contract.operatorAddress,
+                network: contract.network,
+                client: {
+                    fetch: fetchFn,
+                }
+            }).then(r => cvToJSON(r));
+
+            if (!marketAsset) {
+                const marketAsset = info.value["market-assets"].value;
+                const assetInfo = await getAssetInfo(marketAsset, contract.id, contract.network);
+                const val = { address: marketAsset, ...assetInfo };
+                await dbClient.query("UPDATE contract SET market_asset = $1 WHERE id = $2", [val, contract.id]);
+                logger.info(`Market asset updated for ${contract.id} as ${JSON.stringify(val)}`);
             }
-        }).then(r => cvToJSON(r));
 
-        const marketAsset = info.value["market-assets"].value.map((x: { value: string }) => x.value)[0] as string || null;
-        if (!marketAsset && contract.market_asset) {
-            await dbClient.query("UPDATE contract SET market_asset = NULL WHERE id = $1", [contract.id]);
-            logger.info(`Market asset reset for ${contract.id}`);
-        } else if (marketAsset && marketAsset !== contract.market_asset?.address) {
-            let assetInfo = await getAssetInfo(marketAsset, contract.id, contract.network);
-            const val = { address: marketAsset, ...assetInfo };
-            await dbClient.query("UPDATE contract SET market_asset = $1 WHERE id = $2", [val, contract.id]);
-            logger.info(`Market asset updated for ${contract.id} as ${JSON.stringify(val)}`);
-        }
-
-        if(marketAsset) {
-            const balance = await getAssetBalance(marketAsset, contract.id, contract.network);
-            await dbClient.query("UPDATE contract SET market_asset_balance = $1 WHERE id = $2", [balance, contract.id]);
-        } else {
-            await dbClient.query("UPDATE contract SET market_asset_balance = 0 WHERE id = $1", [contract.id]);
+            if (!collateralAsset) {
+                const collateralAsset = info.value["collateral-assets"].value;
+                const assetInfo = await getAssetInfo(collateralAsset, contract.id, contract.network);
+                const val = { address: collateralAsset, ...assetInfo };
+                await dbClient.query("UPDATE contract SET collateral_asset = $1 WHERE id = $2", [val, contract.id]);
+                logger.info(`Collateral asset updated for ${contract.id} as ${JSON.stringify(val)}`);
+            }
         }
 
 
-        const collateralAsset = info.value["collateral-assets"].value.map((x: { value: string }) => x.value)[0] as string || null;
-        if (!collateralAsset && contract.collateral_asset) {
-            await dbClient.query("UPDATE contract SET collateral_asset = NULL WHERE id = $1", [contract.id]);
-            logger.info(`Collateral asset reset for ${contract.id}`);
-        } else if (collateralAsset && collateralAsset !== contract.collateral_asset?.address) {
-            let assetInfo = await getAssetInfo(collateralAsset, contract.id, contract.network);
-            const val = { address: collateralAsset, ...assetInfo };
-            await dbClient.query("UPDATE contract SET collateral_asset = $1 WHERE id = $2", [val, contract.id]);
-            logger.info(`Collateral asset updated for ${contract.id} as ${JSON.stringify(val)}`);
-        }
+        const balance1 = await getAssetBalance(marketAsset!.address, contract.id, contract.network);
+        await dbClient.query("UPDATE contract SET market_asset_balance = $1 WHERE id = $2", [balance1, contract.id]);
 
-        if(collateralAsset) {
-            const balance = await getAssetBalance(collateralAsset, contract.id, contract.network);
-            await dbClient.query("UPDATE contract SET collateral_asset_balance = $1 WHERE id = $2", [balance, contract.id]);
-        } else {
-            await dbClient.query("UPDATE contract SET collateral_asset_balance = 0 WHERE id = $1", [contract.id]);
-        }
+        const balance2 = await getAssetBalance(collateralAsset!.address, contract.id, contract.network);
+        await dbClient.query("UPDATE contract SET collateral_asset_balance = $1 WHERE id = $2", [balance2, contract.id])
     }
     await dbClient.query("COMMIT");
 };
