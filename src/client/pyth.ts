@@ -37,7 +37,6 @@ export async function fetchAndProcessPriceFeed(tokens: { ticker: string, price_f
   const attestation = result.binary.data[0];
   const items = result.parsed.reduce(
     (acc: any, item: any, index: number) => {
-      const priceInfo = parseInt(item.price.price) * 10 ** item.price.expo;
       acc[tokens[index].ticker] = item
       return acc;
     },
