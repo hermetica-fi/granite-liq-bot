@@ -55,4 +55,3 @@ export type BorrowerCollateralEntity = {
     amount: number
 }
 
-export type Ticker = "btc" | "eth" | "usdc";
