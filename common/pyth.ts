@@ -6,6 +6,7 @@ export const pythFetchgGetPriceFeed = async (feedId: string): Promise<any> => {
         return {
             attestation: attestation,
             price: Number(r.parsed[0].price.price),
+            expo: Number(r.parsed[0].price.expo),
         };
     })
 }

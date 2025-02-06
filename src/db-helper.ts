@@ -1,4 +1,4 @@
-import { type BorrowerStatus, type ContractEntity } from "granite-liq-bot-common";
+import { type BorrowerStatusEntity, type ContractEntity } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
 
 export const getContractList = async (dbClient: PoolClient, args?: {
@@ -34,7 +34,7 @@ export const getContractList = async (dbClient: PoolClient, args?: {
 export const getBorrowerStatusList = async (dbClient: PoolClient, args?: {
     filters?: Record<string, string>,
     orderBy?: 'max_repay_amount DESC, risk DESC' | 'max_repay_amount DESC'
-}): Promise<BorrowerStatus[]> => {
+}): Promise<BorrowerStatusEntity[]> => {
     const filters = args?.filters || {};
     const orderBy = args?.orderBy || 'max_repay_amount DESC, risk DESC';
 
