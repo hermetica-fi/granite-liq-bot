@@ -13,8 +13,6 @@ export const main = async () => {
                 res = await routes.addContract(req);
             } else if (req.method === "GET" && url.pathname === "/borrowers") {
                 res = await routes.getBorrowers(req, url);
-            } else if (req.method === "POST" && url.pathname === "/set-contract-value") {
-                res = await routes.setContractValue(req);
             } else {
                 res = new Response("Not found", { status: 404 });
             }

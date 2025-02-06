@@ -1,4 +1,4 @@
-import type { Ticker } from "./types";
+import type { Ticker } from "./client/pyth";
 
 export const IR_PARAMS_SCALING_FACTOR = 12;
 
