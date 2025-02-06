@@ -5,7 +5,7 @@ import { main as eventSync } from "./event";
 import { main as healthSync } from "./health";
 import { main as marketSync } from "./market";
 
-const BASE_DELAY = 10_000;
+const BASE_DELAY = 5_000;
 
 export const main = async () => {
     while (true) {
