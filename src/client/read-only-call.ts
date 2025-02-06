@@ -166,3 +166,63 @@ export const getUserCollateralAmount = async (address: string, collateral: strin
     return Number(json.value.value.amount.value);
   })
 }
+
+export const getAssetInfo = async (assetAddress: string, network: NetworkName) => {
+  const [contractAddress, contractName] = assetAddress.split(".");
+  const name = await fetchCallReadOnlyFunction({
+    contractAddress,
+    contractName,
+    functionName: 'get-name',
+    functionArgs: [],
+    senderAddress: contractAddress,
+    network: network,
+    client: {
+      fetch: fetchFn,
+    }
+  }).then(r => cvToJSON(r).value.value);
+
+  const symbol = await fetchCallReadOnlyFunction({
+    contractAddress,
+    contractName,
+    functionName: 'get-symbol',
+    functionArgs: [],
+    senderAddress: contractAddress,
+    network: network,
+    client: {
+      fetch: fetchFn,
+    }
+  }).then(r => cvToJSON(r).value.value);
+
+  const decimals = await fetchCallReadOnlyFunction({
+    contractAddress,
+    contractName,
+    functionName: 'get-decimals',
+    functionArgs: [],
+    senderAddress: contractAddress,
+    network: network,
+    client: {
+      fetch: fetchFn,
+    }
+  }).then(r => cvToJSON(r).value.value);
+
+  return {
+    name, symbol, decimals
+  }
+}
+
+export const getAssetBalance = async (assetAddress: string, contractId: string, network: NetworkName) => {
+  const [contractAddress, contractName] = assetAddress.split(".");
+  return await fetchCallReadOnlyFunction({
+    contractAddress,
+    contractName,
+    functionName: 'get-balance',
+    functionArgs: [
+      contractPrincipalCV(contractId.split(".")[0], contractId.split(".")[1])
+    ],
+    senderAddress: contractAddress,
+    network: network,
+    client: {
+      fetch: fetchFn,
+    }
+  }).then(r => cvToJSON(r).value.value);
+}

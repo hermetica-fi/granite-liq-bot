@@ -1,71 +1,13 @@
-import { contractPrincipalCV, cvToJSON, fetchCallReadOnlyFunction } from "@stacks/transactions";
-import { fetchFn, type NetworkName } from "granite-liq-bot-common";
+import { cvToJSON, fetchCallReadOnlyFunction } from "@stacks/transactions";
+import { fetchFn } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
+import { getAssetBalance, getAssetInfo } from "../../client/read-only-call";
 import { pool } from "../../db";
 import { getContractList } from "../../db-helper";
 import { createLogger } from "../../logger";
 
 const logger = createLogger("sync-contract");
 
-const getAssetInfo = async (assetAddress: string, contractId: string, network: NetworkName) => {
-    const [contractAddress, contractName] = assetAddress.split(".");
-    const name = await fetchCallReadOnlyFunction({
-        contractAddress,
-        contractName,
-        functionName: 'get-name',
-        functionArgs: [],
-        senderAddress: contractAddress,
-        network: network,
-        client: {
-            fetch: fetchFn,
-        }
-    }).then(r => cvToJSON(r).value.value);
-
-    const symbol = await fetchCallReadOnlyFunction({
-        contractAddress,
-        contractName,
-        functionName: 'get-symbol',
-        functionArgs: [],
-        senderAddress: contractAddress,
-        network: network,
-        client: {
-            fetch: fetchFn,
-        }
-    }).then(r => cvToJSON(r).value.value);
-
-    const decimals = await fetchCallReadOnlyFunction({
-        contractAddress,
-        contractName,
-        functionName: 'get-decimals',
-        functionArgs: [],
-        senderAddress: contractAddress,
-        network: network,
-        client: {
-            fetch: fetchFn,
-        }
-    }).then(r => cvToJSON(r).value.value);
-
-    return {
-        name, symbol, decimals
-    }
-}
-
-const getAssetBalance = async (assetAddress: string, contractId: string, network: NetworkName) => {
-    const [contractAddress, contractName] = assetAddress.split(".");
-    return await fetchCallReadOnlyFunction({
-        contractAddress,
-        contractName,
-        functionName: 'get-balance',
-        functionArgs: [
-            contractPrincipalCV(contractId.split(".")[0], contractId.split(".")[1])
-        ],
-        senderAddress: contractAddress,
-        network: network,
-        client: {
-            fetch: fetchFn,
-        }
-    }).then(r => cvToJSON(r).value.value);
-}
 
 
 export const worker = async (dbClient: PoolClient) => {
@@ -91,7 +33,7 @@ export const worker = async (dbClient: PoolClient) => {
 
             if (!marketAsset) {
                 marketAsset = info.value["market-asset"].value;
-                const assetInfo = await getAssetInfo(marketAsset!, contract.id, contract.network);
+                const assetInfo = await getAssetInfo(marketAsset!, contract.network);
                 const val = { address: marketAsset, ...assetInfo };
                 await dbClient.query("UPDATE contract SET market_asset = $1 WHERE id = $2", [val, contract.id]);
                 logger.info(`Market asset updated for ${contract.id} as ${JSON.stringify(val)}`);
@@ -99,7 +41,7 @@ export const worker = async (dbClient: PoolClient) => {
 
             if (!collateralAsset) {
                 collateralAsset = info.value["collateral-asset"].value;
-                const assetInfo = await getAssetInfo(collateralAsset!, contract.id, contract.network);
+                const assetInfo = await getAssetInfo(collateralAsset!, contract.network);
                 const val = { address: collateralAsset, ...assetInfo };
                 await dbClient.query("UPDATE contract SET collateral_asset = $1 WHERE id = $2", [val, contract.id]);
                 logger.info(`Collateral asset updated for ${contract.id} as ${JSON.stringify(val)}`);
