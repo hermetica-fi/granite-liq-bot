@@ -4,28 +4,32 @@ import Button from "@mui/material/Button";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
+
 import {
   broadcastTransaction,
   ContractIdString,
   contractPrincipalCV,
+  cvToJSON,
   deserializeTransaction,
+  fetchCallReadOnlyFunction,
   makeUnsignedContractCall,
   Pc,
+  principalCV,
   uintCV,
 } from "@stacks/transactions";
 import {
   fetchFn,
+  formatUnits,
   parseUnits,
   TESTNET_FEE,
   transactionLink
 } from "granite-liq-bot-common";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import useToast from "../../hooks/use-toast";
 import useTranslation from "../../hooks/use-translation";
 import { useContractStore } from "../../store/contract";
 import { useModalStore } from "../../store/ui";
 import CloseModal from "../close-modal";
-
 
 const DepositDialog = () => {
   const store = useContractStore();
@@ -40,40 +44,72 @@ const DepositDialog = () => {
   const [txid, setTxid] = useState("");
   const [amountRaw, setAmountRaw] = useState("");
   const [inProgress] = useState(false);
+  const [balance, setBalance] = useState<number | null>(null);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setModal(null);
-  };
+  }, [setModal]);
 
-  const handleSubmit = useCallback(async () => {
+  const marketAsset = useMemo(() => contract.marketAsset!, [contract]);
+
+  useEffect(() => {
+    if (!connection) {
+      return;
+    }
+
+    fetchCallReadOnlyFunction({
+      contractAddress: marketAsset.address.split(".")[0],
+      contractName: marketAsset.address.split(".")[1],
+      functionName: "get-balance",
+      functionArgs: [principalCV(connection.address)],
+      senderAddress: connection.address,
+      network: contract.network,
+      client: {
+        fetch: fetchFn,
+      },
+    }).then((r) => {
+      const json = cvToJSON(r);
+      const balanceBn = Number(json.value.value);
+      const balance = formatUnits(balanceBn, marketAsset.decimals);
+      setBalance(balance);
+    });
+  }, [connection, contract, marketAsset]);
+
+  const handleConnect = useCallback(async () => {
     if (!window.LeatherProvider) {
       showMessage("Leather Provider not found", "error");
       return;
     }
 
-    let address;
-    let publicKey;
-
-    if (!connection) {
-      const response = await window.LeatherProvider?.request("getAddresses");
-      if (!response) {
-        return;
-      }
-
-      const { addresses } = response.result;
-      address = addresses.find((address) => address.symbol === "STX")!.address;
-      publicKey = addresses.find(
-        (address) => address.symbol === "STX"
-      )!.publicKey;
-
-      setConnection({ address, publicKey });
-    } else {
-      address = connection.address;
-      publicKey = connection.publicKey;
+    const response = await window.LeatherProvider?.request("getAddresses");
+    if (!response) {
+      return;
     }
 
-    const marketAsset = contract.marketAsset!;
+    const { addresses } = response.result;
+    const address = addresses.find(
+      (address) => address.symbol === "STX"
+    )!.address;
+    const publicKey = addresses.find(
+      (address) => address.symbol === "STX"
+    )!.publicKey;
+
+    setConnection({ address, publicKey });
+  }, [showMessage]);
+
+  const handleMax = useCallback(() => {
+    setAmountRaw(balance?.toString() || "0");
+  }, [balance]);
+
+  const handleSubmit = useCallback(async () => {
+    if (!connection) {
+      return;
+    }
+    
+    const address = connection.address;
+    const publicKey = connection.publicKey;
     const amount = parseUnits(amountRaw, marketAsset.decimals);
+
     const txOptions = {
       contractAddress: contract.address,
       contractName: contract.name,
@@ -112,11 +148,11 @@ const DepositDialog = () => {
       network: contract.network,
       client: {
         fetch: fetchFn,
-      }
+      },
     });
 
     setTxid(txid);
-  }, [connection, contract, showMessage, amountRaw]);
+  }, [connection, contract, amountRaw, marketAsset]);
 
   const txLink = useMemo(() => {
     return txid ? transactionLink(txid, contract.network) : "";
@@ -146,21 +182,33 @@ const DepositDialog = () => {
               </Typography>
             </Box>
           ) : (
-            <TextField
-              fullWidth
-              label={t("Enter amount to deposit")}
-              value={amountRaw}
-              autoComplete="off"
-              helperText={t("e.g. 100")}
-              onChange={handleAmountChange}
-            />
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <TextField
+                fullWidth
+                label={t("Enter amount to deposit")}
+                value={amountRaw}
+                autoComplete="off"
+                onChange={handleAmountChange}
+              />
+              {balance !== null && (
+                <Button variant="outlined" sx={{ ml: '10px' }} onClick={handleMax}>
+                  {t("Max")}
+                </Button>
+              )}
+            </Box>
           )}
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleSubmit} disabled={inProgress}>
-          {t("Submit")}
-        </Button>
+        {connection ? (
+          <Button onClick={handleSubmit} disabled={inProgress}>
+            {t("Submit")}
+          </Button>
+        ) : (
+          <Button onClick={handleConnect} disabled={inProgress}>
+            {t("Connect Wallet")}
+          </Button>
+        )}
       </DialogActions>
     </>
   );

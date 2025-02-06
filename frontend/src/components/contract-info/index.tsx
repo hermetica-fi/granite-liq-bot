@@ -8,6 +8,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import { addressLink, formatUnits } from "granite-liq-bot-common";
 import { useCallback } from "react";
+import useToast from "../../hooks/use-toast";
 import useTranslation from "../../hooks/use-translation";
 import { useContractStore } from "../../store/contract";
 import { useModalStore } from "../../store/ui";
@@ -15,12 +16,12 @@ import DepositDialog from "../deposit-dialog";
 import NetworkChip from "../network-chip";
 import SetAssetDialog from "../set-asset-dialog";
 import ThresholdDialog from "../threshold-dialog";
-
 export const ContractInfo = () => {
   const [t] = useTranslation();
   const { setModal } = useModalStore();
   const store = useContractStore();
   const contract = store.data!;
+  const [showMessage] = useToast();
 
   const setMarketAssetClicked = () => {
     setModal({
@@ -35,6 +36,11 @@ export const ContractInfo = () => {
   };
 
   const depositClicked = () => {
+    if(!contract.marketAsset) {
+      showMessage("Market asset not set", "error");
+      return;
+    }
+
     setModal({
       body: <DepositDialog />,
     });
