@@ -14,26 +14,13 @@ import { useContractStore } from "../../store/contract";
 import { useModalStore } from "../../store/ui";
 import DepositDialog from "../deposit-dialog";
 import NetworkChip from "../network-chip";
-import SetAssetDialog from "../set-asset-dialog";
-import ThresholdDialog from "../threshold-dialog";
+
 export const ContractInfo = () => {
   const [t] = useTranslation();
   const { setModal } = useModalStore();
   const store = useContractStore();
   const contract = store.data!;
   const [showMessage] = useToast();
-
-  const setMarketAssetClicked = () => {
-    setModal({
-      body: <SetAssetDialog type="market" />,
-    });
-  };
-
-  const setCollateralAssetClicked = () => {
-    setModal({
-      body: <SetAssetDialog type="collateral" />,
-    });
-  };
 
   const depositClicked = () => {
     if(!contract.marketAsset) {
@@ -43,12 +30,6 @@ export const ContractInfo = () => {
 
     setModal({
       body: <DepositDialog />,
-    });
-  };
-
-  const thresholdSetClicked = () => {
-    setModal({
-      body: <ThresholdDialog  />,
     });
   };
 
@@ -128,15 +109,8 @@ export const ContractInfo = () => {
                   {renderAddress(contract.marketAsset.address)}
                 </Box>
               ) : (
-                <Typography sx={{ width: "40px" }}> {t("-")} </Typography>
+                <Typography>{t("-")} </Typography>
               )}
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={setMarketAssetClicked}
-              >
-                {t("Set")}
-              </Button>
             </TableCell>
           </TableRow>
           <TableRow>
@@ -155,7 +129,7 @@ export const ContractInfo = () => {
                   {contract.marketAsset.symbol}
                 </Typography>
               ) : (
-                <Typography sx={{ width: "40px" }}>{t("-")} </Typography>
+                <Typography>{t("-")} </Typography>
               )}
               <Button variant="outlined" size="small" onClick={depositClicked}>
                 {t("Deposit")}
@@ -175,15 +149,8 @@ export const ContractInfo = () => {
                   {renderAddress(contract.collateralAsset.address)}
                 </Box>
               ) : (
-                <Typography sx={{ width: "40px" }}> {t("-")} </Typography>
+                <Typography> {t("-")} </Typography>
               )}
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={setCollateralAssetClicked}
-              >
-                {t("Set")}
-              </Button>
             </TableCell>
           </TableRow>
 
@@ -216,16 +183,9 @@ export const ContractInfo = () => {
               </Typography>
             </TableCell>
             <TableCell sx={{ display: "flex", alignItems: "center" }}>
-              <Typography sx={{ width: "40px" }}>
+              <Typography>
                 {contract.unprofitabilityThreshold}
               </Typography>
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={thresholdSetClicked}
-              >
-                {t("Set")}
-              </Button>
             </TableCell>
           </TableRow>
          
