@@ -1,15 +1,14 @@
 import type { NetworkName } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
-import { fetchAndProcessPriceFeed } from "../../client/pyth";
 import { getAccrueInterestParams, getCollateralParams, getDebtParams, getIrParams, getLpParams } from "../../client/read-only-call";
 import { pool } from "../../db";
 import { getNetworkNameFromAddress } from "../../helper";
 import { createLogger } from "../../logger";
-import type { CollateralParams, PriceFeed } from "../../types";
+import type { CollateralParams } from "../../types";
 import { epoch } from "../../util";
 import {
     getDistinctCollateralList, setAccrueInterestParamsLocal, setCollateralParamsLocal,
-    setDebtParamsLocal, setIrParamsLocal, setLpParamsLocal, setPriceFeedLocal
+    setDebtParamsLocal, setIrParamsLocal, setLpParamsLocal
 } from "../db-helper";
 
 const logger = createLogger("market-sync");
@@ -79,17 +78,8 @@ const syncMarketState = async (dbClient: PoolClient) => {
         }
     }
 
-    const feed = await fetchAndProcessPriceFeed();
-
-    const priceFeed: PriceFeed = {
-        btc: Number(feed.items.btc.price.price),
-        eth: Number(feed.items.eth.price.price),
-        usdc: Number(feed.items.usdc.price.price),
-    }
-
-    await setPriceFeedLocal(dbClient, priceFeed);
     await dbClient.query("COMMIT");
-
+    
     // logger.info(`setPriceFeedLocal: ${JSON.stringify(priceFeed)}`);
 }
 

@@ -7,7 +7,7 @@ import type {
     AccrueInterestParams, BorrowerCollateralEntity, BorrowerEntity,
     BorrowerPositionEntity,
     CollateralParams, DebtParams, InterestRateParams, LpParams,
-    MarketState, PriceFeed
+    MarketState
 } from "../types";
 
 
@@ -125,14 +125,6 @@ export const setCollateralParamsLocal = async (dbClient: PoolClient, network: Ne
     await kvStoreSet(dbClient, `collateral-params-${network}`, JSON.stringify(collateralParams));
 }
 
-export const getPriceFeedLocal = async (dbClient: PoolClient): Promise<PriceFeed | null> => {
-    return await kvStoreGet(dbClient, `price-feed`).then((r: any) => r ? JSON.parse(r) : null);
-}
-
-export const setPriceFeedLocal = async (dbClient: PoolClient, priceFeed: PriceFeed) => {
-    await kvStoreSet(dbClient, `price-feed`, JSON.stringify(priceFeed));
-}
-
 export const getMarketState = async (dbClient: PoolClient, network: NetworkName): Promise<MarketState> => {
     const irParams = await getIrParamsLocal(dbClient, network);
     assert(irParams, 'irParams not found'); 
@@ -145,8 +137,6 @@ export const getMarketState = async (dbClient: PoolClient, network: NetworkName)
     const collateralParams = await getCollateralParamsLocal(dbClient, network);
     assert(collateralParams, 'collateralParams not found');
     assert(Object.keys(collateralParams).length > 0, 'collateralParams is empty');
-    const priceFeed = await getPriceFeedLocal(dbClient);
-    assert(priceFeed, 'priceFeed not found');
 
     return {
         irParams,
@@ -154,7 +144,6 @@ export const getMarketState = async (dbClient: PoolClient, network: NetworkName)
         accrueInterestParams,
         debtParams,
         collateralParams,
-        priceFeed,
         marketAssetParams: {
             decimals: MARKET_ASSET_DECIMAL[network],
         }   

@@ -1,9 +1,9 @@
 import { main as apiMain } from './api';
+import { fetchAndProcessPriceFeed } from './client/pyth';
 import { waitForDb } from './db';
 import { migrateDb } from './db/migrate';
 import { createLogger } from './logger';
 import { main as syncMain } from './sync';
-
 const logger = createLogger('main');
 
 const main = async () => {
@@ -32,8 +32,13 @@ const main = async () => {
     await prms();
 }
 
+const priceFeed = await fetchAndProcessPriceFeed();
+
+console.log(JSON.stringify(priceFeed, null, 2));
 
 main().catch((e) => {
     logger.error(e.toString());
     process.exit(1);
 });
+
+

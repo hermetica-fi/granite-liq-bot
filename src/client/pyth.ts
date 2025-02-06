@@ -21,12 +21,12 @@ type PriceFeedItem = {
   },
 }
 
-type FeedResponse = {
+export type PriceFeedResponse = {
   attestation: string,
   items: Record<string, PriceFeedItem>
 }
 
-export async function fetchAndProcessPriceFeed(): Promise<FeedResponse> {
+export async function fetchAndProcessPriceFeed(): Promise<PriceFeedResponse> {
   const feedParams = PRICE_FEED_IDS.map((t) => `ids[]=${t.feed_id}`).join('&');
   const url = `https://hermes.pyth.network/v2/updates/price/latest?${feedParams}&binary=true`;
 

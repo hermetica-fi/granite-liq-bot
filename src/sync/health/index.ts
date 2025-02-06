@@ -1,10 +1,10 @@
 import assert from "assert";
 import type { NetworkName } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
+import { fetchAndProcessPriceFeed } from "../../client/pyth";
 import { pool } from "../../db";
 import { clearBorrowerStatuses, getBorrowerCollateralAmount, getBorrowersForHealthCheck, getMarketState, insertBorrowerStatus } from "../db-helper";
 import { calcBorrowerStatus } from "./shared";
-
 
 export const worker = async (dbClient: PoolClient) => {
   await dbClient.query("BEGIN");
@@ -25,10 +25,12 @@ export const worker = async (dbClient: PoolClient) => {
       collateralsDeposited[collateral] = amount;
     }
 
+    const priceFeed = await fetchAndProcessPriceFeed();
+
     const status = calcBorrowerStatus({
       debtShares: borrower.debtShares,
       collateralsDeposited
-    }, marketState);
+    }, marketState, priceFeed);
 
     await insertBorrowerStatus(dbClient, borrower.address, network, status);
   }

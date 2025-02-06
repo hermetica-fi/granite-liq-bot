@@ -3,25 +3,15 @@ import {
     calculateAccountHealth, calculateAccountLiqLTV,
     calculateLiquidationPoint, calculateMaxRepayAmount, calculateTotalCollateralValue, convertDebtSharesToAssets
 } from "granite-math-sdk";
+import type { PriceFeedResponse } from "../../client/pyth";
 import { IR_PARAMS_SCALING_FACTOR } from "../../constants";
-import type { InterestRateParams, MarketState, PriceFeed } from "../../types";
-
-const getCollateralPrice = (collateral: string, priceFeed: PriceFeed): number => {
-    for (const f of Object.keys(priceFeed)) {
-        const name = collateral.split(".")[1];
-        if (name.toLocaleLowerCase().includes(f.toLocaleLowerCase())) {
-            return priceFeed[f as keyof PriceFeed];
-        }
-    }
-    return 0;
-}
-
-
+import { toTicker } from "../../helper";
+import type { InterestRateParams, MarketState } from "../../types";
 
 export const calcBorrowerStatus = (borrower: {
     debtShares: number;
     collateralsDeposited: Record<string, number>;
-}, marketState: MarketState): BorrowerStatus => {
+}, marketState: MarketState, priceFeed: PriceFeedResponse): BorrowerStatus => {
     const irParams: InterestRateParams = {
         urKink: marketState.irParams.urKink / 10 ** IR_PARAMS_SCALING_FACTOR,
         baseIR: marketState.irParams.baseIR / 10 ** IR_PARAMS_SCALING_FACTOR,
@@ -46,12 +36,15 @@ export const calcBorrowerStatus = (borrower: {
     );
 
     const collaterals = Object.keys(borrower.collateralsDeposited).map(key => {
-        const { decimals, liquidationLTV, maxLTV } = marketState.collateralParams[key];
-        const price = getCollateralPrice(key, marketState.priceFeed);
+        const { liquidationLTV, maxLTV } = marketState.collateralParams[key];
+        const feed = priceFeed.items[toTicker(key)];
 
-        if (!price) {
-            throw new Error(`No price found for ${key}`);
+        if (!feed) {
+            throw new Error(`No price feed found for ${key}`);
         }
+
+        const price = Number(feed.price.price);
+        const decimals = -1 * feed.price.expo
 
         return {
             amount: borrower.collateralsDeposited[key] / 10 ** decimals,

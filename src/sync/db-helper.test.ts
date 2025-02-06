@@ -6,13 +6,10 @@ import {
     getAccrueInterestParamsLocal,
     getBorrowerCollateralAmount, getBorrowersForHealthCheck, getBorrowersToSync,
     getCollateralParamsLocal, getDebtParamsLocal, getDistinctCollateralList, getIrParamsLocal,
-    getLpParamsLocal,
-    getMarketState,
-    getPriceFeedLocal,
-    insertBorrowerStatus,
+    getLpParamsLocal, getMarketState, insertBorrowerStatus,
     setAccrueInterestParamsLocal, setCollateralParamsLocal, setDebtParamsLocal,
-    setIrParamsLocal, setLpParamsLocal, setPriceFeedLocal,
-    switchBorrowerSyncFlagOff, syncBorrowerCollaterals, syncBorrowerPosition, upsertBorrower
+    setIrParamsLocal, setLpParamsLocal, switchBorrowerSyncFlagOff,
+    syncBorrowerCollaterals, syncBorrowerPosition, upsertBorrower
 } from "./db-helper";
 
 const db = newDb();
@@ -277,21 +274,7 @@ describe("sync db helper", () => {
         });
     });
 
-    test("PriceFeedLocal", async () => {
-        await setPriceFeedLocal(client, {
-            btc: 100000,
-            eth: 10000,
-            usdc: 1000,
-        });
-        const resp = await getPriceFeedLocal(client);
-        expect(resp).toEqual({
-            btc: 100000,
-            eth: 10000,
-            usdc: 1000,
-        });
-    });
-
-
+   
     test("getMarketState", async () => {
         await client.query("DELETE FROM kv_store");
 
@@ -338,11 +321,6 @@ describe("sync db helper", () => {
         });
 
         expect(async () => { await getMarketState(client, 'mainnet') }).toThrow(Error('priceFeed not found'));
-        await setPriceFeedLocal(client, {
-            btc: 100000,
-            eth: 10000,
-            usdc: 1000,
-        });
 
         const resp = await getMarketState(client, 'mainnet');
         expect(resp).toEqual({
@@ -374,11 +352,6 @@ describe("sync db helper", () => {
                     decimals: 19,
                     maxLTV: 209,
                 },
-            },
-            priceFeed: {
-                btc: 100000,
-                eth: 10000,
-                usdc: 1000,
             },
             marketAssetParams: {
                 decimals: 6

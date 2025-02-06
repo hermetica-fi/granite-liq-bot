@@ -4,7 +4,7 @@ import type { PoolClient } from "pg";
 import { fetchAndProcessPriceFeed } from "../client/pyth";
 import { pool } from "../db";
 import { getBorrowerStatusList, getContractList } from "../db-helper";
-import { hexToUint8Array, symbolToTicker } from "../helper";
+import { hexToUint8Array, toTicker } from "../helper";
 import { createLogger } from "../logger";
 import { epoch } from "../util";
 
@@ -43,8 +43,8 @@ const worker = async (dbClient: PoolClient) => {
         orderBy: 'max_repay_amount DESC'
     });
 
-    const mTicker = symbolToTicker(marketAsset.symbol);
-    const cTicker = symbolToTicker(collateralAsset.symbol);
+    const mTicker = toTicker(marketAsset.symbol);
+    const cTicker = toTicker(collateralAsset.symbol);
     const eTicker = "eth";
     const priceFeed = await fetchAndProcessPriceFeed();
     const mFeed = priceFeed.items[mTicker];

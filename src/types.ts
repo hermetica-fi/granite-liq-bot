@@ -28,22 +28,14 @@ export type MarketAssetParams = {
 
 export type Ticker = "btc" | "eth" | "usdc";
 
-export type PriceFeed = {
-    btc: number;
-    eth: number;
-    usdc: number;
-}
-
 export type MarketState = {
     irParams: InterestRateParams;
     lpParams: LpParams;
     accrueInterestParams: AccrueInterestParams;
     debtParams: DebtParams;
-    priceFeed: PriceFeed;
     collateralParams: Record<string, CollateralParams>;
     marketAssetParams: MarketAssetParams;
 }
-
 
 export type BorrowerEntity = {
     address: string,
