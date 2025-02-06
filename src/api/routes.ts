@@ -4,6 +4,7 @@ import {
 } from "@stacks/transactions";
 import { generateWallet } from "@stacks/wallet-sdk";
 import { getContractInfo } from "granite-liq-bot-common";
+import { getAssetInfo } from "../client/read-only-call";
 import { pool } from "../db";
 import { getBorrowerStatusList, getContractList } from "../db-helper";
 import { getNetworkNameFromAddress } from "../helper";
@@ -74,27 +75,50 @@ export const routes = {
         }
 
         let onChainOperatorAddress;
+        let marketAsset;
+        let collateralAsset;
         const [contractAddress, contractName] = address.trim().split('.');
         try {
-            onChainOperatorAddress = await fetchCallReadOnlyFunction({
+            const info = await fetchCallReadOnlyFunction({
                 contractAddress,
                 contractName,
-                functionName: 'get-operator',
+                functionName: 'get-info',
                 functionArgs: [],
                 senderAddress: operatorAddress,
                 network: network,
-            }).then(r => cvToJSON(r).value);
+            }).then(r => cvToJSON(r));
+
+            onChainOperatorAddress = info.value["operator"].value
+            marketAsset = info.value["market-asset"].value;
+            collateralAsset = info.value["collateral-asset"].value;
         } catch (error) {
-            return errorResponse('Could not fetch contract operator');
+            return errorResponse('Could not fetch contract info');
         }
 
         if (onChainOperatorAddress !== operatorAddress) {
             return errorResponse('Contract operator does not match');
         }
 
+        let marketAssetInfo;
+        try {
+            marketAssetInfo = await getAssetInfo(marketAsset, network);
+        } catch (error) {
+            return errorResponse('Could not fetch market asset info');
+        }
+
+        let collateralAssetInfo;
+        try {
+            collateralAssetInfo = await getAssetInfo(collateralAsset, network);
+        } catch (error) {
+            return errorResponse('Could not fetch collateral asset info');
+        }
+
         dbClient = await pool.connect();
-        await dbClient.query('INSERT INTO contract (id, address, name, network, operator_address, operator_priv) VALUES ($1, $2, $3, $4, $5, $6)',
-            [address, contractAddress, contractName, network, operatorAddress, operator.stxPrivateKey]);
+        await dbClient.query('INSERT INTO contract (id, address, name, network, operator_address, operator_priv, market_asset, collateral_asset) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
+            [
+                address, contractAddress, contractName, network, operatorAddress, operator.stxPrivateKey,
+                { address: marketAsset, ...marketAssetInfo }, { address: collateralAsset, ...collateralAssetInfo }
+            ]);
         const contracts = await getContractList(dbClient);
         dbClient.release();
         return Response.json(contracts);
