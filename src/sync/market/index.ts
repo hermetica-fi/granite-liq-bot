@@ -1,6 +1,6 @@
 import type { NetworkName } from "granite-liq-bot-common";
-import { fetchAndProcessPriceFeed } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
+import { fetchAndProcessPriceFeed } from "../../client/pyth";
 import { getAccrueInterestParams, getCollateralParams, getDebtParams, getIrParams, getLpParams } from "../../client/read-only-call";
 import { PRICE_FEED_IDS } from "../../constants";
 import { pool } from "../../db";

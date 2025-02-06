@@ -1,7 +1,7 @@
 import { broadcastTransaction, bufferCV, Cl, contractPrincipalCV, intCV, listCV, makeContractCall, noneCV, PostConditionMode, principalCV, serializeCVBytes, someCV, tupleCV, uintCV } from "@stacks/transactions";
 import { fetchFn, formatUnits, getAccountNonces, parseUnits, TESTNET_FEE } from "granite-liq-bot-common";
-import { fetchAndProcessPriceFeed } from "granite-liq-bot-common/pyth";
 import type { PoolClient } from "pg";
+import { fetchAndProcessPriceFeed } from "../client/pyth";
 import { PRICE_FEED_IDS } from "../constants";
 import { pool } from "../db";
 import { getBorrowerStatusList, getContractList } from "../db-helper";
