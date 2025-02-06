@@ -19,6 +19,7 @@ export const createDb = async (client: PoolClient) => {
         "market_asset_balance NUMERIC NOT NULL DEFAULT 0," +
         "collateral_asset JSON," +
         "collateral_asset_balance NUMERIC NOT NULL DEFAULT 0," +
+        "lock_tx VARCHAR," +
         "created_at TIMESTAMP NOT NULL DEFAULT NOW()" +
         ");";
 
@@ -58,18 +59,6 @@ export const createDb = async (client: PoolClient) => {
         ");";
 
     CREATE += "CREATE UNIQUE INDEX IF NOT EXISTS borrower_collateral_address_idx ON borrower_collaterals (address, collateral);";
-
-    /*
-    CREATE += "CREATE TABLE IF NOT EXISTS public.transactions(" +
-        "tx_id VARCHAR PRIMARY KEY NOT NULL," +
-        "contract_address VARCHAR NOT NULL," +
-        "tx_sender VARCHAR NOT NULL," +
-        "nonce INTEGER NOT NULL," +
-        "fee VARCHAR NOT NULL," +
-        "status VARCHAR NOT NULL DEFAULT 'pending'," +
-        "created_at TIMESTAMP NOT NULL DEFAULT NOW()" +
-        ");";
-    */
 
     CREATE += "INSERT INTO kv_store VALUES ('db_ver', 1);";
 
