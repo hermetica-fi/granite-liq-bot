@@ -1,5 +1,7 @@
 import { PRICE_FEED_IDS } from "../constants";
 
+export type Ticker = "btc" | "eth" | "usdc";
+
 type PriceFeedItem = {
   id: string,
   price: {

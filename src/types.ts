@@ -26,8 +26,6 @@ export type MarketAssetParams = {
     decimals: number;
 }
 
-export type Ticker = "btc" | "eth" | "usdc";
-
 export type MarketState = {
     irParams: InterestRateParams;
     lpParams: LpParams;
@@ -57,3 +55,4 @@ export type BorrowerCollateralEntity = {
     amount: number
 }
 
+export type Ticker = "btc" | "eth" | "usdc";

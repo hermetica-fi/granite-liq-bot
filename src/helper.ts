@@ -1,5 +1,5 @@
 import type { NetworkName } from "granite-liq-bot-common";
-import type { Ticker } from "./types";
+import type { Ticker } from "./client/pyth";
 
 export const getNetworkNameFromAddress = (address: string): NetworkName => {
   if (address.startsWith('ST') || address.startsWith('SN')) {
