@@ -111,7 +111,6 @@ const worker = async (dbClient: PoolClient) => {
         return;
     }
 
-
     const testnetPriceDataCV = priceFeedCv(priceFeed);
 
     const batchCV = listCV(batch.map(b => someCV(
