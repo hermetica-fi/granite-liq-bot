@@ -1,4 +1,4 @@
-import { broadcastTransaction, bufferCV, Cl, contractPrincipalCV, intCV, listCV, makeContractCall, noneCV, PostConditionMode, principalCV, serializeCVBytes, someCV, tupleCV, uintCV } from "@stacks/transactions";
+import { broadcastTransaction, bufferCV, contractPrincipalCV, listCV, makeContractCall, noneCV, PostConditionMode, principalCV, someCV, tupleCV, uintCV } from "@stacks/transactions";
 import { fetchFn, formatUnits, getAccountNonces, parseUnits, TESTNET_FEE } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
 import { fetchAndProcessPriceFeed } from "../client/pyth";
@@ -7,7 +7,7 @@ import { getBorrowerStatusList, getContractList } from "../db-helper";
 import { hexToUint8Array, toTicker } from "../helper";
 import { createLogger } from "../logger";
 import { epoch } from "../util";
-
+import { priceFeedCv } from "./lib";
 const logger = createLogger("liquidate");
 
 
@@ -112,44 +112,7 @@ const worker = async (dbClient: PoolClient) => {
     }
 
 
-    const testnetPriceDataCV = someCV(
-        bufferCV(
-            serializeCVBytes(
-                listCV([
-                    tupleCV({
-                        "price-identifier": Cl.bufferFromHex(cFeed.id),
-                        "price": intCV(cFeed.price.price),
-                        "conf": uintCV(cFeed.price.conf),
-                        "expo": intCV(cFeed.price.expo),
-                        "ema-price": intCV(cFeed.ema_price.price),
-                        "ema-conf": uintCV(cFeed.ema_price.conf),
-                        "publish-time": uintCV(cFeed.price.publish_time),
-                        "prev-publish-time": uintCV(cFeed.metadata.prev_publish_time)
-                    }),
-                    tupleCV({
-                        "price-identifier": Cl.bufferFromHex(mFeed.id),
-                        "price": intCV(mFeed.price.price),
-                        "conf": uintCV(mFeed.price.conf),
-                        "expo": intCV(mFeed.price.expo),
-                        "ema-price": intCV(mFeed.ema_price.price),
-                        "ema-conf": uintCV(mFeed.ema_price.conf),
-                        "publish-time": uintCV(mFeed.price.publish_time),
-                        "prev-publish-time": uintCV(mFeed.metadata.prev_publish_time)
-                    }),
-                    tupleCV({
-                        "price-identifier": Cl.bufferFromHex(eFeed.id),
-                        "price": intCV(eFeed.price.price),
-                        "conf": uintCV(eFeed.price.conf),
-                        "expo": intCV(eFeed.price.expo),
-                        "ema-price": intCV(eFeed.ema_price.price),
-                        "ema-conf": uintCV(eFeed.ema_price.conf),
-                        "publish-time": uintCV(eFeed.price.publish_time),
-                        "prev-publish-time": uintCV(eFeed.metadata.prev_publish_time)
-                    }),
-                ])
-            )
-        )
-    )
+    const testnetPriceDataCV = priceFeedCv(priceFeed);
 
     const batchCV = listCV(batch.map(b => someCV(
         tupleCV({
