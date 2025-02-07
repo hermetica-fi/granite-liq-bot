@@ -55,3 +55,8 @@ export type BorrowerCollateralEntity = {
     amount: number
 }
 
+export type LiquidationBatch = {
+    user: string,
+    liquidatorRepayAmount: number,
+    minCollateralExpected: number
+}

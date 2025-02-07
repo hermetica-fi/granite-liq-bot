@@ -1,4 +1,4 @@
-import { broadcastTransaction, bufferCV, contractPrincipalCV, listCV, makeContractCall, noneCV, PostConditionMode, principalCV, someCV, tupleCV, uintCV } from "@stacks/transactions";
+import { broadcastTransaction, bufferCV, contractPrincipalCV, cvToJSON, listCV, makeContractCall, noneCV, PostConditionMode, principalCV, someCV, tupleCV, uintCV } from "@stacks/transactions";
 import { fetchFn, formatUnits, getAccountNonces, parseUnits, TESTNET_FEE } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
 import { fetchAndProcessPriceFeed } from "../client/pyth";
@@ -6,6 +6,7 @@ import { pool } from "../db";
 import { getBorrowerStatusList, getContractList } from "../db-helper";
 import { hexToUint8Array, toTicker } from "../helper";
 import { createLogger } from "../logger";
+import type { LiquidationBatch } from "../types";
 import { epoch } from "../util";
 import { priceFeedCv } from "./lib";
 const logger = createLogger("liquidate");
@@ -65,11 +66,7 @@ const worker = async (dbClient: PoolClient) => {
     const collateralPrice = formatUnits(Number(cFeed.price.price), -1 * cFeed.price.expo);
     const collateralPriceBn = parseUnits(collateralPrice, collateralAsset.decimals);
 
-    const batch: {
-        user: string,
-        liquidatorRepayAmount: number,
-        minCollateralExpected: number
-    }[] = [];
+    const batch: LiquidationBatch[] = [];
 
     let availableBn = marketAsset.balance;
 
@@ -106,6 +103,8 @@ const worker = async (dbClient: PoolClient) => {
         */
     }
 
+   
+
     if (batch.length === 0) {
         // Nothing to liquidate
         return;
@@ -119,6 +118,10 @@ const worker = async (dbClient: PoolClient) => {
             "liquidator-repay-amount": uintCV(b.liquidatorRepayAmount),
             "min-collateral-expected": uintCV(b.minCollateralExpected)
         }))))
+
+        console.log("batchCV", batch);
+        console.log(JSON.stringify(cvToJSON(batchCV), null ,5));
+        process.exit(1);
 
     const functionArgs = [
         someCV(bufferCV(priceAttestationBuff)),

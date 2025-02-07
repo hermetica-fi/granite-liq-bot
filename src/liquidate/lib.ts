@@ -1,6 +1,6 @@
-import { bufferCV, Cl, intCV, listCV, serializeCVBytes, someCV, tupleCV, uintCV } from "@stacks/transactions";
+import { bufferCV, Cl, intCV, listCV, principalCV, serializeCVBytes, someCV, tupleCV, uintCV } from "@stacks/transactions";
 import type { PriceFeedResponse } from "../client/pyth";
-
+import type { LiquidationBatch } from "../types";
 export const priceFeedCv = (priceFeed: PriceFeedResponse) => {
     const keys = Object.keys(priceFeed.items);
     const listItems = keys.map(key => {
@@ -19,4 +19,15 @@ export const priceFeedCv = (priceFeed: PriceFeedResponse) => {
     });
 
     return someCV(bufferCV(serializeCVBytes(listCV(listItems))));
+}
+
+export const liquidationBatchCv = (batch: LiquidationBatch[]) => {
+    const listItems = batch.map(b => someCV(
+        tupleCV({
+            "user": principalCV(b.user),
+            "liquidator-repay-amount": uintCV(b.liquidatorRepayAmount),
+            "min-collateral-expected": uintCV(b.minCollateralExpected)
+        })));
+
+    return listCV(listItems)
 }
