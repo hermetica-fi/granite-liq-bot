@@ -58,6 +58,7 @@ const worker = async (dbClient: PoolClient) => {
 
     const functionArgs = [
         someCV(bufferCV(priceAttestationBuff)),
+        uintCV(0),
         contractPrincipalCV(marketAsset.address.split(".")[0], marketAsset.address.split(".")[1]),
         contractPrincipalCV(collateralAsset.address.split(".")[0], collateralAsset.address.split(".")[1]),
         batchCV,
