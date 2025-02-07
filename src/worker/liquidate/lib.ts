@@ -1,9 +1,8 @@
 import { bufferCV, Cl, intCV, listCV, principalCV, serializeCVBytes, someCV, tupleCV, uintCV } from "@stacks/transactions";
-import { formatUnits, parseUnits, type AssetInfo } from "granite-liq-bot-common";
-import type { BorrowerStatusEntity } from "../../common/types";
-import type { PriceFeedResponse } from "../client/pyth";
-import { toTicker } from "../helper";
-import type { LiquidationBatch } from "../types";
+import { formatUnits, parseUnits, type AssetInfo, type BorrowerStatusEntity } from "granite-liq-bot-common";
+import type { PriceFeedResponse } from "../../client/pyth";
+import { toTicker } from "../../helper";
+import type { LiquidationBatch } from "../../types";
 
 export const priceFeedCv = (priceFeed: PriceFeedResponse) => {
     const keys = Object.keys(priceFeed.items);

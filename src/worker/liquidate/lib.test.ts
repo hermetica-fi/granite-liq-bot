@@ -1,8 +1,8 @@
 import { cvToJSON } from "@stacks/transactions";
 import { describe, expect, test } from "bun:test";
 import type { AssetInfo, BorrowerStatusEntity } from "granite-liq-bot-common";
-import type { PriceFeedResponse } from "../client/pyth";
-import type { LiquidationBatch } from "../types";
+import type { PriceFeedResponse } from "../../client/pyth";
+import type { LiquidationBatch } from "../../types";
 import { liquidationBatchCv, makeLiquidationBatch, priceFeedCv } from "./lib";
 
 describe("liquidate lib", () => {
