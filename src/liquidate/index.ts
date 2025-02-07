@@ -53,7 +53,6 @@ const worker = async (dbClient: PoolClient) => {
         return;
     }
 
-
     const batchCV = liquidationBatchCv(batch);
     const testnetPriceDataCV = contract.network === 'testnet' ? priceFeedCv(priceFeed) : noneCV();
 
@@ -66,7 +65,6 @@ const worker = async (dbClient: PoolClient) => {
         noneCV(),
         testnetPriceDataCV
     ];
-
 
     const priv = await dbClient.query("SELECT operator_priv FROM contract WHERE id = $1", [contract.id]).then(r => r.rows[0].operator_priv);
 
