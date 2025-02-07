@@ -1,4 +1,4 @@
-import { broadcastTransaction, bufferCV, contractPrincipalCV, cvToJSON, listCV, makeContractCall, noneCV, PostConditionMode, principalCV, someCV, tupleCV, uintCV } from "@stacks/transactions";
+import { broadcastTransaction, bufferCV, contractPrincipalCV, makeContractCall, noneCV, PostConditionMode, someCV, uintCV } from "@stacks/transactions";
 import { fetchFn, formatUnits, getAccountNonces, parseUnits, TESTNET_FEE } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
 import { fetchAndProcessPriceFeed } from "../client/pyth";
@@ -8,7 +8,7 @@ import { hexToUint8Array, toTicker } from "../helper";
 import { createLogger } from "../logger";
 import type { LiquidationBatch } from "../types";
 import { epoch } from "../util";
-import { priceFeedCv } from "./lib";
+import { liquidationBatchCv, priceFeedCv } from "./lib";
 const logger = createLogger("liquidate");
 
 
@@ -112,16 +112,7 @@ const worker = async (dbClient: PoolClient) => {
 
     const testnetPriceDataCV = priceFeedCv(priceFeed);
 
-    const batchCV = listCV(batch.map(b => someCV(
-        tupleCV({
-            "user": principalCV(b.user),
-            "liquidator-repay-amount": uintCV(b.liquidatorRepayAmount),
-            "min-collateral-expected": uintCV(b.minCollateralExpected)
-        }))))
-
-        console.log("batchCV", batch);
-        console.log(JSON.stringify(cvToJSON(batchCV), null ,5));
-        process.exit(1);
+    const batchCV = liquidationBatchCv(batch);
 
     const functionArgs = [
         someCV(bufferCV(priceAttestationBuff)),
