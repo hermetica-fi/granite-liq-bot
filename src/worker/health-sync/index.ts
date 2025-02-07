@@ -4,7 +4,7 @@ import type { PoolClient } from "pg";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
 import { pool } from "../../db";
 import { clearBorrowerStatuses, getBorrowerCollateralAmount, getBorrowersForHealthCheck, getMarketState, insertBorrowerStatus } from "../db-helper";
-import { calcBorrowerStatus } from "./shared";
+import { calcBorrowerStatus } from "./lib";
 
 export const worker = async (dbClient: PoolClient) => {
   await dbClient.query("BEGIN");
