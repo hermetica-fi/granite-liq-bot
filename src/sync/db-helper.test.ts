@@ -314,8 +314,6 @@ describe("sync db helper", () => {
             },
         });
 
-        expect(async () => { await getMarketState(client, 'mainnet') }).toThrow(Error('priceFeed not found'));
-
         const resp = await getMarketState(client, 'mainnet');
         expect(resp).toEqual({
             irParams: {
