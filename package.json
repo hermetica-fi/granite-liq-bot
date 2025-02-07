@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "start:api": "bun run src/index.ts api",
-    "start:sync": "bun run src/index.ts sync",
+    "start:worker": "bun run src/index.ts worker",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

@@ -2,7 +2,7 @@ import { main as apiMain } from './api';
 import { waitForDb } from './db';
 import { migrateDb } from './db/migrate';
 import { createLogger } from './logger';
-import { main as syncMain } from './sync';
+import { main as workerMain } from './worker';
 const logger = createLogger('main');
 
 const main = async () => {
@@ -12,8 +12,8 @@ const main = async () => {
 
     if (cmd === "api") {
         prms = apiMain;
-    } else if (cmd === "sync") {
-        prms = syncMain;
+    } else if (cmd === "worker") {
+        prms = workerMain;
     } else {
         throw new Error("Invalid command");
     }
