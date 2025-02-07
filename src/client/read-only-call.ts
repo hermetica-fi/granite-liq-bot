@@ -206,7 +206,7 @@ export const getAssetInfo = async (assetAddress: string, network: NetworkName) =
   }).then(r => cvToJSON(r).value.value);
 
   return {
-    name, symbol, decimals
+    name, symbol, decimals: Number(decimals)
   }
 }
 
@@ -224,5 +224,5 @@ export const getAssetBalance = async (assetAddress: string, contractId: string, 
     client: {
       fetch: fetchFn,
     }
-  }).then(r => cvToJSON(r).value.value);
+  }).then(r => Number(cvToJSON(r).value.value));
 }

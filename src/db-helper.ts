@@ -22,11 +22,11 @@ export const getContractList = async (dbClient: PoolClient, args?: {
             operatorAddress: row.operator_address,
             marketAsset: row.market_asset ? {
                 ...row.market_asset,
-                balance: row.market_asset_balance
+                balance: Number(row.market_asset_balance)
             } : null,
             collateralAsset: row.collateral_asset ? {
                 ...row.collateral_asset,
-                balance: row.collateral_asset_balance
+                balance: Number(row.collateral_asset_balance)
             } : null,
         })));
 }

@@ -1,9 +1,9 @@
 import { cvToJSON } from "@stacks/transactions";
 import { describe, expect, test } from "bun:test";
+import type { AssetInfo, BorrowerStatusEntity } from "granite-liq-bot-common";
 import type { PriceFeedResponse } from "../client/pyth";
 import type { LiquidationBatch } from "../types";
-import { liquidationBatchCv, priceFeedCv } from "./lib";
-
+import { liquidationBatchCv, makeLiquidationBatch, priceFeedCv } from "./lib";
 
 describe("liquidate lib", () => {
     test("priceFeedCv", () => {
@@ -143,5 +143,202 @@ describe("liquidate lib", () => {
                 }
             ]
         });
+    });
+
+
+    test("makeLiquidationBatch", () => {
+
+        let marketAsset: AssetInfo = {
+            "address": "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-usdc",
+            "name": "mock-usdc",
+            "symbol": "mock-usdc",
+            "decimals": 8,
+            "balance": 20000000000
+        };
+
+        let collateralAsset: AssetInfo = {
+            "address": "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc",
+            "name": "mock-btc",
+            "symbol": "mock-btc",
+            "decimals": 8,
+            "balance": 0
+        };
+
+        let borrowers: BorrowerStatusEntity[] = [
+            {
+                "address": "ST39B0S4TZP6H89VPBCCSCYXKX43DNNPNQV3BEWNW",
+                "network": "testnet",
+                "ltv": 0.8263,
+                "health": 0.8688,
+                "debt": 560981.3451,
+                "collateral": 678929.1726,
+                "risk": 1.151,
+                "maxRepayAmount": 560983.4133
+            },
+            {
+                "address": "ST2N7SK0W83NJSZHFH8HH31ZT3DXJG7NFE6Y058RD",
+                "network": "testnet",
+                "ltv": 0.8558,
+                "health": 0.9348,
+                "debt": 416664.4053,
+                "collateral": 486847.8102,
+                "risk": 1.0698,
+                "maxRepayAmount": 416665.9415
+            },
+            {
+                "address": "STBWK9266APRKQ6GGKPAXZT99QGA41RZ67PD1EKK",
+                "network": "testnet",
+                "ltv": 0.803,
+                "health": 0.9963,
+                "debt": 109463.0758,
+                "collateral": 136320.4674,
+                "risk": 1.0037,
+                "maxRepayAmount": 109463.4794
+            }
+        ];
+
+        const priceFeed: PriceFeedResponse = {
+            "attestation": "0",
+            "items": {
+                "btc": {
+                    "id": "e62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43",
+                    "price": {
+                        "price": "9765295458695",
+                        "conf": "5047541305",
+                        "expo": -8,
+                        "publish_time": 1738927845
+                    },
+                    "ema_price": {
+                        "price": "9743841500000",
+                        "conf": "4409028900",
+                        "expo": -8,
+                        "publish_time": 1738927845
+                    },
+                    "metadata": {
+                        "slot": 196479356,
+                        "proof_available_time": 1738927846,
+                        "prev_publish_time": 1738927845
+                    }
+                },
+                "eth": {
+                    "id": "ff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace",
+                    "price": {
+                        "price": "275485757702",
+                        "conf": "164804380",
+                        "expo": -8,
+                        "publish_time": 1738927845
+                    },
+                    "ema_price": {
+                        "price": "274507820000",
+                        "conf": "135476227",
+                        "expo": -8,
+                        "publish_time": 1738927845
+                    },
+                    "metadata": {
+                        "slot": 196479356,
+                        "proof_available_time": 1738927846,
+                        "prev_publish_time": 1738927845
+                    }
+                },
+                "usdc": {
+                    "id": "eaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a",
+                    "price": {
+                        "price": "99995023",
+                        "conf": "112805",
+                        "expo": -8,
+                        "publish_time": 1738927845
+                    },
+                    "ema_price": {
+                        "price": "99996136",
+                        "conf": "111950",
+                        "expo": -8,
+                        "publish_time": 1738927845
+                    },
+                    "metadata": {
+                        "slot": 196479356,
+                        "proof_available_time": 1738927846,
+                        "prev_publish_time": 1738927845
+                    }
+                }
+            }
+        }
+
+        let batch = makeLiquidationBatch(marketAsset, collateralAsset, borrowers, priceFeed);
+
+        expect(batch).toEqual([
+            {
+                user: "ST39B0S4TZP6H89VPBCCSCYXKX43DNNPNQV3BEWNW",
+                liquidatorRepayAmount: 20000000000,
+                minCollateralExpected: 204807,
+            }
+        ]);
+
+        marketAsset = {
+            "address": "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-usdc",
+            "name": "mock-usdc",
+            "symbol": "mock-usdc",
+            "decimals": 8,
+            "balance": 0
+        };
+
+        batch = makeLiquidationBatch(marketAsset, collateralAsset, borrowers, priceFeed);
+        expect(batch).toEqual([]);
+
+
+        borrowers = [
+            {
+                "address": "ST39B0S4TZP6H89VPBCCSCYXKX43DNNPNQV3BEWNW",
+                "network": "testnet",
+                "ltv": 0.8263,
+                "health": 0.8688,
+                "debt": 560981.3451,
+                "collateral": 678929.1726,
+                "risk": 1.151,
+                "maxRepayAmount": 5983.4133
+            },
+            {
+                "address": "ST2N7SK0W83NJSZHFH8HH31ZT3DXJG7NFE6Y058RD",
+                "network": "testnet",
+                "ltv": 0.8558,
+                "health": 0.9348,
+                "debt": 416664.4053,
+                "collateral": 486847.8102,
+                "risk": 1.0698,
+                "maxRepayAmount": 321.9415
+            },
+            {
+                "address": "STBWK9266APRKQ6GGKPAXZT99QGA41RZ67PD1EKK",
+                "network": "testnet",
+                "ltv": 0.803,
+                "health": 0.9963,
+                "debt": 109463.0758,
+                "collateral": 136320.4674,
+                "risk": 1.0037,
+                "maxRepayAmount": 110.4794
+            }
+        ]
+
+        marketAsset = {
+            "address": "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-usdc",
+            "name": "mock-usdc",
+            "symbol": "mock-usdc",
+            "decimals": 8,
+            "balance": 628000000000
+        };
+
+        batch = makeLiquidationBatch(marketAsset, collateralAsset, borrowers, priceFeed);
+
+        expect(batch).toEqual([
+            {
+                user: "ST39B0S4TZP6H89VPBCCSCYXKX43DNNPNQV3BEWNW",
+                liquidatorRepayAmount: 598300000000,
+                minCollateralExpected: 6126799,
+            }, {
+                user: "ST2N7SK0W83NJSZHFH8HH31ZT3DXJG7NFE6Y058RD",
+                liquidatorRepayAmount: 29700000000,
+                minCollateralExpected: 304138,
+            }
+        ]
+        );
     });
 });
