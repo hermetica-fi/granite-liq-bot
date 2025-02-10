@@ -83,6 +83,7 @@ export const calcBorrowerStatus = (borrower: {
     );
 
     const maxRepay: Record<string, number> = {};
+    let totalRepayAmount = 0;
 
     if (liquidationRisk >= 1) {
         for (const collateral of collaterals) {
@@ -97,6 +98,7 @@ export const calcBorrowerStatus = (borrower: {
             );
 
             maxRepay[collateral.id] = marketValueAvailableToLiquidate;
+            totalRepayAmount += marketValueAvailableToLiquidate;
         }
     }
 
@@ -106,6 +108,7 @@ export const calcBorrowerStatus = (borrower: {
         collateral: totalCollateralValue,
         risk: liquidationRisk,
         maxRepay,
+        totalRepayAmount,
         ltv: debtAssets / totalCollateralValue,
     }
 }

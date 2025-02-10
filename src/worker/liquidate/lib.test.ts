@@ -175,7 +175,8 @@ describe("liquidate lib", () => {
                 "risk": 1.151,
                 "maxRepay": {
                     "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 560983.4133
-                }
+                },
+                "totalRepayAmount": 560983.4133
             },
             {
                 "address": "ST2N7SK0W83NJSZHFH8HH31ZT3DXJG7NFE6Y058RD",
@@ -187,7 +188,8 @@ describe("liquidate lib", () => {
                 "risk": 1.0698,
                 "maxRepay": {
                     "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 416665.9415
-                }
+                },
+                "totalRepayAmount": 416665.9415
             },
             {
                 "address": "STBWK9266APRKQ6GGKPAXZT99QGA41RZ67PD1EKK",
@@ -199,7 +201,8 @@ describe("liquidate lib", () => {
                 "risk": 1.0037,
                 "maxRepay": {
                     "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 109463.4794
-                }
+                },
+                "totalRepayAmount": 109463.4794
             }
         ];
 
@@ -302,7 +305,8 @@ describe("liquidate lib", () => {
                 "risk": 1.151,
                 "maxRepay": {
                     "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 5983.4133
-                }
+                },
+                "totalRepayAmount": 5983.4133
             },
             {
                 "address": "ST2N7SK0W83NJSZHFH8HH31ZT3DXJG7NFE6Y058RD",
@@ -314,7 +318,8 @@ describe("liquidate lib", () => {
                 "risk": 1.0698,
                 "maxRepay": {
                     "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 321.9415
-                }
+                },
+                "totalRepayAmount": 321.9415
             },
             {
                 "address": "STBWK9266APRKQ6GGKPAXZT99QGA41RZ67PD1EKK",
@@ -326,7 +331,8 @@ describe("liquidate lib", () => {
                 "risk": 1.0037,
                 "maxRepay": {
                     "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 110.4794
-                }
+                },
+                "totalRepayAmount": 110.4794
             }
         ]
 
