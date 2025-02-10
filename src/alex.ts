@@ -32,54 +32,66 @@ const options: SwapOption[] = [
         path: [sBTC, aBTC, stx, aeUSDC],
         factors: [factor05, factor1, factor1]
     }
-]
+];
 
-const dx = uintCV(parseUnits('0.01', 8));
+type SwapResult = {
+    option: SwapOption,
+    out: number
+}
 
-const calls: ReadCall[] = options.map((option) => {
-    let fn = ''
-    if (option.path.length === 3) {
-        fn = 'get-helper-a'
-    } else if (option.path.length === 4) {
-        fn = 'get-helper-b'
-    } else if (option.path.length === 5) {
-        fn = 'get-helper-c'
-    }
+export const getBestSwap = async (amount: number): Promise<SwapResult | undefined> => {
+    const dx = uintCV(parseUnits(amount, 8));
 
-    if (!fn) {
-        throw new Error('Invalid path')
-    }
-
-    let functionArgs: ClarityValue[] = [
-        ...option.path,
-        ...option.factors,
-        dx
-    ];
-
-    return [
-        serializeCV(router),
-        fn,
-        ...functionArgs.map((v: any) => serializeCV(v))
-    ]
-});
-
-const resp = await batchContractRead(calls);
-
-const results: { option: SwapOption, out: number }[] = resp.map((r, i) => {
-    if (r.Ok) {
-        const cv = deserializeCV(r.Ok);
-        if (cv.type === "err") {
-            return { option: options[i], out: 0 };
+    const calls: ReadCall[] = options.map((option) => {
+        let fn = ''
+        if (option.path.length === 3) {
+            fn = 'get-helper-a'
+        } else if (option.path.length === 4) {
+            fn = 'get-helper-b'
+        } else if (option.path.length === 5) {
+            fn = 'get-helper-c'
         }
 
-        return { option: options[i], out: Number(cvToJSON(cv).value.value) };
-    }
+        if (!fn) {
+            throw new Error('Invalid path')
+        }
 
-    return { option: options[i], out: 0 };
-}).sort((a, b) => b.out - a.out);
+        let functionArgs: ClarityValue[] = [
+            ...option.path,
+            ...option.factors,
+            dx
+        ];
 
-console.log(results[0].option.path, results[0].option.factors, results[0].out)
-console.log(results[1].option.path, results[1].option.factors, results[1].out)
-console.log(results[2].option.path, results[2].option.factors, results[2].out)
-console.log(results[3].option.path, results[3].option.factors, results[3].out)
-console.log(results[4].option.path, results[4].option.factors, results[4].out)
+        return [
+            serializeCV(router),
+            fn,
+            ...functionArgs.map((v: any) => serializeCV(v))
+        ]
+    });
+
+    const resp = await batchContractRead(calls);
+
+    const results: SwapResult[] = resp.map((r, i) => {
+        if (r.Ok) {
+            const cv = deserializeCV(r.Ok);
+            if (cv.type === "err") {
+                return { option: options[i], out: 0 };
+            }
+
+            return { option: options[i], out: Number(cvToJSON(cv).value.value) };
+        }
+
+        return { option: options[i], out: 0 };
+    }).sort((a, b) => b.out - a.out);
+
+    return results[0] || undefined;
+}
+
+/*
+const results = await getBestSwaps(0.01);
+
+console.log(results[0].option.path, results[0].option.factors, formatUnits(results[0].out, 8))
+console.log(results[1].option.path, results[1].option.factors, formatUnits(results[1].out, 8))
+console.log(results[2].option.path, results[2].option.factors, formatUnits(results[2].out, 8))
+console.log(results[3].option.path, results[3].option.factors, formatUnits(results[3].out, 8))
+*/
