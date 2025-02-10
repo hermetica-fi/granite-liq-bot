@@ -39,8 +39,8 @@ type SwapResult = {
     out: number
 }
 
-export const getBestSwap = async (amount: number): Promise<SwapResult | undefined> => {
-    const dx = uintCV(parseUnits(amount, 8));
+export const getBestSwap = async (sBtcAmount: number): Promise<SwapResult> => {
+    const dx = uintCV(parseUnits(sBtcAmount, 8));
 
     const calls: ReadCall[] = options.map((option) => {
         let fn = ''
@@ -84,6 +84,6 @@ export const getBestSwap = async (amount: number): Promise<SwapResult | undefine
         return { option: options[i], out: 0 };
     }).sort((a, b) => b.out - a.out);
 
-    return results[0] || undefined;
+    return results[0];
 }
 

@@ -68,7 +68,7 @@ describe("alex", () => {
                 batchContractRead: () => {
                     return [
                         {
-                            Ok: "0701000000000000000000000069ad2ad8da",
+                            Ok: "0801000000000000000000000000000007dc", // err 2012n
                         }, {
                             Ok: "070100000000000000000000007057dc470a",
                         }, {
@@ -115,5 +115,30 @@ describe("alex", () => {
         ]);
 
         expect(result?.out).toEqual(488275974432);
+    });
+
+
+    test("getBestSwap", async () => {
+        mock.module("./client/stxer", () => {
+            return {
+                batchContractRead: () => {
+                    return [
+                        {
+                            Ok: "0801000000000000000000000000000007dc",  // err 2012n
+                        }, {
+                            Ok: "0801000000000000000000000000000007dc", // err 2012n
+                        }, {
+                            Ok: "0801000000000000000000000000000007dc", // err 2012n
+                        }, {
+                            Ok: "0801000000000000000000000000000007dc", // err 2012n
+                        }
+                    ]
+                }
+            }
+        });
+
+        const result = await getBestSwap(0.3);
+
+        expect(result?.out).toEqual(0);
     });
 });
