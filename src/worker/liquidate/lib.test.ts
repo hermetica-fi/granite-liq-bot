@@ -173,7 +173,9 @@ describe("liquidate lib", () => {
                 "debt": 560981.3451,
                 "collateral": 678929.1726,
                 "risk": 1.151,
-                "maxRepayAmount": 560983.4133
+                "maxRepay": {
+                    "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 560983.4133
+                }
             },
             {
                 "address": "ST2N7SK0W83NJSZHFH8HH31ZT3DXJG7NFE6Y058RD",
@@ -183,7 +185,9 @@ describe("liquidate lib", () => {
                 "debt": 416664.4053,
                 "collateral": 486847.8102,
                 "risk": 1.0698,
-                "maxRepayAmount": 416665.9415
+                "maxRepay": {
+                    "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 416665.9415
+                }
             },
             {
                 "address": "STBWK9266APRKQ6GGKPAXZT99QGA41RZ67PD1EKK",
@@ -193,7 +197,9 @@ describe("liquidate lib", () => {
                 "debt": 109463.0758,
                 "collateral": 136320.4674,
                 "risk": 1.0037,
-                "maxRepayAmount": 109463.4794
+                "maxRepay": {
+                    "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 109463.4794
+                }
             }
         ];
 
@@ -294,7 +300,9 @@ describe("liquidate lib", () => {
                 "debt": 560981.3451,
                 "collateral": 678929.1726,
                 "risk": 1.151,
-                "maxRepayAmount": 5983.4133
+                "maxRepay": {
+                    "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 5983.4133
+                }
             },
             {
                 "address": "ST2N7SK0W83NJSZHFH8HH31ZT3DXJG7NFE6Y058RD",
@@ -304,7 +312,9 @@ describe("liquidate lib", () => {
                 "debt": 416664.4053,
                 "collateral": 486847.8102,
                 "risk": 1.0698,
-                "maxRepayAmount": 321.9415
+                "maxRepay": {
+                    "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 321.9415
+                }
             },
             {
                 "address": "STBWK9266APRKQ6GGKPAXZT99QGA41RZ67PD1EKK",
@@ -314,7 +324,9 @@ describe("liquidate lib", () => {
                 "debt": 109463.0758,
                 "collateral": 136320.4674,
                 "risk": 1.0037,
-                "maxRepayAmount": 110.4794
+                "maxRepay": {
+                    "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 110.4794
+                }
             }
         ]
 

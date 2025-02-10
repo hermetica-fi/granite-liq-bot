@@ -56,32 +56,36 @@ export const makeLiquidationBatch = (marketAssetInfo: AssetInfo, collateralAsset
             break;
         }
 
-        const repayAmount = borrower.maxRepayAmount;
-        // Adjust down max repay amount to prevent transaction failure in case volatility 
-        // + removes decimals to protects from decimal precision issues (TODO: Not great solution, improve)
-        const repayAmountAdjusted = Number((repayAmount * 0.9999).toFixed(0))
-        const repayAmountAdjustedBn = parseUnits(repayAmountAdjusted, marketAssetInfo.decimals);
-        const repayAmountFinalBn = Math.min(availableBn, repayAmountAdjustedBn);
+        for (const k of Object.keys(borrower.maxRepay)) {
+            const repayAmount = borrower.maxRepay[k];
+            // Adjust down max repay amount to prevent transaction failure in case volatility 
+            // + removes decimals to protects from decimal precision issues (TODO: Not great solution, improve)
+            const repayAmountAdjusted = Number((repayAmount * 0.9999).toFixed(0))
+            const repayAmountAdjustedBn = parseUnits(repayAmountAdjusted, marketAssetInfo.decimals);
+            const repayAmountFinalBn = Math.min(availableBn, repayAmountAdjustedBn);
 
-        availableBn = availableBn - repayAmountFinalBn;
+            availableBn = availableBn - repayAmountFinalBn;
 
-        const minCollateralExpected = Number((repayAmountFinalBn / collateralPriceBn).toFixed(collateralAssetInfo.decimals));
-        const minCollateralExpectedBn = Math.floor(parseUnits(minCollateralExpected, collateralAssetInfo.decimals));
+            const minCollateralExpected = Number((repayAmountFinalBn / collateralPriceBn).toFixed(collateralAssetInfo.decimals));
+            const minCollateralExpectedBn = Math.floor(parseUnits(minCollateralExpected, collateralAssetInfo.decimals));
 
-        batch.push({
-            user: borrower.address,
-            liquidatorRepayAmount: repayAmountFinalBn,
-            minCollateralExpected: minCollateralExpectedBn
-        })
+            batch.push({
+                user: borrower.address,
+                liquidatorRepayAmount: repayAmountFinalBn,
+                minCollateralExpected: minCollateralExpectedBn
+            })
 
-        /*
-        console.log("maxRepayAmount           ", repayAmount);
-        console.log("maxRepayAmountAdjusted   ", repayAmountAdjusted);
-        console.log("maxRepayAmountAdjustedBn ", repayAmountAdjustedBn);
-        console.log("repayAmountFinalBn       ", repayAmountFinalBn);
-        console.log("minCollateralExpected    ", minCollateralExpected);
-        console.log("minCollateralExpectedBn  ", minCollateralExpectedBn)
-        */
+            /*
+            console.log("maxRepayAmount           ", repayAmount);
+            console.log("maxRepayAmountAdjusted   ", repayAmountAdjusted);
+            console.log("maxRepayAmountAdjustedBn ", repayAmountAdjustedBn);
+            console.log("repayAmountFinalBn       ", repayAmountFinalBn);
+            console.log("minCollateralExpected    ", minCollateralExpected);
+            console.log("minCollateralExpectedBn  ", minCollateralExpectedBn)
+            */
+        }
+
+
     }
 
     return batch;
