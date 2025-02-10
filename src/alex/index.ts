@@ -1,4 +1,6 @@
 import { contractPrincipalCV, cvToJSON, deserializeCV, serializeCV, uintCV, type ClarityValue } from "@stacks/transactions";
+import { parseUnits } from "granite-liq-bot-common";
+import { batchContractRead, type ReadCall } from "../client/stxer";
 
 const factor05 = uintCV(5000000);
 const factor1 = uintCV(100000000);
@@ -11,34 +13,30 @@ const sBTC = contractPrincipalCV("SP1E0XBN9T4B10E9QMR7XMFJPMA19D77WY3KP2QKC", "t
 const aUSD = contractPrincipalCV("SP2XD7417HGPRTREMKF748VNEQPDRR0RMANB7X1NK", "token-susdt");
 const alex = contractPrincipalCV("SP102V8P0F7JX67ARQ77WEA3D3CFB5XW39REDT0AM", "token-alex");
 
+type SwapOption = { path: ClarityValue[], factors: ClarityValue[] }
 
-const options = [
+const options: SwapOption[] = [
     {
-        path: [aeUSDC, stx, sBTC],
+        path: [sBTC, stx, aeUSDC],
         factors: [factor1, factor1]
     },
     {
-        path: [aeUSDC, stx, alex, sBTC],
+        path: [sBTC, alex, stx, aeUSDC],
         factors: [factor1, factor1, factor1]
     },
     {
-        path: [aeUSDC, stx, aUSD, aBTC, sBTC],
-        factors: [factor1, factor1, factor1, factor05]
+        path: [sBTC, aBTC, aUSD, stx, aeUSDC],
+        factors: [factor05, factor1, factor1, factor1]
     },
     {
-        path: [aeUSDC, stx, aBTC, sBTC],
-        factors: [factor1, factor1, factor05]
-    },
-    {
-        path: [aeUSDC, stx, alex, sBTC],
-        factors: [factor1, factor1, factor1]
-    },
+        path: [sBTC, aBTC, stx, aeUSDC],
+        factors: [factor05, factor1, factor1]
+    }
 ]
 
-const dx = uintCV(1000_00000000);
+const dx = uintCV(parseUnits('0.01', 8));
 
-const calls: any[] = options.map((option) => {
-
+const calls: ReadCall[] = options.map((option) => {
     let fn = ''
     if (option.path.length === 3) {
         fn = 'get-helper-a'
@@ -65,31 +63,23 @@ const calls: any[] = options.map((option) => {
     ]
 });
 
-const response = await fetch('https://api.stxer.xyz/sidecar/v2/batch', {
-    method: 'POST',
-    body: JSON.stringify({
-        readonly: calls
-    }),
-    headers: {
-        'Content-Type': 'application/json',
-    },
-}).then(r => r.json());
+const resp = await batchContractRead(calls);
 
-const okResults = response.readonly.map((c: any) => {
-    return c["Ok"];
-});
+const results: { option: SwapOption, out: number }[] = resp.map((r, i) => {
+    if (r.Ok) {
+        const cv = deserializeCV(r.Ok);
+        if (cv.type === "err") {
+            return { option: options[i], out: 0 };
+        }
 
-
-
-const results = okResults.map((r: any) => {
-    if (!r) {
-        return 0;
+        return { option: options[i], out: Number(cvToJSON(cv).value.value) };
     }
-    const cv = deserializeCV(r);
-    if (cv.type === "err") {
-        return 0;
-    }
-    return Number(cvToJSON(deserializeCV(r)).value.value);
-});
 
-console.log(results);
+    return { option: options[i], out: 0 };
+}).sort((a, b) => b.out - a.out);
+
+console.log(results[0].option.path, results[0].option.factors, results[0].out)
+console.log(results[1].option.path, results[1].option.factors, results[1].out)
+console.log(results[2].option.path, results[2].option.factors, results[2].out)
+console.log(results[3].option.path, results[3].option.factors, results[3].out)
+console.log(results[4].option.path, results[4].option.factors, results[4].out)
