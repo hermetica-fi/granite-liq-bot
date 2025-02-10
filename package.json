@@ -23,7 +23,7 @@
     "assert": "^2.1.0",
     "dotenv": "^16.4.7",
     "granite-liq-bot-common": "./common",
-    "granite-math-sdk": "^1.0.19",
+    "granite-math-sdk": "^1.0.20",
     "pg": "^8.13.1"
   }
 }
