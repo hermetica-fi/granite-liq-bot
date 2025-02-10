@@ -73,11 +73,11 @@ export const clearBorrowerStatuses = async (dbClient: PoolClient) => {
 export const insertBorrowerStatus = async (dbClient: PoolClient, address: string, network: NetworkName, status: BorrowerStatus) => {
     return dbClient.query(
         `INSERT INTO borrower_status (
-            address, network, ltv, health, debt, collateral, risk, max_repay
+            address, network, ltv, health, debt, collateral, risk, max_repay, total_repay_amount
         ) VALUES (
-            $1, $2, $3, $4, $5, $6, $7, $8
+            $1, $2, $3, $4, $5, $6, $7, $8, $9
         )`,
-        [address, network, status.ltv.toFixed(4), status.health.toFixed(4), status.debt.toFixed(4), status.collateral.toFixed(4), status.risk.toFixed(4), status.maxRepay])
+        [address, network, status.ltv.toFixed(4), status.health.toFixed(4), status.debt.toFixed(4), status.collateral.toFixed(4), status.risk.toFixed(4), status.maxRepay, status.totalRepayAmount])
 }
 
 

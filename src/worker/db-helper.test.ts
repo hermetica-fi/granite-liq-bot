@@ -174,7 +174,8 @@ describe("sync db helper", () => {
                 debt: 526735.7297,
                 collateral: 754865.5289,
                 risk: 0.9798,
-                max_repay: {}
+                max_repay: {},
+                total_repay_amount: 0
             }
         ])
     });
