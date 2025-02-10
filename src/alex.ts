@@ -87,11 +87,3 @@ export const getBestSwap = async (amount: number): Promise<SwapResult | undefine
     return results[0] || undefined;
 }
 
-/*
-const results = await getBestSwaps(0.01);
-
-console.log(results[0].option.path, results[0].option.factors, formatUnits(results[0].out, 8))
-console.log(results[1].option.path, results[1].option.factors, formatUnits(results[1].out, 8))
-console.log(results[2].option.path, results[2].option.factors, formatUnits(results[2].out, 8))
-console.log(results[3].option.path, results[3].option.factors, formatUnits(results[3].out, 8))
-*/
