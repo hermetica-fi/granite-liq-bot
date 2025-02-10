@@ -52,6 +52,6 @@ export const getBorrowerStatusList = async (dbClient: PoolClient, args?: {
             debt: Number(row.debt),
             collateral: Number(row.collateral),
             risk: Number(row.risk),
-            maxRepayAmount: Number(row.max_repay_amount),
+            maxRepay: row.max_repay
         })));
 }   

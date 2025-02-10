@@ -27,6 +27,8 @@ export const worker = async (dbClient: PoolClient) => {
 
     const priceFeed = await fetchAndProcessPriceFeed();
 
+
+    console.log(borrower.address)
     const status = calcBorrowerStatus({
       debtShares: borrower.debtShares,
       collateralsDeposited

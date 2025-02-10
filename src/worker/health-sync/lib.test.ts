@@ -122,7 +122,7 @@ describe("health-sync lib", () => {
             debt: 526735.7296664099,
             collateral: 754865.5289313,
             risk: 0.9798057184761282,
-            maxRepayAmount: 0
+            maxRepay: {}
         });
     });
 
@@ -174,7 +174,9 @@ describe("health-sync lib", () => {
             debt: 15038.024870804698,
             collateral: 21555.903554761313,
             risk: 1.3679001300585538,
-            maxRepayAmount: 15038.080185625755
+            maxRepay: {
+               'ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth': 9213.016077167267
+            }
         });
     });
 });

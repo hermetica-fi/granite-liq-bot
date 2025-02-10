@@ -27,3 +27,5 @@ export const PRICE_FEED_IDS: { ticker: Ticker, feed_id: string }[] = [
 ]
 
 export const MAINNET_MAX_FEE = 7_000_00; // 0.7 STX
+
+export const LIQUIDATION_PREMIUM = 0.1;

@@ -1,10 +1,10 @@
 import type { BorrowerStatus } from "granite-liq-bot-common";
 import {
     calculateAccountHealth, calculateAccountLiqLTV,
-    calculateLiquidationPoint, calculateMaxRepayAmount, calculateTotalCollateralValue, convertDebtSharesToAssets
+    calculateLiquidationPoint, calculateMaxRepayAmount, calculateTotalCollateralValue, convertDebtSharesToAssets, liquidatorMaxRepayAmount
 } from "granite-math-sdk";
 import type { PriceFeedResponse } from "../../client/pyth";
-import { IR_PARAMS_SCALING_FACTOR } from "../../constants";
+import { IR_PARAMS_SCALING_FACTOR, LIQUIDATION_PREMIUM } from "../../constants";
 import { toTicker } from "../../helper";
 import type { InterestRateParams, MarketState } from "../../types";
 
@@ -25,7 +25,6 @@ export const calcBorrowerStatus = (borrower: {
     const totalDebtShares = marketState.debtParams.totalDebtShares / 10 ** marketState.marketAssetParams.decimals;
     const totalAssets = marketState.lpParams.totalAssets / 10 ** marketState.marketAssetParams.decimals;
     const timeDelta = Math.ceil(now / 1000) - marketState.accrueInterestParams.lastAccruedBlockTime;
-
     const debtAssets = convertDebtSharesToAssets(
         debtShares,
         openInterest,
@@ -47,10 +46,12 @@ export const calcBorrowerStatus = (borrower: {
         const decimals = -1 * feed.price.expo
 
         return {
+            id: key,
             amount: borrower.collateralsDeposited[key] / 10 ** decimals,
             price: price / 10 ** decimals,
             liquidationLTV: liquidationLTV / 10 ** decimals,
             maxLTV: maxLTV / 10 ** decimals,
+            liquidationPremium: LIQUIDATION_PREMIUM,
         }
     });
 
@@ -81,13 +82,30 @@ export const calcBorrowerStatus = (borrower: {
         timeDelta
     );
 
+    const maxRepay: Record<string, number> = {};
+
+    if (liquidationRisk >= 1) {
+        for (const collateral of collaterals) {
+            const marketValueAvailableToLiquidate = liquidatorMaxRepayAmount(
+                debtShares,
+                openInterest,
+                totalDebtShares,
+                totalAssets,
+                irParams,
+                timeDelta,
+                collateral
+            );
+
+            maxRepay[collateral.id] = marketValueAvailableToLiquidate;
+        }
+    }
 
     return {
         health,
         debt: debtAssets,
         collateral: totalCollateralValue,
         risk: liquidationRisk,
-        maxRepayAmount: liquidationRisk >= 1 ? maxRepayAmount : 0,
+        maxRepay,
         ltv: debtAssets / totalCollateralValue,
     }
 }

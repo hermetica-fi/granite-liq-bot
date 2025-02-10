@@ -163,7 +163,7 @@ describe("sync db helper", () => {
 
 
     test("insertBorrowerStatus", async () => {
-        await insertBorrowerStatus(client, 'SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR', 'mainnet', { ltv: 0.6977874992015272, health: 1.0206104956758972, debt: 526735.7296664099, collateral: 754865.5289313, risk: 0.9798057184761282, maxRepayAmount: 0 });
+        await insertBorrowerStatus(client, 'SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR', 'mainnet', { ltv: 0.6977874992015272, health: 1.0206104956758972, debt: 526735.7296664099, collateral: 754865.5289313, risk: 0.9798057184761282, maxRepay: {} });
         const resp = await client.query("SELECT * FROM borrower_status").then((r: any) => r.rows);
         expect(resp).toEqual([
             {
@@ -174,7 +174,7 @@ describe("sync db helper", () => {
                 debt: 526735.7297,
                 collateral: 754865.5289,
                 risk: 0.9798,
-                max_repay_amount: 0
+                max_repay: {}
             }
         ])
     });
@@ -270,7 +270,7 @@ describe("sync db helper", () => {
         });
     });
 
-   
+
     test("getMarketState", async () => {
         await client.query("DELETE FROM kv_store");
 

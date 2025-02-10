@@ -24,7 +24,7 @@ export type BorrowerStatus = {
     debt: number,
     collateral: number,
     risk: number,
-    maxRepayAmount: number
+    maxRepay: Record<string, number>
 }
 
 export type BorrowerStatusEntity = BorrowerStatus & { address: string, network: NetworkName }
