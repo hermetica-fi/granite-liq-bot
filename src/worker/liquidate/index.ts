@@ -8,6 +8,7 @@ import { hexToUint8Array } from "../../helper";
 import { createLogger } from "../../logger";
 import { epoch } from "../../util";
 import { liquidationBatchCv, makeLiquidationBatch, priceFeedCv } from "./lib";
+
 const logger = createLogger("liquidate");
 
 
@@ -18,6 +19,11 @@ const worker = async (dbClient: PoolClient) => {
         },
         orderBy: 'market_asset_balance DESC'
     }))[0];
+
+    if (contract.lockTx) {
+        logger.info("Contract is locked, skipping");
+        return;
+    }
 
     if (!contract) {
         logger.info("No testnet contract found");
@@ -58,7 +64,6 @@ const worker = async (dbClient: PoolClient) => {
 
     const functionArgs = [
         someCV(bufferCV(priceAttestationBuff)),
-        uintCV(0),
         contractPrincipalCV(marketAsset.address.split(".")[0], marketAsset.address.split(".")[1]),
         contractPrincipalCV(collateralAsset.address.split(".")[0], collateralAsset.address.split(".")[1]),
         batchCV,
@@ -101,9 +106,31 @@ const worker = async (dbClient: PoolClient) => {
         }
     */
 
-    const transaction = await makeContractCall(txOptions);
-    const tx = await broadcastTransaction({ transaction, network: contract.network, client: { fetch: fetchFn } });
-    console.log("tx", tx)
+    let contractCall;
+
+    try {
+        contractCall = await makeContractCall(txOptions);
+    } catch (e) {
+        logger.error(`Could not make contract call due to: ${e}`);
+        return;
+    }
+
+    const tx = await broadcastTransaction({ transaction: contractCall, network: contract.network, client: { fetch: fetchFn } });
+
+    if ("reason" in tx) {
+        if ("reason_data" in tx) {
+            logger.error("Transaction failed", { reason: tx.reason, reason_data: tx.reason_data });
+        } else {
+            logger.error("Transaction failed", { reason: tx.reason });
+        }
+        return;
+    }
+
+    if (tx.txid) {
+        await dbClient.query("UPDATE contract SET lock_tx = $1 WHERE id = $2", [tx.txid, contract.id]);
+        logger.info(`Transaction broadcasted ${tx.txid}`);
+        return;
+    }
 }
 
 export const main = async () => {
