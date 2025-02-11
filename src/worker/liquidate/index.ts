@@ -1,4 +1,4 @@
-import { broadcastTransaction, bufferCV, contractPrincipalCV, makeContractCall, noneCV, PostConditionMode, someCV, uintCV } from "@stacks/transactions";
+import { broadcastTransaction, bufferCV, contractPrincipalCV, fetchFeeEstimateTransaction, makeContractCall, noneCV, PostConditionMode, serializePayload, someCV, uintCV } from "@stacks/transactions";
 import { fetchFn, getAccountNonces, TESTNET_FEE } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
@@ -8,6 +8,7 @@ import { hexToUint8Array } from "../../helper";
 import { createLogger } from "../../logger";
 import { epoch } from "../../util";
 import { liquidationBatchCv, makeLiquidationBatch, priceFeedCv } from "./lib";
+import { MAINNET_MAX_FEE } from "../../constants";
 
 const logger = createLogger("liquidate");
 
@@ -90,23 +91,7 @@ const worker = async (dbClient: PoolClient) => {
         postConditionMode: PostConditionMode.Allow,
         nonce
     }
-
-    /*
-
-        if (contract.network === 'mainnet') {
-            let feeEstimate;
-
-            try {
-                feeEstimate = await fetchFeeEstimateTransaction({ payload: serializePayload(transaction.payload), network: contract.network, client: { fetch: fetchFn } });
-            } catch (e) {
-                return errorResponse('Could not get fee estimate');
-            }
-
-            const fee = feeEstimate[1].fee;
-            transaction.setFee(Math.min(fee, MAINNET_MAX_FEE));
-        }
-    */
-
+    
     let contractCall;
 
     try {
@@ -115,6 +100,21 @@ const worker = async (dbClient: PoolClient) => {
         logger.error(`Could not make contract call due to: ${e}`);
         return;
     }
+
+    if (contract.network === 'mainnet') {
+        let feeEstimate;
+
+        try {
+            feeEstimate = await fetchFeeEstimateTransaction({ payload: serializePayload(contractCall.payload), network: contract.network, client: { fetch: fetchFn } });
+        } catch (e) {
+            logger.error(`Could not fetch fee estimate due to: ${e}`);
+            return;
+        }
+
+        const fee = feeEstimate[1].fee;
+        contractCall.setFee(Math.min(fee, MAINNET_MAX_FEE));
+    }
+
 
     const tx = await broadcastTransaction({ transaction: contractCall, network: contract.network, client: { fetch: fetchFn } });
 
