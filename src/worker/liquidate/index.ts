@@ -56,6 +56,7 @@ const worker = async (dbClient: PoolClient) => {
 
     if (batch.length === 0) {
         // Nothing to liquidate
+        logger.info("Nothing to liquidate");
         return;
     }
 
