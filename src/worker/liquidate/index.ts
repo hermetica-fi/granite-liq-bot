@@ -1,4 +1,4 @@
-import { broadcastTransaction, bufferCV, contractPrincipalCV, fetchFeeEstimateTransaction, makeContractCall, noneCV, PostConditionMode, serializePayload, someCV, uintCV } from "@stacks/transactions";
+import { broadcastTransaction, bufferCV, contractPrincipalCV, fetchFeeEstimateTransaction, makeContractCall, noneCV, PostConditionMode, serializePayload, someCV, tupleCV, uintCV, type ClarityValue } from "@stacks/transactions";
 import { fetchFn, formatUnits, getAccountNonces, TESTNET_FEE } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
@@ -64,7 +64,9 @@ const worker = async (dbClient: PoolClient) => {
 
     const batchCV = liquidationBatchCv(batch);
     const testnetPriceDataCV = contract.network === 'testnet' ? priceFeedCv(priceFeed) : noneCV();
-    let swapDataCv = noneCV();
+    let swapDataCv: ClarityValue = noneCV();
+
+  
 
     if (contract.network === 'mainnet') {
         // Profitability check
@@ -72,12 +74,26 @@ const worker = async (dbClient: PoolClient) => {
         const totalSpend = formatUnits(totalSpendBn, marketAsset.decimals);
         const totalReceiveBn = batch.reduce((acc, b) => acc + b.minCollateralExpected, 0);
         const totalReceive = formatUnits(totalReceiveBn, collateralAsset.decimals);
-        const swapData = await getBestSwap(totalReceive);
+        const bestSwap = await getBestSwap(totalReceive);
 
-        if (swapData.out < totalSpend) {
-            logger.error(`Not profitable to liquidate. total spend: ${totalSpend}, total receive: ${totalReceive}`);
+        if (bestSwap.out < totalSpend) {
+            logger.error(`Not profitable to liquidate. total spend: ${totalSpend}, total receive: ${totalReceive}, best swap: ${bestSwap.out}`);
             return;
         }
+
+        const list = ['x', 'y', 'z', 'w', 'v'];
+        
+        const swapData: Record<string, ClarityValue> = {};
+
+        for(let i = 0; i < bestSwap.option.path.length; i++){
+            swapData[`token-${list[i]}`] = bestSwap.option.path[i];
+        }
+
+        for(let i = 0; i < bestSwap.option.path.length; i++){
+            swapData[`factor-${list[i]}`] = bestSwap.option.factors[i];
+        }
+
+        swapDataCv = someCV(tupleCV(swapData));
     }
 
     const functionArgs = [

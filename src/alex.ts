@@ -15,7 +15,7 @@ const alex = contractPrincipalCV("SP102V8P0F7JX67ARQ77WEA3D3CFB5XW39REDT0AM", "t
 
 type SwapOption = { path: ClarityValue[], factors: ClarityValue[] }
 
-const options: SwapOption[] = [
+export const options: SwapOption[] = [
     {
         path: [sBTC, stx, aeUSDC],
         factors: [factor1, factor1]
@@ -34,7 +34,7 @@ const options: SwapOption[] = [
     }
 ];
 
-type SwapResult = {
+export type SwapResult = {
     option: SwapOption,
     out: number
 }

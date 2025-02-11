@@ -1,8 +1,10 @@
-import { bufferCV, Cl, intCV, listCV, principalCV, serializeCVBytes, someCV, tupleCV, uintCV } from "@stacks/transactions";
+import { bufferCV, Cl, intCV, listCV, principalCV, serializeCVBytes, someCV, tupleCV, uintCV, type ClarityValue } from "@stacks/transactions";
 import { formatUnits, parseUnits, type AssetInfo, type BorrowerStatusEntity } from "granite-liq-bot-common";
 import type { PriceFeedResponse } from "../../client/pyth";
 import { toTicker } from "../../helper";
 import type { LiquidationBatch } from "../../types";
+import type { SwapResult } from "../../alex";
+
 
 export const priceFeedCv = (priceFeed: PriceFeedResponse) => {
     const keys = Object.keys(priceFeed.items);
@@ -89,4 +91,24 @@ export const makeLiquidationBatch = (marketAssetInfo: AssetInfo, collateralAsset
     }
 
     return batch;
+}
+
+export const swapOutCv = (swap: SwapResult) => {
+    const letters = ['x', 'y', 'z', 'w', 'v'];
+
+    const swapData: Record<string, ClarityValue> = {};
+
+    for (let i = 0; i < swap.option.path.length; i++) {
+        if (swap.option.path[i]) {
+            swapData[`token-${letters[i]}`] = swap.option.path[i];
+        }
+    }
+
+    for (let i = 0; i < swap.option.path.length; i++) {
+        if (swap.option.factors[i]) {
+            swapData[`factor-${letters[i]}`] = swap.option.factors[i];
+        }
+    }
+
+    return someCV(tupleCV(swapData));
 }
