@@ -17,6 +17,7 @@ const TRACKED_CONTRACTS = [
   CONTRACTS.mainnet.state,
   CONTRACTS.testnet.borrower,
   CONTRACTS.testnet.state,
+  CONTRACTS.testnet.liquidator,
 ]
 
 const processEvents = async (dbClient: PoolClient, network: NetworkName, event: TransactionEventSmartContractLog) => {
@@ -25,7 +26,7 @@ const processEvents = async (dbClient: PoolClient, network: NetworkName, event: 
   const action = json?.value?.action?.value;
   let user = null;
 
-  if (["borrow", "add-collateral", "remove-collateral", "deposit", "withdraw"].includes(action)) {
+  if (["borrow", "add-collateral", "remove-collateral", "deposit", "withdraw", "liquidate-collateral"].includes(action)) {
     user = json.value.user.value;
   }
 
