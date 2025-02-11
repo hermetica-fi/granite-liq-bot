@@ -28,7 +28,7 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
     }
 
     if (contract.lockTx) {
-        logger.info("Contract is locked, skipping");
+        // logger.info("Contract is locked, skipping");
         return;
     }
 
