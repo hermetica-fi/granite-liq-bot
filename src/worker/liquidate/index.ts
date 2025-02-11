@@ -23,7 +23,7 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
     }))[0];
 
     if (!contract) {
-        logger.info(`No ${network} contract found`);
+        // logger.info(`No ${network} contract found`);
         return;
     }
 
