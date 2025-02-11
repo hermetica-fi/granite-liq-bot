@@ -40,7 +40,7 @@ const worker = async (dbClient: PoolClient) => {
         filters: {
             network: 'testnet',
         },
-        orderBy: 'max_repay_amount DESC'
+        orderBy: 'total_repay_amount DESC'
     });
 
 

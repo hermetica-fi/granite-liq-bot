@@ -33,10 +33,10 @@ export const getContractList = async (dbClient: PoolClient, args?: {
 
 export const getBorrowerStatusList = async (dbClient: PoolClient, args?: {
     filters?: Record<string, string>,
-    orderBy?: 'max_repay_amount DESC, risk DESC' | 'max_repay_amount DESC'
+    orderBy?: 'max_repay_amount DESC, risk DESC' | 'total_repay_amount DESC'
 }): Promise<BorrowerStatusEntity[]> => {
     const filters = args?.filters || {};
-    const orderBy = args?.orderBy || 'max_repay_amount DESC, risk DESC';
+    const orderBy = args?.orderBy || 'total_repay_amount DESC, risk DESC';
 
     let sql = 'SELECT * FROM borrower_status';
     if (Object.keys(filters).length > 0) {

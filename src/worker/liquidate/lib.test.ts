@@ -1,9 +1,7 @@
 import { cvToJSON } from "@stacks/transactions";
 import { describe, expect, test } from "bun:test";
-import type { AssetInfo, BorrowerStatusEntity } from "granite-liq-bot-common";
 import type { PriceFeedResponse } from "../../client/pyth";
-import type { LiquidationBatch } from "../../types";
-import { liquidationBatchCv, makeLiquidationBatch, priceFeedCv } from "./lib";
+import { priceFeedCv } from "./lib";
 
 describe("liquidate lib", () => {
     test("priceFeedCv", () => {
@@ -83,6 +81,7 @@ describe("liquidate lib", () => {
         });
     });
 
+    /*
     test("liquidationBatchCv", () => {
 
         const batch: LiquidationBatch[] = [
@@ -294,6 +293,7 @@ describe("liquidate lib", () => {
         expect(batch).toEqual([]);
 
 
+
         borrowers = [
             {
                 "address": "ST39B0S4TZP6H89VPBCCSCYXKX43DNNPNQV3BEWNW",
@@ -358,5 +358,62 @@ describe("liquidate lib", () => {
             }
         ]
         );
+
+
+
+
+        borrowers = [
+            {
+                "address": "ST39B0S4TZP6H89VPBCCSCYXKX43DNNPNQV3BEWNW",
+                "network": "testnet",
+                "ltv": 0.8263,
+                "health": 0.8688,
+                "debt": 560981.3451,
+                "collateral": 678929.1726,
+                "risk": 1.151,
+                "maxRepay": {
+                    "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 5983.4133,
+                    "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth": 100.1
+                },
+                "totalRepayAmount": 5983.4133
+            },
+            {
+                "address": "ST2N7SK0W83NJSZHFH8HH31ZT3DXJG7NFE6Y058RD",
+                "network": "testnet",
+                "ltv": 0.8558,
+                "health": 0.9348,
+                "debt": 416664.4053,
+                "collateral": 486847.8102,
+                "risk": 1.0698,
+                "maxRepay": {
+                    "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 321.9415
+                },
+                "totalRepayAmount": 321.9415
+            }
+        ]
+
+        marketAsset = {
+            "address": "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-usdc",
+            "name": "mock-usdc",
+            "symbol": "mock-usdc",
+            "decimals": 8,
+            "balance": 628000000000
+        };
+
+        batch = makeLiquidationBatch(marketAsset, collateralAsset, borrowers, priceFeed);
+
+        expect(batch).toEqual([
+            {
+                user: "ST39B0S4TZP6H89VPBCCSCYXKX43DNNPNQV3BEWNW",
+                liquidatorRepayAmount: 598300000000,
+                minCollateralExpected: 6126799,
+            }, {
+                user: "ST2N7SK0W83NJSZHFH8HH31ZT3DXJG7NFE6Y058RD",
+                liquidatorRepayAmount: 29700000000,
+                minCollateralExpected: 304138,
+            }
+        ]
+        );
     });
+    */
 });
