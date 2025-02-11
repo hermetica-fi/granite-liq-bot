@@ -57,8 +57,7 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
     const batch = makeLiquidationBatch(marketAsset, collateralAsset, borrowers, priceFeed);
 
     if (batch.length === 0) {
-        // Nothing to liquidate
-        logger.info("Nothing to liquidate");
+        // logger.info("Nothing to liquidate");
         return;
     }
 
