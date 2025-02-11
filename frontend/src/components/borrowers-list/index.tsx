@@ -81,7 +81,9 @@ const BorrowersList = ({ network }: { network: NetworkName }) => {
                   {"%"}
                 </TableCell>
                 <TableCell align="right">
-                  {row.maxRepayAmount.toFixed(2)}
+                  {Object.keys(row.maxRepay).map(c => {
+                    return <>{c.split(".")[1]}: {row.maxRepay[c].toFixed(2)}<br /></>
+                  })}
                 </TableCell>
               </TableRow>
             ))}

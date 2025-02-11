@@ -131,7 +131,7 @@ export const routes = {
             filters: {
                 network: network
             },
-            orderBy: 'max_repay_amount DESC, risk DESC'
+            orderBy: 'total_repay_amount DESC, risk DESC'
         });
         dbClient.release();
         return Response.json(borrowers);
