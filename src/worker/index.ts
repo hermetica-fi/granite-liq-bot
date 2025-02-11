@@ -4,6 +4,7 @@ import { main as contractSync } from "./contract-sync";
 import { main as eventSync } from "./event-sync";
 import { main as healthSync } from "./health-sync";
 import { main as marketSync } from "./market-sync";
+import { main as liquidate } from "./liquidate";
 
 const BASE_DELAY = 5_000;
 
@@ -15,9 +16,10 @@ export const main = async () => {
         await marketSync();
         await healthSync();
         await contractSync();
+        await liquidate();
         const end = Date.now();
         const delay = BASE_DELAY - (end - start);
-        if(delay > 0){
+        if (delay > 0) {
             await sleep(delay)
         }
     }

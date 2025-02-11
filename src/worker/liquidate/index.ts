@@ -133,7 +133,6 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
         contractCall.setFee(Math.min(fee, MAINNET_MAX_FEE));
     }
 
-
     const tx = await broadcastTransaction({ transaction: contractCall, network: contract.network, client: { fetch: fetchFn } });
 
     if ("reason" in tx) {
