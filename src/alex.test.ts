@@ -57,7 +57,7 @@ describe("alex", () => {
             }
         ]);
 
-        expect(result?.out).toEqual(100797686065);
+        expect(result?.out).toEqual(1007.97686065);
     });
 
 
@@ -114,7 +114,7 @@ describe("alex", () => {
             }
         ]);
 
-        expect(result?.out).toEqual(488275974432);
+        expect(result?.out).toEqual(4882.75974432);
     });
 
 

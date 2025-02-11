@@ -1,5 +1,5 @@
 import { broadcastTransaction, bufferCV, contractPrincipalCV, fetchFeeEstimateTransaction, makeContractCall, noneCV, PostConditionMode, serializePayload, someCV, uintCV } from "@stacks/transactions";
-import { fetchFn, getAccountNonces, TESTNET_FEE } from "granite-liq-bot-common";
+import { fetchFn, formatUnits, getAccountNonces, TESTNET_FEE } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
 import { pool } from "../../db";
@@ -9,6 +9,7 @@ import { createLogger } from "../../logger";
 import { epoch } from "../../util";
 import { liquidationBatchCv, makeLiquidationBatch, priceFeedCv } from "./lib";
 import { MAINNET_MAX_FEE } from "../../constants";
+import { getBestSwap } from "../../alex";
 
 const logger = createLogger("liquidate");
 
@@ -63,6 +64,21 @@ const worker = async (dbClient: PoolClient) => {
 
     const batchCV = liquidationBatchCv(batch);
     const testnetPriceDataCV = contract.network === 'testnet' ? priceFeedCv(priceFeed) : noneCV();
+    let swapDataCv = noneCV();
+
+    if (contract.network === 'mainnet') {
+        // Profitability check
+        const totalSpendBn = batch.reduce((acc, b) => acc + b.liquidatorRepayAmount, 0);
+        const totalSpend = formatUnits(totalSpendBn, marketAsset.decimals);
+        const totalReceiveBn = batch.reduce((acc, b) => acc + b.minCollateralExpected, 0);
+        const totalReceive = formatUnits(totalReceiveBn, collateralAsset.decimals);
+        const swapData = await getBestSwap(totalReceive);
+
+        if (swapData.out < totalSpend) {
+            logger.error(`Not profitable to liquidate. total spend: ${totalSpend}, total receive: ${totalReceive}`);
+            return;
+        }
+    }
 
     const functionArgs = [
         someCV(bufferCV(priceAttestationBuff)),
@@ -70,7 +86,7 @@ const worker = async (dbClient: PoolClient) => {
         contractPrincipalCV(collateralAsset.address.split(".")[0], collateralAsset.address.split(".")[1]),
         batchCV,
         uintCV(epoch() + (60 * 4)),
-        noneCV(),
+        swapDataCv,
         testnetPriceDataCV
     ];
 
@@ -91,7 +107,7 @@ const worker = async (dbClient: PoolClient) => {
         postConditionMode: PostConditionMode.Allow,
         nonce
     }
-    
+
     let contractCall;
 
     try {

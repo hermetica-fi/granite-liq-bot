@@ -86,9 +86,6 @@ export const makeLiquidationBatch = (marketAssetInfo: AssetInfo, collateralAsset
         console.log("minCollateralExpected    ", minCollateralExpected);
         console.log("minCollateralExpectedBn  ", minCollateralExpectedBn)
         */
-
-
-
     }
 
     return batch;

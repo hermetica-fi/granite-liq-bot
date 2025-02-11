@@ -1,5 +1,5 @@
 import { contractPrincipalCV, cvToJSON, deserializeCV, serializeCV, uintCV, type ClarityValue } from "@stacks/transactions";
-import { parseUnits } from "granite-liq-bot-common";
+import { formatUnits, parseUnits } from "granite-liq-bot-common";
 import { batchContractRead, type ReadCall } from "./client/stxer";
 
 const factor05 = uintCV(5000000);
@@ -78,7 +78,7 @@ export const getBestSwap = async (sBtcAmount: number): Promise<SwapResult> => {
                 return { option: options[i], out: 0 };
             }
 
-            return { option: options[i], out: Number(cvToJSON(cv).value.value) };
+            return { option: options[i], out: formatUnits(cvToJSON(cv).value.value, 8) };
         }
 
         return { option: options[i], out: 0 };
