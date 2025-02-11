@@ -6,7 +6,7 @@ import { main as healthSync } from "./health-sync";
 import { main as marketSync } from "./market-sync";
 import { main as liquidate } from "./liquidate";
 
-const BASE_DELAY = 5_000;
+const BASE_DELAY = 10_000;
 
 export const main = async () => {
     while (true) {
