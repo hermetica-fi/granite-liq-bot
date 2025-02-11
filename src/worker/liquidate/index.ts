@@ -22,13 +22,13 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
         orderBy: 'market_asset_balance DESC'
     }))[0];
 
-    if (contract.lockTx) {
-        logger.info("Contract is locked, skipping");
+    if (!contract) {
+        logger.info(`No ${network} contract found`);
         return;
     }
 
-    if (!contract) {
-        logger.info(`No ${network} contract found`);
+    if (contract.lockTx) {
+        logger.info("Contract is locked, skipping");
         return;
     }
 
