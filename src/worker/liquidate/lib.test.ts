@@ -266,101 +266,135 @@ describe("swapOutCv", () => {
         })
     });
 
-    /*
-test("option 2", () => {
-    const cv = swapOutCv({ option: options[2], out: 100 });
-
-    expect(cvToJSON(cv)).toEqual({
-        "type": "(optional (tuple (token-x principal) (token-y principal) (token-z principal) (token-w principal) (token-v principal) (factor-x uint) (factor-y uint) (factor-z uint) (factor-w uint)))",
-        "value": {
-            "type": "(tuple (token-x principal) (token-y principal) (token-z principal) (token-w principal) (token-v principal) (factor-x uint) (factor-y uint) (factor-z uint) (factor-w uint))",
+    test("option 2", () => {
+        const cv = swapOutCv({ option: options[2], out: 100 });
+        expect(cvToJSON(cv)).toEqual({
+            "type": "(optional (tuple (token-x principal) (token-y principal) (token-z (optional principal)) (token-w (optional principal)) (token-v (optional principal)) (factor-x uint) (factor-y uint) (factor-z (optional uint)) (factor-w (optional uint)) (factor-v (optional none))))",
             "value": {
-                "token-x": {
-                    "type": "principal",
-                    "value": "SP1E0XBN9T4B10E9QMR7XMFJPMA19D77WY3KP2QKC.token-wsbtc"
-                },
-                "token-y": {
-                    "type": "principal",
-                    "value": "SP2XD7417HGPRTREMKF748VNEQPDRR0RMANB7X1NK.token-abtc"
-                },
-                "token-z": {
-                    "type": "principal",
-                    "value": "SP2XD7417HGPRTREMKF748VNEQPDRR0RMANB7X1NK.token-susdt"
-                },
-                "token-w": {
-                    "type": "principal",
-                    "value": "SP102V8P0F7JX67ARQ77WEA3D3CFB5XW39REDT0AM.token-wstx-v2"
-                },
-                "token-v": {
-                    "type": "principal",
-                    "value": "SP102V8P0F7JX67ARQ77WEA3D3CFB5XW39REDT0AM.token-waeusdc"
-                },
-                "factor-x": {
-                    "type": "uint",
-                    "value": "5000000"
-                },
-                "factor-y": {
-                    "type": "uint",
-                    "value": "100000000"
-                },
-                "factor-z": {
-                    "type": "uint",
-                    "value": "100000000"
-                },
-                "factor-w": {
-                    "type": "uint",
-                    "value": "100000000"
+                "type": "(tuple (token-x principal) (token-y principal) (token-z (optional principal)) (token-w (optional principal)) (token-v (optional principal)) (factor-x uint) (factor-y uint) (factor-z (optional uint)) (factor-w (optional uint)) (factor-v (optional none)))",
+                "value": {
+                    "token-x": {
+                        "type": "principal",
+                        "value": "SP1E0XBN9T4B10E9QMR7XMFJPMA19D77WY3KP2QKC.token-wsbtc"
+                    },
+                    "token-y": {
+                        "type": "principal",
+                        "value": "SP2XD7417HGPRTREMKF748VNEQPDRR0RMANB7X1NK.token-abtc"
+                    },
+                    "token-z": {
+                        "type": "(optional principal)",
+                        "value": {
+                            "type": "principal",
+                            "value": "SP2XD7417HGPRTREMKF748VNEQPDRR0RMANB7X1NK.token-susdt"
+                        }
+                    },
+                    "token-w": {
+                        "type": "(optional principal)",
+                        "value": {
+                            "type": "principal",
+                            "value": "SP102V8P0F7JX67ARQ77WEA3D3CFB5XW39REDT0AM.token-wstx-v2"
+                        }
+                    },
+                    "token-v": {
+                        "type": "(optional principal)",
+                        "value": {
+                            "type": "principal",
+                            "value": "SP102V8P0F7JX67ARQ77WEA3D3CFB5XW39REDT0AM.token-waeusdc"
+                        }
+                    },
+                    "factor-x": {
+                        "type": "uint",
+                        "value": "5000000"
+                    },
+                    "factor-y": {
+                        "type": "uint",
+                        "value": "100000000"
+                    },
+                    "factor-z": {
+                        "type": "(optional uint)",
+                        "value": {
+                            "type": "uint",
+                            "value": "100000000"
+                        }
+                    },
+                    "factor-w": {
+                        "type": "(optional uint)",
+                        "value": {
+                            "type": "uint",
+                            "value": "100000000"
+                        }
+                    },
+                    "factor-v": {
+                        "type": "(optional none)",
+                        "value": null
+                    }
                 }
             }
-        }
-    });
-});
+        });
+    })
 
 
-test("option 3", () => {
-    const cv = swapOutCv({ option: options[3], out: 100 });
-
-    expect(cvToJSON(cv)).toEqual({
-        "type": "(optional (tuple (token-x principal) (token-y principal) (token-z principal) (token-w principal) (factor-x uint) (factor-y uint) (factor-z uint)))",
-        "value": {
-            "type": "(tuple (token-x principal) (token-y principal) (token-z principal) (token-w principal) (factor-x uint) (factor-y uint) (factor-z uint))",
+    test("option 3", () => {
+        const cv = swapOutCv({ option: options[3], out: 100 });
+        expect(cvToJSON(cv)).toEqual({
+            "type": "(optional (tuple (token-x principal) (token-y principal) (token-z (optional principal)) (token-w (optional principal)) (token-v (optional none)) (factor-x uint) (factor-y uint) (factor-z (optional uint)) (factor-w (optional none)) (factor-v (optional none))))",
             "value": {
-                "token-x": {
-                    "type": "principal",
-                    "value": "SP1E0XBN9T4B10E9QMR7XMFJPMA19D77WY3KP2QKC.token-wsbtc"
-                },
-                "token-y": {
-                    "type": "principal",
-                    "value": "SP2XD7417HGPRTREMKF748VNEQPDRR0RMANB7X1NK.token-abtc"
-                },
-                "token-z": {
-                    "type": "principal",
-                    "value": "SP102V8P0F7JX67ARQ77WEA3D3CFB5XW39REDT0AM.token-wstx-v2"
-                },
-                "token-w": {
-                    "type": "principal",
-                    "value": "SP102V8P0F7JX67ARQ77WEA3D3CFB5XW39REDT0AM.token-waeusdc"
-                },
-                "factor-x": {
-                    "type": "uint",
-                    "value": "5000000"
-                },
-                "factor-y": {
-                    "type": "uint",
-                    "value": "100000000"
-                },
-                "factor-z": {
-                    "type": "uint",
-                    "value": "100000000"
+                "type": "(tuple (token-x principal) (token-y principal) (token-z (optional principal)) (token-w (optional principal)) (token-v (optional none)) (factor-x uint) (factor-y uint) (factor-z (optional uint)) (factor-w (optional none)) (factor-v (optional none)))",
+                "value": {
+                    "token-x": {
+                        "type": "principal",
+                        "value": "SP1E0XBN9T4B10E9QMR7XMFJPMA19D77WY3KP2QKC.token-wsbtc"
+                    },
+                    "token-y": {
+                        "type": "principal",
+                        "value": "SP2XD7417HGPRTREMKF748VNEQPDRR0RMANB7X1NK.token-abtc"
+                    },
+                    "token-z": {
+                        "type": "(optional principal)",
+                        "value": {
+                            "type": "principal",
+                            "value": "SP102V8P0F7JX67ARQ77WEA3D3CFB5XW39REDT0AM.token-wstx-v2"
+                        }
+                    },
+                    "token-w": {
+                        "type": "(optional principal)",
+                        "value": {
+                            "type": "principal",
+                            "value": "SP102V8P0F7JX67ARQ77WEA3D3CFB5XW39REDT0AM.token-waeusdc"
+                        }
+                    },
+                    "token-v": {
+                        "type": "(optional none)",
+                        "value": null
+                    },
+                    "factor-x": {
+                        "type": "uint",
+                        "value": "5000000"
+                    },
+                    "factor-y": {
+                        "type": "uint",
+                        "value": "100000000"
+                    },
+                    "factor-z": {
+                        "type": "(optional uint)",
+                        "value": {
+                            "type": "uint",
+                            "value": "100000000"
+                        }
+                    },
+                    "factor-w": {
+                        "type": "(optional none)",
+                        "value": null
+                    },
+                    "factor-v": {
+                        "type": "(optional none)",
+                        "value": null
+                    }
                 }
             }
-        }
+        });
     });
 });
-*/
-
-})
-
 
 
 describe("makeLiquidationBatch", () => {
