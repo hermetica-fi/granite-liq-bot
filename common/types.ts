@@ -15,7 +15,8 @@ export type ContractEntity = {
     network: NetworkName,
     operatorAddress: string,
     marketAsset: AssetInfo | null,
-    collateralAsset: AssetInfo | null
+    collateralAsset: AssetInfo | null,
+    lockTx?: string
 }
 
 export type BorrowerStatus = {

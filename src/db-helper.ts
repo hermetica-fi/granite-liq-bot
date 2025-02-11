@@ -8,7 +8,7 @@ export const getContractList = async (dbClient: PoolClient, args?: {
     const filters = args?.filters || {};
     const orderBy = args?.orderBy || 'created_at DESC';
 
-    let sql = 'SELECT id, address, name, network, operator_address, market_asset, market_asset_balance, collateral_asset, collateral_asset_balance FROM contract';
+    let sql = 'SELECT id, address, name, network, operator_address, market_asset, market_asset_balance, collateral_asset, collateral_asset_balance, lock_tx FROM contract';
     if (Object.keys(filters).length > 0) {
         sql += ' WHERE ' + Object.keys(filters).map((key, index) => `${key} = $${index + 1}`).join(' AND ');
     }
@@ -28,6 +28,7 @@ export const getContractList = async (dbClient: PoolClient, args?: {
                 ...row.collateral_asset,
                 balance: Number(row.collateral_asset_balance)
             } : null,
+            lockTx: row.lock_tx
         })));
 }
 
