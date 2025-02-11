@@ -1,7 +1,8 @@
 import { cvToJSON } from "@stacks/transactions";
 import { describe, expect, test } from "bun:test";
 import type { PriceFeedResponse } from "../../client/pyth";
-import { priceFeedCv } from "./lib";
+import type { LiquidationBatch } from "../../types";
+import { liquidationBatchCv, priceFeedCv } from "./lib";
 
 describe("liquidate lib", () => {
     test("priceFeedCv", () => {
@@ -81,9 +82,7 @@ describe("liquidate lib", () => {
         });
     });
 
-    /*
     test("liquidationBatchCv", () => {
-
         const batch: LiquidationBatch[] = [
             {
                 user: "ST39B0S4TZP6H89VPBCCSCYXKX43DNNPNQV3BEWNW",
@@ -144,7 +143,7 @@ describe("liquidate lib", () => {
         });
     });
 
-
+    /*
     test("makeLiquidationBatch", () => {
 
         let marketAsset: AssetInfo = {
