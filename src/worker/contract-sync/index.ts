@@ -1,4 +1,4 @@
-import { getTransaction } from "granite-liq-bot-common";
+import { getTransaction, type ContractEntity } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
 import { getAssetBalance } from "../../client/read-only-call";
 import { pool } from "../../db";
@@ -8,26 +8,34 @@ import { epoch } from "../../util";
 
 const logger = createLogger("sync-contract");
 
+
+const handleContractLocks = async (dbClient: PoolClient, contract: ContractEntity) => {
+    // schedule contract unlock
+
+    if (contract.lockTx && contract.unlocksAt === null) {
+        const tx = await getTransaction(contract.lockTx, contract.network);
+        if (tx.tx_status !== "pending") {
+            const unlocksAt = epoch() + 60;
+            await dbClient.query("UPDATE contract SET unlocks_at = $1 WHERE id = $2", [unlocksAt, contract.id]);
+            logger.info(`transaction ${contract.lockTx} completed as ${tx.tx_status}. contract ${contract.id} will be unlocked in 60 seconds`);
+        }
+        return;
+    }
+
+    // unlock contract
+    if (contract.lockTx && contract.unlocksAt !== null && contract.unlocksAt < epoch()) {
+        await dbClient.query("UPDATE contract SET lock_tx = NULL, unlocks_at = NULL WHERE id = $1", [contract.id]);
+        logger.info(`contract ${contract.id} unlocked`);
+        return;
+    }
+}
+
 export const worker = async (dbClient: PoolClient) => {
     await dbClient.query("BEGIN");
     const contracts = await getContractList(dbClient);
     for (const contract of contracts) {
 
-        // unlock contract
-        if (contract.lockTx && contract.unlocksAt !== null && contract.unlocksAt < epoch()) {
-            await dbClient.query("UPDATE contract SET lock_tx = NULL, unlocks_at = NULL WHERE id = $1", [contract.id]);
-            logger.info(`contract ${contract.id} unlocked`);
-        }
-
-        // schedule contract unlock
-        if (contract.lockTx && contract.unlocksAt === null) {
-            const tx = await getTransaction(contract.lockTx, contract.network);
-            if (tx.tx_status !== "pending") {
-                const unlocksAt = epoch() + 60;
-                await dbClient.query("UPDATE contract SET unlocks_at = $1 WHERE id = $2", [unlocksAt, contract.id]);
-                logger.info(`transaction ${contract.lockTx} completed as ${tx.tx_status}. contract ${contract.id} will be unlocked in 60 seconds`);
-            }
-        }
+        await handleContractLocks(dbClient, contract);
 
         const balance1 = await getAssetBalance(contract.marketAsset!.address, contract.id, contract.network);
         await dbClient.query("UPDATE contract SET market_asset_balance = $1 WHERE id = $2", [balance1, contract.id]);
