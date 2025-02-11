@@ -38,12 +38,12 @@ services:
       - internal
     ports:
       - "${API_PORT:-8081}:${API_PORT:-8081}"
-  sync:
-    container_name: sync
+  worker:
+    container_name: worker
     build:
       context: .
       dockerfile: .Dockerfile
-    entrypoint: bun start:sync
+    entrypoint: bun start:worker
     restart: always
     depends_on:
       - postgres
