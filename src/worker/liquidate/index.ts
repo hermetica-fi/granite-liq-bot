@@ -1,5 +1,5 @@
 import { broadcastTransaction, bufferCV, contractPrincipalCV, fetchFeeEstimateTransaction, makeContractCall, noneCV, PostConditionMode, serializePayload, someCV, tupleCV, uintCV, type ClarityValue } from "@stacks/transactions";
-import { fetchFn, formatUnits, getAccountNonces, TESTNET_FEE } from "granite-liq-bot-common";
+import { fetchFn, formatUnits, getAccountNonces, TESTNET_FEE, type NetworkName } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
 import { pool } from "../../db";
@@ -14,10 +14,10 @@ import { getBestSwap } from "../../alex";
 const logger = createLogger("liquidate");
 
 
-const worker = async (dbClient: PoolClient) => {
+const worker = async (dbClient: PoolClient, network: NetworkName) => {
     const contract = (await getContractList(dbClient, {
         filters: {
-            network: 'testnet',
+            network,
         },
         orderBy: 'market_asset_balance DESC'
     }))[0];
@@ -28,7 +28,7 @@ const worker = async (dbClient: PoolClient) => {
     }
 
     if (!contract) {
-        logger.info("No testnet contract found");
+        logger.info(`No ${network} contract found`);
         return;
     }
 
@@ -46,7 +46,7 @@ const worker = async (dbClient: PoolClient) => {
 
     const borrowers = await getBorrowerStatusList(dbClient, {
         filters: {
-            network: 'testnet',
+            network,
         },
         orderBy: 'total_repay_amount DESC'
     });
@@ -154,8 +154,7 @@ const worker = async (dbClient: PoolClient) => {
 
 export const main = async () => {
     let dbClient = await pool.connect();
-    await worker(dbClient)
+    await worker(dbClient, 'testnet');
+    await worker(dbClient, 'mainnet');
     dbClient.release();
 }
-
-main()
