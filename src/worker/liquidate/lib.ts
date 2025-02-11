@@ -1,4 +1,4 @@
-import { bufferCV, Cl, intCV, listCV, principalCV, serializeCVBytes, someCV, tupleCV, uintCV, type ClarityValue } from "@stacks/transactions";
+import { bufferCV, Cl, intCV, listCV, noneCV, principalCV, serializeCVBytes, someCV, tupleCV, uintCV, type ClarityValue } from "@stacks/transactions";
 import { formatUnits, parseUnits, type AssetInfo, type BorrowerStatusEntity } from "granite-liq-bot-common";
 import type { PriceFeedResponse } from "../../client/pyth";
 import { toTicker } from "../../helper";
@@ -94,21 +94,30 @@ export const makeLiquidationBatch = (marketAssetInfo: AssetInfo, collateralAsset
 }
 
 export const swapOutCv = (swap: SwapResult) => {
-    const letters = ['x', 'y', 'z', 'w', 'v'];
+
 
     const swapData: Record<string, ClarityValue> = {};
 
-    for (let i = 0; i < swap.option.path.length; i++) {
+    const lettersP = ['x', 'y', 'z', 'w', 'v'];
+    for (let i = 0; i < lettersP.length; i++) {
+        const l = lettersP[i];
         if (swap.option.path[i]) {
-            swapData[`token-${letters[i]}`] = swap.option.path[i];
+            swapData[`token-${l}`] = i > 1 ? someCV(swap.option.path[i]) : swap.option.path[i];
+        } else {
+            swapData[`token-${l}`] = noneCV();
         }
     }
 
-    for (let i = 0; i < swap.option.path.length; i++) {
+    const lettersF = ['x', 'y', 'z', 'w', 'v'];
+    for (let i = 0; i < lettersF.length; i++) {
+        const l = lettersF[i];
         if (swap.option.factors[i]) {
-            swapData[`factor-${letters[i]}`] = swap.option.factors[i];
+            swapData[`factor-${l}`] = i > 1 ? someCV(swap.option.factors[i]) : swap.option.factors[i];
+        } else {
+            swapData[`factor-${l}`] = noneCV();
         }
     }
+
 
     return someCV(tupleCV(swapData));
 }
