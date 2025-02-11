@@ -336,6 +336,7 @@ describe("swapOutCv", () => {
 
     test("option 3", () => {
         const cv = swapOutCv({ option: options[3], out: 100 });
+        console.log(JSON.stringify(cvToJSON(cv), null, 2));
         expect(cvToJSON(cv)).toEqual({
             "type": "(optional (tuple (token-x principal) (token-y principal) (token-z (optional principal)) (token-w (optional principal)) (token-v (optional none)) (factor-x uint) (factor-y uint) (factor-z (optional uint)) (factor-w (optional none)) (factor-v (optional none))))",
             "value": {

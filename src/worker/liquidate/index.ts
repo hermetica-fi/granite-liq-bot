@@ -7,7 +7,7 @@ import { getBorrowerStatusList, getContractList } from "../../db-helper";
 import { hexToUint8Array } from "../../helper";
 import { createLogger } from "../../logger";
 import { epoch } from "../../util";
-import { liquidationBatchCv, makeLiquidationBatch, priceFeedCv } from "./lib";
+import { liquidationBatchCv, makeLiquidationBatch, priceFeedCv, swapOutCv } from "./lib";
 import { MAINNET_MAX_FEE } from "../../constants";
 import { getBestSwap } from "../../alex";
 
@@ -66,8 +66,6 @@ const worker = async (dbClient: PoolClient) => {
     const testnetPriceDataCV = contract.network === 'testnet' ? priceFeedCv(priceFeed) : noneCV();
     let swapDataCv: ClarityValue = noneCV();
 
-  
-
     if (contract.network === 'mainnet') {
         // Profitability check
         const totalSpendBn = batch.reduce((acc, b) => acc + b.liquidatorRepayAmount, 0);
@@ -81,19 +79,7 @@ const worker = async (dbClient: PoolClient) => {
             return;
         }
 
-        const list = ['x', 'y', 'z', 'w', 'v'];
-        
-        const swapData: Record<string, ClarityValue> = {};
-
-        for(let i = 0; i < bestSwap.option.path.length; i++){
-            swapData[`token-${list[i]}`] = bestSwap.option.path[i];
-        }
-
-        for(let i = 0; i < bestSwap.option.path.length; i++){
-            swapData[`factor-${list[i]}`] = bestSwap.option.factors[i];
-        }
-
-        swapDataCv = someCV(tupleCV(swapData));
+        swapDataCv = swapOutCv(bestSwap);
     }
 
     const functionArgs = [

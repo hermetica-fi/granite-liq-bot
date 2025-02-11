@@ -94,8 +94,6 @@ export const makeLiquidationBatch = (marketAssetInfo: AssetInfo, collateralAsset
 }
 
 export const swapOutCv = (swap: SwapResult) => {
-
-
     const swapData: Record<string, ClarityValue> = {};
 
     const lettersP = ['x', 'y', 'z', 'w', 'v'];
@@ -117,7 +115,6 @@ export const swapOutCv = (swap: SwapResult) => {
             swapData[`factor-${l}`] = noneCV();
         }
     }
-
 
     return someCV(tupleCV(swapData));
 }
