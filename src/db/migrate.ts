@@ -20,6 +20,7 @@ export const createDb = async (client: PoolClient) => {
         "collateral_asset JSON," +
         "collateral_asset_balance NUMERIC NOT NULL DEFAULT 0," +
         "lock_tx VARCHAR," +
+        "unlocks_at INTEGER," +
         "created_at TIMESTAMP NOT NULL DEFAULT NOW()" +
         ");";
 

@@ -28,7 +28,8 @@ export const getContractList = async (dbClient: PoolClient, args?: {
                 ...row.collateral_asset,
                 balance: Number(row.collateral_asset_balance)
             } : null,
-            lockTx: row.lock_tx
+            lockTx: row.lock_tx,
+            unlocksAt: row.unlocks_at ? Number(row.unlocks_at) : null
         })));
 }
 

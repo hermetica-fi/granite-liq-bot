@@ -17,6 +17,7 @@ export type ContractEntity = {
     marketAsset: AssetInfo | null,
     collateralAsset: AssetInfo | null,
     lockTx: string | null
+    unlocksAt: number | null,
 }
 
 export type BorrowerStatus = {
