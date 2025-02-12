@@ -24,6 +24,7 @@ import {
   formatUnits,
   MAINNET_AVG_FEE,
   MAINNET_MAX_FEE,
+  MAINNET_MIN_FEE,
   parseUnits,
   TESTNET_FEE,
   transactionLink,
@@ -154,7 +155,10 @@ const DepositDialog = () => {
       }
 
       if (feeEstimate) {
-        const fee = feeEstimate[1].fee;
+        let fee = feeEstimate[1].fee;
+        if (fee < MAINNET_MIN_FEE) {
+          fee = MAINNET_MIN_FEE;
+        }
         transaction.setFee(Math.min(fee, MAINNET_MAX_FEE));
       } else {
         transaction.setFee(MAINNET_AVG_FEE);
