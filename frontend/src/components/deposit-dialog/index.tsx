@@ -12,17 +12,21 @@ import {
   cvToJSON,
   deserializeTransaction,
   fetchCallReadOnlyFunction,
+  fetchFeeEstimateTransaction,
   makeUnsignedContractCall,
   Pc,
   principalCV,
+  serializePayload,
   uintCV,
 } from "@stacks/transactions";
 import {
   fetchFn,
   formatUnits,
+  MAINNET_AVG_FEE,
+  MAINNET_MAX_FEE,
   parseUnits,
   TESTNET_FEE,
-  transactionLink
+  transactionLink,
 } from "granite-liq-bot-common";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import useToast from "../../hooks/use-toast";
@@ -105,7 +109,7 @@ const DepositDialog = () => {
     if (!connection) {
       return;
     }
-    
+
     const address = connection.address;
     const publicKey = connection.publicKey;
     const amount = parseUnits(amountRaw, marketAsset.decimals);
@@ -123,18 +127,40 @@ const DepositDialog = () => {
       ],
       network: contract.network,
       publicKey,
-      fee: contract.network === "testnet" ? TESTNET_FEE : undefined,
+      fee: TESTNET_FEE,
       postConditions: [
         Pc.principal(address)
           .willSendGte(amount)
           .ft(
             contract.marketAsset!.address as ContractIdString,
-            contract.marketAsset!.name
+            contract.marketAsset!.symbol
           ),
       ],
     };
 
     const transaction = await makeUnsignedContractCall(txOptions);
+
+    if (contract.network === "mainnet") {
+      let feeEstimate;
+
+      try {
+        feeEstimate = await fetchFeeEstimateTransaction({
+          payload: serializePayload(transaction.payload),
+          network: contract.network,
+          client: { fetch: fetchFn },
+        });
+      } catch (error) {
+        console.log(error);
+      }
+
+      if (feeEstimate) {
+        const fee = feeEstimate[1].fee;
+        transaction.setFee(Math.min(fee, MAINNET_MAX_FEE));
+      } else {
+        transaction.setFee(MAINNET_AVG_FEE);
+      }
+    }
+
     const sign = await (window.LeatherProvider as LeatherProvider)!.request(
       "stx_signTransaction",
       {
@@ -182,7 +208,13 @@ const DepositDialog = () => {
               </Typography>
             </Box>
           ) : (
-            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
               <TextField
                 fullWidth
                 label={t("Enter amount to deposit")}
@@ -191,7 +223,11 @@ const DepositDialog = () => {
                 onChange={handleAmountChange}
               />
               {balance !== null && (
-                <Button variant="outlined" sx={{ ml: '10px' }} onClick={handleMax}>
+                <Button
+                  variant="outlined"
+                  sx={{ ml: "10px" }}
+                  onClick={handleMax}
+                >
                   {t("Max")}
                 </Button>
               )}

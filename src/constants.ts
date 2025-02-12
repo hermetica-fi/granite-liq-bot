@@ -28,6 +28,4 @@ export const PRICE_FEED_IDS: { ticker: Ticker, feed_id: string }[] = [
     { ticker: "usdc", feed_id: "0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a" },
 ]
 
-export const MAINNET_MAX_FEE = 7_000_00; // 0.7 STX
-
 export const LIQUIDATION_PREMIUM = 0.1;

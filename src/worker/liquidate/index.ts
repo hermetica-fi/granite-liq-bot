@@ -1,6 +1,7 @@
-import { broadcastTransaction, bufferCV, contractPrincipalCV, fetchFeeEstimateTransaction, makeContractCall, noneCV, PostConditionMode, serializePayload, someCV, tupleCV, uintCV, type ClarityValue } from "@stacks/transactions";
-import { fetchFn, formatUnits, getAccountNonces, TESTNET_FEE, type NetworkName } from "granite-liq-bot-common";
+import { broadcastTransaction, bufferCV, contractPrincipalCV, fetchFeeEstimateTransaction, makeContractCall, noneCV, PostConditionMode, serializePayload, someCV, uintCV, type ClarityValue } from "@stacks/transactions";
+import { fetchFn, formatUnits, getAccountNonces, MAINNET_AVG_FEE, MAINNET_MAX_FEE, TESTNET_FEE, type NetworkName } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
+import { getBestSwap } from "../../alex";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
 import { pool } from "../../db";
 import { getBorrowerStatusList, getContractList } from "../../db-helper";
@@ -8,8 +9,6 @@ import { hexToUint8Array } from "../../helper";
 import { createLogger } from "../../logger";
 import { epoch } from "../../util";
 import { liquidationBatchCv, makeLiquidationBatch, priceFeedCv, swapOutCv } from "./lib";
-import { MAINNET_MAX_FEE } from "../../constants";
-import { getBestSwap } from "../../alex";
 
 const logger = createLogger("liquidate");
 
@@ -128,8 +127,12 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
             return;
         }
 
-        const fee = feeEstimate[1].fee;
-        contractCall.setFee(Math.min(fee, MAINNET_MAX_FEE));
+        if (feeEstimate) {
+            const fee = feeEstimate[1].fee;
+            contractCall.setFee(Math.min(fee, MAINNET_MAX_FEE));
+        } else {
+            contractCall.setFee(MAINNET_AVG_FEE);
+        }
     }
 
     const tx = await broadcastTransaction({ transaction: contractCall, network: contract.network, client: { fetch: fetchFn } });
