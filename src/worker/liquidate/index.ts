@@ -1,5 +1,5 @@
 import { broadcastTransaction, bufferCV, contractPrincipalCV, fetchFeeEstimateTransaction, makeContractCall, noneCV, PostConditionMode, serializePayload, someCV, uintCV, type ClarityValue } from "@stacks/transactions";
-import { fetchFn, formatUnits, getAccountNonces, MAINNET_AVG_FEE, MAINNET_MAX_FEE, TESTNET_FEE, type NetworkName } from "granite-liq-bot-common";
+import { fetchFn, formatUnits, getAccountNonces, MAINNET_AVG_FEE, MAINNET_MAX_FEE, MAINNET_MIN_FEE, TESTNET_FEE, type NetworkName } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
 import { getBestSwap } from "../../alex";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
@@ -128,7 +128,10 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
         }
 
         if (feeEstimate) {
-            const fee = feeEstimate[1].fee;
+            let fee = feeEstimate[1].fee;
+            if (fee < MAINNET_MIN_FEE) {
+                fee = MAINNET_MIN_FEE;
+            }
             contractCall.setFee(Math.min(fee, MAINNET_MAX_FEE));
         } else {
             contractCall.setFee(MAINNET_AVG_FEE);
