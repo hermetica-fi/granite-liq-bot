@@ -1,4 +1,4 @@
-import { TablePagination } from "@mui/material";
+import { Box, TablePagination } from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -82,7 +82,7 @@ const BorrowersList = ({ network }: { network: NetworkName }) => {
                 </TableCell>
                 <TableCell align="right">
                   {Object.keys(row.maxRepay).map(c => {
-                    return <>{c.split(".")[1]}: {row.maxRepay[c].toFixed(2)}<br /></>
+                    return <Box component="span" key={c}>{c.split(".")[1]}: {row.maxRepay[c].toFixed(2)}<br /></Box>
                   })}
                 </TableCell>
               </TableRow>
