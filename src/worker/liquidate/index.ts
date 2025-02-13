@@ -1,5 +1,5 @@
 import { broadcastTransaction, bufferCV, contractPrincipalCV, makeContractCall, noneCV, PostConditionMode, someCV, uintCV, type ClarityValue } from "@stacks/transactions";
-import { fetchFn, formatUnits, getAccountNonces, setTxFee, type NetworkName } from "granite-liq-bot-common";
+import { estimateSignedCallTxFee, fetchFn, formatUnits, getAccountNonces, type NetworkName } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
 import { getBestSwap } from "../../alex";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
@@ -99,23 +99,28 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
         senderKey: priv,
         senderAddress: contract.operatorAddress,
         network: contract.network,
-        fee: "10", // Just a placeholder. real fee estimation is done below.
+        fee: 10, // Just a placeholder. real fee estimation is done below.
         validateWithAbi: true,
         postConditionMode: PostConditionMode.Allow,
         nonce
     }
 
-    let call;
-
+    let fee;
     try {
-        call = await makeContractCall(txOptions);
+        fee = await estimateSignedCallTxFee(txOptions, contract.network);
     } catch (e) {
-        logger.error(`Could not make contract call due to: ${e}`);
+        logger.error(`Could not estimate fee due to: ${e}`);
         return;
     }
 
-    await setTxFee(call, contract.network);
-    
+    let call;
+    try {
+        call = await makeContractCall({ ...txOptions, fee });
+    } catch (e) {
+        logger.error(`Could not make contract call2 due to: ${e}`);
+        return;
+    }
+
     const tx = await broadcastTransaction({ transaction: call, network: contract.network, client: { fetch: fetchFn } });
 
     if ("reason" in tx) {

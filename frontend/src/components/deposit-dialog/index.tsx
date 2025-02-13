@@ -18,10 +18,10 @@ import {
   uintCV
 } from "@stacks/transactions";
 import {
+  estimateUnsignedCallTxFee,
   fetchFn,
   formatUnits,
   parseUnits,
-  setTxFee,
   transactionLink
 } from "granite-liq-bot-common";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -123,7 +123,7 @@ const DepositDialog = () => {
       ],
       network: contract.network,
       publicKey,
-      fee: "10",
+      fee: 10, // Just a placeholder. real fee estimation is done below.
       postConditions: [
         Pc.principal(address)
           .willSendGte(amount)
@@ -134,10 +134,9 @@ const DepositDialog = () => {
       ],
     };
 
-    const call = await makeUnsignedContractCall(txOptions);
-
-    await setTxFee(call, contract.network);
-
+    const fee = await estimateUnsignedCallTxFee(txOptions, contract.network);
+    const call = await makeUnsignedContractCall({...txOptions, fee});
+    
     const sign = await (window.LeatherProvider as LeatherProvider)!.request(
       "stx_signTransaction",
       {
