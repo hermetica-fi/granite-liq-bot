@@ -86,7 +86,6 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
         batchCV,
         uintCV(epoch() + (60 * 4)),
         swapDataCv,
-        noneCV()
     ];
 
     const priv = await dbClient.query("SELECT operator_priv FROM contract WHERE id = $1", [contract.id]).then(r => r.rows[0].operator_priv);
