@@ -1,5 +1,5 @@
-import { broadcastTransaction, bufferCV, contractPrincipalCV, fetchFeeEstimateTransaction, makeContractCall, noneCV, PostConditionMode, serializePayload, someCV, uintCV, type ClarityValue } from "@stacks/transactions";
-import { fetchFn, formatUnits, getAccountNonces, MAINNET_AVG_FEE, MAINNET_MAX_FEE, MAINNET_MIN_FEE, TESTNET_FEE, type NetworkName } from "granite-liq-bot-common";
+import { broadcastTransaction, bufferCV, contractPrincipalCV, makeContractCall, noneCV, PostConditionMode, someCV, uintCV, type ClarityValue } from "@stacks/transactions";
+import { fetchFn, formatUnits, getAccountNonces, setTxFee, type NetworkName } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
 import { getBestSwap } from "../../alex";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
@@ -11,7 +11,6 @@ import { epoch } from "../../util";
 import { liquidationBatchCv, makeLiquidationBatch, swapOutCv } from "./lib";
 
 const logger = createLogger("liquidate");
-
 
 const worker = async (dbClient: PoolClient, network: NetworkName) => {
     const contract = (await getContractList(dbClient, {
@@ -100,43 +99,24 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
         senderKey: priv,
         senderAddress: contract.operatorAddress,
         network: contract.network,
-        fee: TESTNET_FEE,
+        fee: "10", // Just a placeholder. real fee estimation is done below.
         validateWithAbi: true,
         postConditionMode: PostConditionMode.Allow,
         nonce
     }
 
-    let contractCall;
+    let call;
 
     try {
-        contractCall = await makeContractCall(txOptions);
+        call = await makeContractCall(txOptions);
     } catch (e) {
         logger.error(`Could not make contract call due to: ${e}`);
         return;
     }
 
-    if (contract.network === 'mainnet') {
-        let feeEstimate;
-
-        try {
-            feeEstimate = await fetchFeeEstimateTransaction({ payload: serializePayload(contractCall.payload), network: contract.network, client: { fetch: fetchFn } });
-        } catch (e) {
-            logger.error(`Could not fetch fee estimate due to: ${e}`);
-            return;
-        }
-
-        if (feeEstimate) {
-            let fee = feeEstimate[1].fee;
-            if (fee < MAINNET_MIN_FEE) {
-                fee = MAINNET_MIN_FEE;
-            }
-            contractCall.setFee(Math.min(fee, MAINNET_MAX_FEE));
-        } else {
-            contractCall.setFee(MAINNET_AVG_FEE);
-        }
-    }
-
-    const tx = await broadcastTransaction({ transaction: contractCall, network: contract.network, client: { fetch: fetchFn } });
+    await setTxFee(call, contract.network);
+    
+    const tx = await broadcastTransaction({ transaction: call, network: contract.network, client: { fetch: fetchFn } });
 
     if ("reason" in tx) {
         if ("reason_data" in tx) {

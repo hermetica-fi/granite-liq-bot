@@ -12,22 +12,17 @@ import {
   cvToJSON,
   deserializeTransaction,
   fetchCallReadOnlyFunction,
-  fetchFeeEstimateTransaction,
   makeUnsignedContractCall,
   Pc,
   principalCV,
-  serializePayload,
-  uintCV,
+  uintCV
 } from "@stacks/transactions";
 import {
   fetchFn,
   formatUnits,
-  MAINNET_AVG_FEE,
-  MAINNET_MAX_FEE,
-  MAINNET_MIN_FEE,
   parseUnits,
-  TESTNET_FEE,
-  transactionLink,
+  setTxFee,
+  transactionLink
 } from "granite-liq-bot-common";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import useToast from "../../hooks/use-toast";
@@ -128,7 +123,7 @@ const DepositDialog = () => {
       ],
       network: contract.network,
       publicKey,
-      fee: TESTNET_FEE,
+      fee: "10",
       postConditions: [
         Pc.principal(address)
           .willSendGte(amount)
@@ -139,36 +134,14 @@ const DepositDialog = () => {
       ],
     };
 
-    const transaction = await makeUnsignedContractCall(txOptions);
+    const call = await makeUnsignedContractCall(txOptions);
 
-    if (contract.network === "mainnet") {
-      let feeEstimate;
-
-      try {
-        feeEstimate = await fetchFeeEstimateTransaction({
-          payload: serializePayload(transaction.payload),
-          network: contract.network,
-          client: { fetch: fetchFn },
-        });
-      } catch (error) {
-        console.log(error);
-      }
-
-      if (feeEstimate) {
-        let fee = feeEstimate[1].fee;
-        if (fee < MAINNET_MIN_FEE) {
-          fee = MAINNET_MIN_FEE;
-        }
-        transaction.setFee(Math.min(fee, MAINNET_MAX_FEE));
-      } else {
-        transaction.setFee(MAINNET_AVG_FEE);
-      }
-    }
+    await setTxFee(call, contract.network);
 
     const sign = await (window.LeatherProvider as LeatherProvider)!.request(
       "stx_signTransaction",
       {
-        txHex: transaction.serialize(),
+        txHex: call.serialize(),
         network: contract.network,
       }
     );
