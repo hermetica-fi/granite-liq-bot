@@ -1,30 +1,10 @@
-import { bufferCV, Cl, intCV, listCV, noneCV, principalCV, serializeCVBytes, someCV, tupleCV, uintCV, type ClarityValue } from "@stacks/transactions";
+import { listCV, noneCV, principalCV, someCV, tupleCV, uintCV, type ClarityValue } from "@stacks/transactions";
 import { formatUnits, parseUnits, type AssetInfo, type BorrowerStatusEntity } from "granite-liq-bot-common";
+import type { SwapResult } from "../../alex";
 import type { PriceFeedResponse } from "../../client/pyth";
 import { toTicker } from "../../helper";
 import type { LiquidationBatch } from "../../types";
-import type { SwapResult } from "../../alex";
 
-
-export const priceFeedCv = (priceFeed: PriceFeedResponse) => {
-    const keys = Object.keys(priceFeed.items);
-    const listItems = keys.map(key => {
-        const item = priceFeed.items[key];
-
-        return tupleCV({
-            "price-identifier": Cl.bufferFromHex(item.id),
-            "price": intCV(item.price.price),
-            "conf": uintCV(item.price.conf),
-            "expo": intCV(item.price.expo),
-            "ema-price": intCV(item.ema_price.price),
-            "ema-conf": uintCV(item.ema_price.conf),
-            "publish-time": uintCV(item.price.publish_time),
-            "prev-publish-time": uintCV(item.metadata.prev_publish_time)
-        });
-    });
-
-    return someCV(bufferCV(serializeCVBytes(listCV(listItems))));
-}
 
 export const liquidationBatchCv = (batch: LiquidationBatch[]) => {
     const listItems = batch.map(b => someCV(

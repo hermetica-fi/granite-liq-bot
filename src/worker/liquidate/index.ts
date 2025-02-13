@@ -8,7 +8,7 @@ import { getBorrowerStatusList, getContractList } from "../../db-helper";
 import { hexToUint8Array } from "../../helper";
 import { createLogger } from "../../logger";
 import { epoch } from "../../util";
-import { liquidationBatchCv, makeLiquidationBatch, priceFeedCv, swapOutCv } from "./lib";
+import { liquidationBatchCv, makeLiquidationBatch, swapOutCv } from "./lib";
 
 const logger = createLogger("liquidate");
 
@@ -61,7 +61,6 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
     }
 
     const batchCV = liquidationBatchCv(batch);
-    const testnetPriceDataCV = contract.network === 'testnet' ? priceFeedCv(priceFeed) : noneCV();
     let swapDataCv: ClarityValue = noneCV();
 
     if (contract.network === 'mainnet') {
@@ -87,7 +86,7 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
         batchCV,
         uintCV(epoch() + (60 * 4)),
         swapDataCv,
-        testnetPriceDataCV
+        noneCV()
     ];
 
     const priv = await dbClient.query("SELECT operator_priv FROM contract WHERE id = $1", [contract.id]).then(r => r.rows[0].operator_priv);
