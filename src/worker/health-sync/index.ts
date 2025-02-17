@@ -11,12 +11,12 @@ export const worker = async (dbClient: PoolClient) => {
   await clearBorrowerStatuses(dbClient);
   const borrowers = await getBorrowersForHealthCheck(dbClient);
   for (const borrower of borrowers) {
-    const network = borrower.network as NetworkName
-    const marketState = await getMarketState(dbClient, borrower.network as NetworkName);
-
     if (borrower.debtShares === 0) {
       continue;
     }
+
+    const network = borrower.network as NetworkName;
+    const marketState = await getMarketState(dbClient, borrower.network as NetworkName);
 
     const collateralsDeposited: Record<string, number> = {}
     for (const collateral of borrower.collaterals) {
