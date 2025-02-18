@@ -29,7 +29,8 @@ export const createDb = async (client: PoolClient) => {
     CREATE += "CREATE TABLE IF NOT EXISTS public.borrower(" +
         "address VARCHAR PRIMARY KEY NOT NULL," +
         "network VARCHAR NOT NULL," +
-        "sync_flag INTEGER NOT NULL DEFAULT 1" +
+        "sync_flag INTEGER NOT NULL DEFAULT 1," +
+        "sync_ts INTEGER NOT NULL DEFAULT 0" +
         ");";
 
 

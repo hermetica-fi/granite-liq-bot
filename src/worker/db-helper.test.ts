@@ -1,4 +1,4 @@
-import { describe, expect, mock, test } from "bun:test";
+import { describe, expect, mock, setSystemTime, test } from "bun:test";
 import { newDb } from "pg-mem";
 import { migrateDb } from "../db/migrate";
 import {
@@ -26,6 +26,7 @@ mock.module("../db/index", () => {
 await migrateDb();
 
 describe("sync db helper", () => {
+    setSystemTime(1738262052565);
     test("upsertBorrower (insert)", async () => {
         let resp = await upsertBorrower(client, 'mainnet', 'SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR');
         expect(resp).toEqual(1);
@@ -36,6 +37,7 @@ describe("sync db helper", () => {
                 address: "SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR",
                 network: "mainnet",
                 sync_flag: 1,
+                sync_ts: 1738262072
             }
         ]);
     });
@@ -55,6 +57,7 @@ describe("sync db helper", () => {
                 address: "SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR",
                 network: "mainnet",
                 sync_flag: 1,
+                sync_ts: 1738262072
             }
         ])
     });
@@ -70,9 +73,11 @@ describe("sync db helper", () => {
             {
                 address: "SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR",
                 network: "mainnet",
+                syncTs: 1738262072,
             }, {
                 address: "ST39B0S4TZP6H89VPBCCSCYXKX43DNNPNQV3BEWNW",
                 network: "testnet",
+                syncTs: 1738262072,
             }
         ]);
     });
@@ -84,6 +89,7 @@ describe("sync db helper", () => {
             {
                 address: "ST39B0S4TZP6H89VPBCCSCYXKX43DNNPNQV3BEWNW",
                 network: "testnet",
+                syncTs: 1738262072,
             }
         ]);
     });

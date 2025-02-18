@@ -9,31 +9,40 @@ import type {
     CollateralParams, DebtParams, InterestRateParams, LpParams,
     MarketState
 } from "../types";
+import { epoch } from "../util";
 
 
 export const upsertBorrower = async (dbClient: PoolClient, network: NetworkName, address: string): Promise< 0 | 1 | 2> => {
     const rec = await dbClient.query("SELECT sync_flag FROM borrower WHERE address = $1", [address]).then((r) => r.rows[0]);
+    // wait some time before syncing to make sure blockchain data settled
+    const syncTs = epoch() + 20;
     if (!rec) {
-        await dbClient.query("INSERT INTO borrower (address, network) VALUES ($1, $2)", [
+        await dbClient.query("INSERT INTO borrower (address, network, sync_flag, sync_ts) VALUES ($1, $2, $3, $4)", [
             address,
             network,
+            1,
+            syncTs
         ]);
         return 1;
     } else {
         if (rec.sync_flag === 0) {
-            await dbClient.query("UPDATE borrower SET sync_flag = 1 WHERE address = $1", [address]);
+            await dbClient.query("UPDATE borrower SET sync_flag = 1, sync_ts=$1 WHERE address = $2", [syncTs, address]);
             return 2;
         }
     }
     return 0;
 }
 
-export const getBorrowersToSync = async (dbClient: PoolClient): Promise<Pick<BorrowerEntity, 'address' | 'network'>[]> => {
-    return dbClient.query("SELECT address, network FROM borrower WHERE sync_flag = 1").then(r => r.rows);
+export const getBorrowersToSync = async (dbClient: PoolClient): Promise<BorrowerEntity[]> => {
+    return dbClient.query("SELECT address, network, sync_ts FROM borrower WHERE sync_flag = 1").then(r => r.rows.map(x => ({
+        address: x.address,
+        network: x.network,
+        syncTs: x.sync_ts
+    })));
 }
 
 export const switchBorrowerSyncFlagOff = async (dbClient: PoolClient, address: string): Promise<any> => {
-    return dbClient.query("UPDATE borrower SET sync_flag = 0 WHERE address = $1", [address]);
+    return dbClient.query("UPDATE borrower SET sync_flag = 0, sync_ts = 0 WHERE address = $1", [address]);
 }
 
 export const syncBorrowerPosition = async (dbClient: PoolClient, userPosition: BorrowerPositionEntity): Promise<any> => {
