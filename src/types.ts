@@ -38,7 +38,7 @@ export type MarketState = {
 export type BorrowerEntity = {
     address: string,
     network: NetworkName,
-    checkFlag: 0 | 1
+    syncTs: number
 }
 
 export type BorrowerPositionEntity = {

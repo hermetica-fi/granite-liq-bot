@@ -2,6 +2,7 @@ import type { PoolClient } from "pg";
 import { getUserCollateralAmount, getUserPosition } from "../../client/read-only-call";
 import { pool } from "../../db";
 import { createLogger } from "../../logger";
+import { epoch } from "../../util";
 import { getBorrowersToSync, switchBorrowerSyncFlagOff, syncBorrowerCollaterals, syncBorrowerPosition } from "../db-helper";
 
 export const logger = createLogger("borrower-sync");
@@ -11,6 +12,11 @@ const worker = async (dbClient: PoolClient) => {
 
   const borrowers = await getBorrowersToSync(dbClient);
   for (const borrower of borrowers) {
+
+    if (epoch() < borrower.syncTs) {
+      // logger.info(`Borrower ${borrower.address} is not ready to sync yet`);
+      continue;
+    }
 
     //  Turn off check flag
     await switchBorrowerSyncFlagOff(dbClient, borrower.address);
