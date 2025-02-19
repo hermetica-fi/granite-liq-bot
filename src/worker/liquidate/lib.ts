@@ -93,7 +93,7 @@ export const swapOutCv = (swap: SwapResult) => {
         }
     }
 
-    const lettersF = ['x', 'y', 'z', 'w', 'v'];
+    const lettersF = ['x', 'y', 'z', 'w'];
     for (let i = 0; i < lettersF.length; i++) {
         const l = lettersF[i];
         if (swap.option.factors[i]) {
