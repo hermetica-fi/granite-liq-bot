@@ -17,6 +17,12 @@ export const liquidationBatchCv = (batch: LiquidationBatch[]) => {
     return listCV(listItems)
 }
 
+// to fixed precision without rounding
+const toFixed = (value: number, precision: number) => {
+    const s = value.toString();
+    const [integer, decimal] = s.split('.');
+    return Number(`${integer}.${decimal.slice(0, precision)}`);
+}
 
 export const makeLiquidationBatch = (marketAssetInfo: AssetInfo, collateralAssetInfo: AssetInfo, borrowers: BorrowerStatusEntity[], priceFeed: PriceFeedResponse): LiquidationBatch[] => {
     const cTicker = toTicker(collateralAssetInfo.symbol);
@@ -44,30 +50,31 @@ export const makeLiquidationBatch = (marketAssetInfo: AssetInfo, collateralAsset
         }
 
         // Adjust down max repay amount to prevent transaction failure in case volatility 
-        // + removes decimals to protects from decimal precision issues (TODO: Not great solution, improve)
-        const repayAmountAdjusted = Number((repayAmount * 0.9999).toFixed(0))
+        // + removes decimals to protects from decimal precision issues (TODO: Not great solution, needs improvements)
+        const repayAmountAdjusted = toFixed(repayAmount * 0.9999, 2);
         const repayAmountAdjustedBn = parseUnits(repayAmountAdjusted, marketAssetInfo.decimals);
         const repayAmountFinalBn = Math.min(availableBn, repayAmountAdjustedBn);
+        const repayAmountFinal = formatUnits(repayAmountFinalBn, marketAssetInfo.decimals);
 
         availableBn = availableBn - repayAmountFinalBn;
 
-        const minCollateralExpected = Number((repayAmountFinalBn / collateralPriceBn).toFixed(collateralAssetInfo.decimals));
+        const minCollateralExpected = (repayAmountFinal / collateralPrice); 
         const minCollateralExpectedBn = Math.floor(parseUnits(minCollateralExpected, collateralAssetInfo.decimals));
+
+        // console.log("repayAmount", repayAmount);
+        // console.log("repayAmountAdjusted", repayAmountAdjusted);
+        // console.log("repayAmountFinalBn", repayAmountFinalBn);
+        // console.log("repayAmountFinal", repayAmountFinal);
+        // console.log("collateralPrice", collateralPrice);
+        // console.log("minCollateralExpected", minCollateralExpected);
+        // console.log("minCollateralExpectedBn", minCollateralExpectedBn);
+        // console.log("--------------------------------")
 
         batch.push({
             user: borrower.address,
             liquidatorRepayAmount: repayAmountFinalBn,
             minCollateralExpected: minCollateralExpectedBn
-        })
-
-        /*
-        console.log("maxRepayAmount           ", repayAmount);
-        console.log("maxRepayAmountAdjusted   ", repayAmountAdjusted);
-        console.log("maxRepayAmountAdjustedBn ", repayAmountAdjustedBn);
-        console.log("repayAmountFinalBn       ", repayAmountFinalBn);
-        console.log("minCollateralExpected    ", minCollateralExpected);
-        console.log("minCollateralExpectedBn  ", minCollateralExpectedBn)
-        */
+        });
     }
 
     return batch;
@@ -90,7 +97,7 @@ export const swapOutCv = (swap: SwapResult) => {
     for (let i = 0; i < lettersF.length; i++) {
         const l = lettersF[i];
         if (swap.option.factors[i]) {
-            swapData[`factor-${l}`] = i > 1 ? someCV(swap.option.factors[i]) : swap.option.factors[i];
+            swapData[`factor-${l}`] = i > 0 ? someCV(swap.option.factors[i]) : swap.option.factors[i];
         } else {
             swapData[`factor-${l}`] = noneCV();
         }

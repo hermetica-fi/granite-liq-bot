@@ -68,6 +68,7 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
         const totalSpend = formatUnits(totalSpendBn, marketAsset.decimals);
         const totalReceiveBn = batch.reduce((acc, b) => acc + b.minCollateralExpected, 0);
         const totalReceive = formatUnits(totalReceiveBn, collateralAsset.decimals);
+
         const bestSwap = await getBestSwap(totalReceive);
 
         if (bestSwap.out < totalSpend) {
