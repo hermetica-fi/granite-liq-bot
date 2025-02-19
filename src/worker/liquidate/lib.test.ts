@@ -73,9 +73,9 @@ describe("swapOutCv", () => {
         const cv = swapOutCv({ option: options[0], out: 100 });
 
         expect(cvToJSON(cv)).toEqual({
-            "type": "(optional (tuple (token-x principal) (token-y principal) (token-z (optional principal)) (token-w (optional none)) (token-v (optional none)) (factor-x uint) (factor-y uint) (factor-z (optional none)) (factor-w (optional none)) (factor-v (optional none))))",
+            "type": "(optional (tuple (token-x principal) (token-y principal) (token-z (optional principal)) (token-w (optional none)) (token-v (optional none)) (factor-x uint) (factor-y (optional uint)) (factor-z (optional none)) (factor-w (optional none))))",
             "value": {
-                "type": "(tuple (token-x principal) (token-y principal) (token-z (optional principal)) (token-w (optional none)) (token-v (optional none)) (factor-x uint) (factor-y uint) (factor-z (optional none)) (factor-w (optional none)) (factor-v (optional none)))",
+                "type": "(tuple (token-x principal) (token-y principal) (token-z (optional principal)) (token-w (optional none)) (token-v (optional none)) (factor-x uint) (factor-y (optional uint)) (factor-z (optional none)) (factor-w (optional none)))",
                 "value": {
                     "token-x": {
                         "type": "principal",
@@ -105,18 +105,17 @@ describe("swapOutCv", () => {
                         "value": "100000000"
                     },
                     "factor-y": {
-                        "type": "uint",
-                        "value": "100000000"
+                        "type": "(optional uint)",
+                        "value": {
+                            "type": "uint",
+                            "value": "100000000"
+                        }
                     },
                     "factor-z": {
                         "type": "(optional none)",
                         "value": null
                     },
                     "factor-w": {
-                        "type": "(optional none)",
-                        "value": null
-                    },
-                    "factor-v": {
                         "type": "(optional none)",
                         "value": null
                     }
@@ -131,9 +130,9 @@ describe("swapOutCv", () => {
         const cv = swapOutCv({ option: options[1], out: 100 });
 
         expect(cvToJSON(cv)).toEqual({
-            "type": "(optional (tuple (token-x principal) (token-y principal) (token-z (optional principal)) (token-w (optional principal)) (token-v (optional none)) (factor-x uint) (factor-y uint) (factor-z (optional uint)) (factor-w (optional none)) (factor-v (optional none))))",
+            "type": "(optional (tuple (token-x principal) (token-y principal) (token-z (optional principal)) (token-w (optional principal)) (token-v (optional none)) (factor-x uint) (factor-y (optional uint)) (factor-z (optional uint)) (factor-w (optional none))))",
             "value": {
-                "type": "(tuple (token-x principal) (token-y principal) (token-z (optional principal)) (token-w (optional principal)) (token-v (optional none)) (factor-x uint) (factor-y uint) (factor-z (optional uint)) (factor-w (optional none)) (factor-v (optional none)))",
+                "type": "(tuple (token-x principal) (token-y principal) (token-z (optional principal)) (token-w (optional principal)) (token-v (optional none)) (factor-x uint) (factor-y (optional uint)) (factor-z (optional uint)) (factor-w (optional none)))",
                 "value": {
                     "token-x": {
                         "type": "principal",
@@ -166,8 +165,11 @@ describe("swapOutCv", () => {
                         "value": "100000000"
                     },
                     "factor-y": {
-                        "type": "uint",
-                        "value": "100000000"
+                        "type": "(optional uint)",
+                        "value": {
+                            "type": "uint",
+                            "value": "100000000"
+                        }
                     },
                     "factor-z": {
                         "type": "(optional uint)",
@@ -179,10 +181,6 @@ describe("swapOutCv", () => {
                     "factor-w": {
                         "type": "(optional none)",
                         "value": null
-                    },
-                    "factor-v": {
-                        "type": "(optional none)",
-                        "value": null
                     }
                 }
             }
@@ -192,9 +190,9 @@ describe("swapOutCv", () => {
     test("option 2", () => {
         const cv = swapOutCv({ option: options[2], out: 100 });
         expect(cvToJSON(cv)).toEqual({
-            "type": "(optional (tuple (token-x principal) (token-y principal) (token-z (optional principal)) (token-w (optional principal)) (token-v (optional principal)) (factor-x uint) (factor-y uint) (factor-z (optional uint)) (factor-w (optional uint)) (factor-v (optional none))))",
+            "type": "(optional (tuple (token-x principal) (token-y principal) (token-z (optional principal)) (token-w (optional principal)) (token-v (optional principal)) (factor-x uint) (factor-y (optional uint)) (factor-z (optional uint)) (factor-w (optional uint))))",
             "value": {
-                "type": "(tuple (token-x principal) (token-y principal) (token-z (optional principal)) (token-w (optional principal)) (token-v (optional principal)) (factor-x uint) (factor-y uint) (factor-z (optional uint)) (factor-w (optional uint)) (factor-v (optional none)))",
+                "type": "(tuple (token-x principal) (token-y principal) (token-z (optional principal)) (token-w (optional principal)) (token-v (optional principal)) (factor-x uint) (factor-y (optional uint)) (factor-z (optional uint)) (factor-w (optional uint)))",
                 "value": {
                     "token-x": {
                         "type": "principal",
@@ -230,8 +228,11 @@ describe("swapOutCv", () => {
                         "value": "5000000"
                     },
                     "factor-y": {
-                        "type": "uint",
-                        "value": "100000000"
+                        "type": "(optional uint)",
+                        "value": {
+                            "type": "uint",
+                            "value": "100000000"
+                        }
                     },
                     "factor-z": {
                         "type": "(optional uint)",
@@ -246,10 +247,6 @@ describe("swapOutCv", () => {
                             "type": "uint",
                             "value": "100000000"
                         }
-                    },
-                    "factor-v": {
-                        "type": "(optional none)",
-                        "value": null
                     }
                 }
             }
@@ -260,9 +257,9 @@ describe("swapOutCv", () => {
     test("option 3", () => {
         const cv = swapOutCv({ option: options[3], out: 100 });
         expect(cvToJSON(cv)).toEqual({
-            "type": "(optional (tuple (token-x principal) (token-y principal) (token-z (optional principal)) (token-w (optional principal)) (token-v (optional none)) (factor-x uint) (factor-y uint) (factor-z (optional uint)) (factor-w (optional none)) (factor-v (optional none))))",
+            "type": "(optional (tuple (token-x principal) (token-y principal) (token-z (optional principal)) (token-w (optional principal)) (token-v (optional none)) (factor-x uint) (factor-y (optional uint)) (factor-z (optional uint)) (factor-w (optional none))))",
             "value": {
-                "type": "(tuple (token-x principal) (token-y principal) (token-z (optional principal)) (token-w (optional principal)) (token-v (optional none)) (factor-x uint) (factor-y uint) (factor-z (optional uint)) (factor-w (optional none)) (factor-v (optional none)))",
+                "type": "(tuple (token-x principal) (token-y principal) (token-z (optional principal)) (token-w (optional principal)) (token-v (optional none)) (factor-x uint) (factor-y (optional uint)) (factor-z (optional uint)) (factor-w (optional none)))",
                 "value": {
                     "token-x": {
                         "type": "principal",
@@ -295,8 +292,11 @@ describe("swapOutCv", () => {
                         "value": "5000000"
                     },
                     "factor-y": {
-                        "type": "uint",
-                        "value": "100000000"
+                        "type": "(optional uint)",
+                        "value": {
+                            "type": "uint",
+                            "value": "100000000"
+                        }
                     },
                     "factor-z": {
                         "type": "(optional uint)",
@@ -306,10 +306,6 @@ describe("swapOutCv", () => {
                         }
                     },
                     "factor-w": {
-                        "type": "(optional none)",
-                        "value": null
-                    },
-                    "factor-v": {
                         "type": "(optional none)",
                         "value": null
                     }
