@@ -20,6 +20,9 @@ export const options: SwapOption[] = [
         path: [sBTC, stx, aeUSDC],
         factors: [factor1, factor1]
     },
+    /* 
+    Runtime(MaxStackDepthReached, None) error occures on chain if we use long paths.
+    So commented out longer options for now.
     {
         path: [sBTC, alex, stx, aeUSDC],
         factors: [factor1, factor1, factor1]
@@ -32,6 +35,7 @@ export const options: SwapOption[] = [
         path: [sBTC, aBTC, stx, aeUSDC],
         factors: [factor05, factor1, factor1]
     }
+    */
 ];
 
 export type SwapResult = {
