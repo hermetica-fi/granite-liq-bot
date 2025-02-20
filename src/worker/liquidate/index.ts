@@ -1,5 +1,5 @@
 import { broadcastTransaction, bufferCV, contractPrincipalCV, makeContractCall, noneCV, PostConditionMode, someCV, uintCV, type ClarityValue } from "@stacks/transactions";
-import { estimateSignedCallTxFee, fetchFn, formatUnits, getAccountNonces, type NetworkName } from "granite-liq-bot-common";
+import { estimateTxFeeOptimistic, fetchFn, formatUnits, getAccountNonces, type NetworkName } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
 import { getBestSwap } from "../../alex";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
@@ -90,6 +90,7 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
     const priv = await dbClient.query("SELECT operator_priv FROM contract WHERE id = $1", [contract.id]).then(r => r.rows[0].operator_priv);
 
     const nonce = (await getAccountNonces(contract.operatorAddress, contract.network)).possible_next_nonce;
+    const fee = await estimateTxFeeOptimistic(contract.network);
 
     const txOptions = {
         contractAddress: contract.address,
@@ -99,18 +100,10 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
         senderKey: priv,
         senderAddress: contract.operatorAddress,
         network: contract.network,
-        fee: 10, // Just a placeholder. real fee estimation is done below.
+        fee,
         validateWithAbi: true,
         postConditionMode: PostConditionMode.Allow,
         nonce
-    }
-
-    let fee;
-    try {
-        fee = await estimateSignedCallTxFee(txOptions, contract.network);
-    } catch (e) {
-        logger.error(`Could not estimate fee due to: ${e}`);
-        return;
     }
 
     let call;
