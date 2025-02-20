@@ -1,5 +1,5 @@
 import { cvToJSON } from "@stacks/transactions";
-import { describe, expect, test } from "bun:test";
+import { describe, expect, mock, test } from "bun:test";
 import type { AssetInfo, BorrowerStatusEntity } from "granite-liq-bot-common";
 import { options } from "../../alex";
 import type { PriceFeedResponse } from "../../client/pyth";
@@ -338,6 +338,12 @@ describe("swapOutCv", () => {
 
 
 describe("makeLiquidationBatch", () => {
+
+    mock.module("../../constants", () => {
+        return {
+            REPAY_ADJUSTMENT: 5
+        }
+    });
 
     const priceFeed: PriceFeedResponse = {
         "attestation": "0",
