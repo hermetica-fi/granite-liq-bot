@@ -3,13 +3,14 @@ import { estimateTxFeeOptimistic, fetchFn, formatUnits, getAccountNonces, type N
 import type { PoolClient } from "pg";
 import { getBestSwap } from "../../alex";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
-import { MIN_TO_LIQUIDATE } from "../../constants";
+import { MIN_TO_LIQUIDATE, TX_TIMEOUT } from "../../constants";
 import { pool } from "../../db";
 import { getBorrowerStatusList, getContractList } from "../../db-helper";
 import { hexToUint8Array } from "../../helper";
 import { createLogger } from "../../logger";
 import { epoch } from "../../util";
 import { liquidationBatchCv, makeLiquidationBatch, swapOutCv } from "./lib";
+
 const logger = createLogger("liquidate");
 
 const worker = async (dbClient: PoolClient, network: NetworkName) => {
@@ -88,7 +89,7 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
         contractPrincipalCV(marketAsset.address.split(".")[0], marketAsset.address.split(".")[1]),
         contractPrincipalCV(collateralAsset.address.split(".")[0], collateralAsset.address.split(".")[1]),
         batchCV,
-        uintCV(epoch() + (60 * 4)),
+        uintCV(epoch() + TX_TIMEOUT),
         swapDataCv,
     ];
 
