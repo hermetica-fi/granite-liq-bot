@@ -29,3 +29,5 @@ export const PRICE_FEED_IDS: { ticker: Ticker, feed_id: string }[] = [
 ]
 
 export const LIQUIDATION_PREMIUM = 0.1;
+
+export const MIN_TO_LIQUIDATE = 1;

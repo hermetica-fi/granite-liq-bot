@@ -3,13 +3,13 @@ import { estimateTxFeeOptimistic, fetchFn, formatUnits, getAccountNonces, type N
 import type { PoolClient } from "pg";
 import { getBestSwap } from "../../alex";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
+import { MIN_TO_LIQUIDATE } from "../../constants";
 import { pool } from "../../db";
 import { getBorrowerStatusList, getContractList } from "../../db-helper";
 import { hexToUint8Array } from "../../helper";
 import { createLogger } from "../../logger";
 import { epoch } from "../../util";
 import { liquidationBatchCv, makeLiquidationBatch, swapOutCv } from "./lib";
-
 const logger = createLogger("liquidate");
 
 const worker = async (dbClient: PoolClient, network: NetworkName) => {
@@ -61,13 +61,18 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
     const batchCV = liquidationBatchCv(batch);
     let swapDataCv: ClarityValue = noneCV();
 
+    const totalSpendBn = batch.reduce((acc, b) => acc + b.liquidatorRepayAmount, 0);
+    const totalSpend = formatUnits(totalSpendBn, marketAsset.decimals);
+    const totalReceiveBn = batch.reduce((acc, b) => acc + b.minCollateralExpected, 0);
+    const totalReceive = formatUnits(totalReceiveBn, collateralAsset.decimals);
+
+    if (totalSpend < MIN_TO_LIQUIDATE) {
+        logger.info(`Not profitable to liquidate. total spend: ${totalSpend}, total receive: ${totalReceive}`);
+        return;
+    }
+
     if (contract.network === 'mainnet') {
         // Profitability check
-        const totalSpendBn = batch.reduce((acc, b) => acc + b.liquidatorRepayAmount, 0);
-        const totalSpend = formatUnits(totalSpendBn, marketAsset.decimals);
-        const totalReceiveBn = batch.reduce((acc, b) => acc + b.minCollateralExpected, 0);
-        const totalReceive = formatUnits(totalReceiveBn, collateralAsset.decimals);
-
         const bestSwap = await getBestSwap(totalReceive);
 
         if (bestSwap.out < totalSpend) {
