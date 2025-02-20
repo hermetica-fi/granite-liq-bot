@@ -87,6 +87,8 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
             return;
         }
 
+        console.log('using swap', bestSwap.option.path, bestSwap.option.factors);
+        
         swapDataCv = swapOutCv(bestSwap);
     }
 
