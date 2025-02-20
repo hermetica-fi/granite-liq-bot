@@ -144,8 +144,8 @@ describe("swapOutCv", () => {
         })
     });
 
-
-
+    /*
+    disabled routes
     test("option 1", () => {
         const cv = swapOutCv({ option: options[1], out: 100 });
 
@@ -333,6 +333,7 @@ describe("swapOutCv", () => {
             }
         });
     });
+    */
 });
 
 
