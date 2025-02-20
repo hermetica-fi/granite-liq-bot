@@ -1,5 +1,5 @@
 import { networkFromName, type StacksNetworkName } from "@stacks/network";
-import type { AddressBalanceResponse, AddressNonces, Transaction, TransactionEventsResponse, MempoolTransaction } from "@stacks/stacks-blockchain-api-types";
+import type { AddressBalanceResponse, AddressNonces, MempoolTransaction, MempoolTransactionListResponse, Transaction, TransactionEventsResponse } from "@stacks/stacks-blockchain-api-types";
 
 const MAX_RETRIES = 5;
 const INITIAL_DELAY = 5000;
@@ -62,7 +62,10 @@ export const getAccountNonces = async (principal: string, network: StacksNetwork
     return fetchGetWrapper(`/extended/v1/address/${principal}/nonces`, network).then(r => r.json());
 }
 
-
-export const getTransaction = async (txId: string, network: StacksNetworkName) : Promise<Transaction | MempoolTransaction> => {
+export const getTransaction = async (txId: string, network: StacksNetworkName): Promise<Transaction | MempoolTransaction> => {
     return fetchGetWrapper(`/extended/v1/tx/${txId}`, network).then(r => r.json());
+}
+
+export const getMempoolTransactions = async (limit: number, network: StacksNetworkName): Promise<MempoolTransactionListResponse> => {
+    return fetchGetWrapper(`/extended/v1/tx/mempool?limit=${limit}`, network).then(r => r.json());
 }
