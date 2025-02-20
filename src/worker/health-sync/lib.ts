@@ -94,7 +94,8 @@ export const calcBorrowerStatus = (borrower: {
                 totalAssets,
                 irParams,
                 timeDelta,
-                collateral
+                collateral,
+                collaterals
             );
 
             maxRepay[collateral.id] = marketValueAvailableToLiquidate;
