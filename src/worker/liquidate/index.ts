@@ -133,6 +133,8 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
     if (tx.txid) {
         await dbClient.query("UPDATE contract SET lock_tx = $1 WHERE id = $2", [tx.txid, contract.id]);
         logger.info(`Transaction broadcasted ${tx.txid}`);
+        console.log('batch', batch);
+        console.log('--------------------------------');
         return;
     }
 }

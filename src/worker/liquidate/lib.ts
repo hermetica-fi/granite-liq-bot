@@ -50,7 +50,7 @@ export const makeLiquidationBatch = (marketAssetInfo: AssetInfo, collateralAsset
 
         // Adjust down max repay amount %5 to prevent transaction failure in case volatility 
         // + removes decimals to protects from decimal precision issues (TODO: Not great solution, needs improvements)
-        const repayAmountAdjusted = toFixed(repayAmount - (repayAmount / 100 * 5), 2);
+        const repayAmountAdjusted = toFixed(repayAmount - (repayAmount / 100 * 6), 2);
         const repayAmountAdjustedBn = parseUnits(repayAmountAdjusted, marketAssetInfo.decimals);
         const repayAmountFinalBn = Math.min(availableBn, repayAmountAdjustedBn);
         const repayAmountFinal = formatUnits(repayAmountFinalBn, marketAssetInfo.decimals);
