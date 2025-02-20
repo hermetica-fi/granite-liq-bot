@@ -1,0 +1,14 @@
+import { expect, test } from "bun:test";
+import { formatUnits, parseUnits } from "./units";
+
+test("formatUnits", () => {
+    expect(formatUnits(124000000, 6)).toEqual(124);
+    expect(formatUnits(124, 6)).toEqual(0.000124);
+    expect(formatUnits(124820000, 8)).toEqual(1.2482);
+})
+
+test("parseUnits", () => {
+    expect(parseUnits("124", 6)).toEqual(124000000);
+    expect(parseUnits("124", 8)).toEqual(12400000000);
+    expect(parseUnits("1.2482", 8)).toEqual(124820000);
+})
