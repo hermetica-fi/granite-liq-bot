@@ -49,7 +49,6 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
         orderBy: 'total_repay_amount DESC'
     });
 
-
     const priceFeed = await fetchAndProcessPriceFeed();
     const priceAttestationBuff = hexToUint8Array(priceFeed.attestation);
     const batch = makeLiquidationBatch(marketAsset, collateralAsset, borrowers, priceFeed);
