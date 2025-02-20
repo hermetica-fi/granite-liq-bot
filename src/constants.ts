@@ -32,4 +32,6 @@ export const LIQUIDATION_PREMIUM = 0.1;
 
 export const MIN_TO_LIQUIDATE = 2;
 
+export const REPAY_ADJUSTMENT = 7; // percent
+
 export const TX_TIMEOUT = 60 * 10; // epoch +

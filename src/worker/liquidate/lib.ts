@@ -2,6 +2,7 @@ import { listCV, noneCV, principalCV, someCV, tupleCV, uintCV, type ClarityValue
 import { formatUnits, parseUnits, type AssetInfo, type BorrowerStatusEntity } from "granite-liq-bot-common";
 import type { SwapResult } from "../../alex";
 import type { PriceFeedResponse } from "../../client/pyth";
+import { REPAY_ADJUSTMENT } from "../../constants";
 import { toTicker } from "../../helper";
 import type { LiquidationBatch } from "../../types";
 
@@ -50,7 +51,7 @@ export const makeLiquidationBatch = (marketAssetInfo: AssetInfo, collateralAsset
 
         // Adjust down max repay amount %5 to prevent transaction failure in case volatility 
         // + removes decimals to protects from decimal precision issues (TODO: Not great solution, needs improvements)
-        const repayAmountAdjusted = toFixed(repayAmount - (repayAmount / 100 * 6), 2);
+        const repayAmountAdjusted = toFixed(repayAmount - (repayAmount / 100 * REPAY_ADJUSTMENT), 2);
         const repayAmountAdjustedBn = parseUnits(repayAmountAdjusted, marketAssetInfo.decimals);
         const repayAmountFinalBn = Math.min(availableBn, repayAmountAdjustedBn);
         const repayAmountFinal = formatUnits(repayAmountFinalBn, marketAssetInfo.decimals);
