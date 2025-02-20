@@ -23,6 +23,13 @@ mock.module("../db/index", () => {
     };
 });
 
+
+mock.module("../constants", () => {
+    return {
+        BORROWER_SYNC_DELAY: 10
+    };
+});
+
 await migrateDb();
 
 describe("sync db helper", () => {

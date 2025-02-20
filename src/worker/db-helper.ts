@@ -1,7 +1,7 @@
 import assert from "assert";
 import type { BorrowerStatus, NetworkName } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
-import { MARKET_ASSET_DECIMAL } from "../constants";
+import { BORROWER_SYNC_DELAY, MARKET_ASSET_DECIMAL } from "../constants";
 import { kvStoreGet, kvStoreSet } from "../db/helper";
 import type {
     AccrueInterestParams, BorrowerCollateralEntity, BorrowerEntity,
@@ -15,7 +15,7 @@ import { epoch } from "../util";
 export const upsertBorrower = async (dbClient: PoolClient, network: NetworkName, address: string): Promise< 0 | 1 | 2> => {
     const rec = await dbClient.query("SELECT sync_flag FROM borrower WHERE address = $1", [address]).then((r) => r.rows[0]);
     // wait some time before syncing to make sure blockchain data settled
-    const syncTs = epoch() + 10;
+    const syncTs = epoch() + BORROWER_SYNC_DELAY;
     if (!rec) {
         await dbClient.query("INSERT INTO borrower (address, network, sync_flag, sync_ts) VALUES ($1, $2, $3, $4)", [
             address,

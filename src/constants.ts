@@ -32,4 +32,5 @@ export const LIQUIDATION_PREMIUM = 0.1;
 
 export const MIN_TO_LIQUIDATE = 2; // usdc
 export const REPAY_ADJUSTMENT = 1; // percent
-export const TX_TIMEOUT = 60 * 10; // epoch +
+export const TX_TIMEOUT = 60 * 10; // seconds
+export const BORROWER_SYNC_DELAY = 10; // seconds
