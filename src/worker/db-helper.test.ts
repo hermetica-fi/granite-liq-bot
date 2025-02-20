@@ -37,7 +37,7 @@ describe("sync db helper", () => {
                 address: "SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR",
                 network: "mainnet",
                 sync_flag: 1,
-                sync_ts: 1738262072
+                sync_ts: 1738262062
             }
         ]);
     });
@@ -57,7 +57,7 @@ describe("sync db helper", () => {
                 address: "SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR",
                 network: "mainnet",
                 sync_flag: 1,
-                sync_ts: 1738262072
+                sync_ts: 1738262062
             }
         ])
     });
@@ -73,11 +73,11 @@ describe("sync db helper", () => {
             {
                 address: "SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR",
                 network: "mainnet",
-                syncTs: 1738262072,
+                syncTs: 1738262062,
             }, {
                 address: "ST39B0S4TZP6H89VPBCCSCYXKX43DNNPNQV3BEWNW",
                 network: "testnet",
-                syncTs: 1738262072,
+                syncTs: 1738262062,
             }
         ]);
     });
@@ -89,7 +89,7 @@ describe("sync db helper", () => {
             {
                 address: "ST39B0S4TZP6H89VPBCCSCYXKX43DNNPNQV3BEWNW",
                 network: "testnet",
-                syncTs: 1738262072,
+                syncTs: 1738262062,
             }
         ]);
     });
