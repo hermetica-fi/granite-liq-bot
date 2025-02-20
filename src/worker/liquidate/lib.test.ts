@@ -484,7 +484,7 @@ describe("makeLiquidationBatch", () => {
                 maxRepay: {
                     "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 4.623614857930649,
                 },
-                totalRepayAmount: 2.125664850930649,
+                totalRepayAmount: 4.623614857930649,
             }
         ];
 
@@ -523,145 +523,158 @@ describe("makeLiquidationBatch", () => {
         ]);
     });
 
-
-    /*
-  test("200 usdc is available. should have one liquidation", () => {
-
-
-borrowers = [
-        {
-            "address": "ST39B0S4TZP6H89VPBCCSCYXKX43DNNPNQV3BEWNW",
-            "network": "testnet",
-            "ltv": 0.8263,
-            "health": 0.8688,
-            "debt": 560981.3451,
-            "collateral": 678929.1726,
-            "risk": 1.151,
-            "maxRepay": {
-                "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 560983.4133
+    test("20 usdc is available, 3 borrowers, should not cover 3rd borrower's full repay amount", () => {
+        const borrowers: BorrowerStatusEntity[] = [
+            {
+                address: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
+                network: "testnet",
+                ltv: 0.5038,
+                health: 0.9726,
+                debt: 35.7413,
+                collateral: 70.9416,
+                risk: 1.0282,
+                maxRepay: {
+                    "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 2.125664850930649,
+                },
+                totalRepayAmount: 2.125664850930649,
             },
-            "totalRepayAmount": 560983.4133
-        },
-        {
-            "address": "ST2N7SK0W83NJSZHFH8HH31ZT3DXJG7NFE6Y058RD",
-            "network": "testnet",
-            "ltv": 0.8558,
-            "health": 0.9348,
-            "debt": 416664.4053,
-            "collateral": 486847.8102,
-            "risk": 1.0698,
-            "maxRepay": {
-                "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 416665.9415
+            {
+                address: "ST2DXHX9Q844EBT80DYJXFWXJKCJ5FFAX53H4AZFA",
+                network: "testnet",
+                ltv: 0.5038,
+                health: 0.9726,
+                debt: 35.7413,
+                collateral: 70.9416,
+                risk: 1.0282,
+                maxRepay: {
+                    "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 4.623614857930649,
+                },
+                totalRepayAmount: 4.623614857930649,
             },
-            "totalRepayAmount": 416665.9415
-        },
-        {
-            "address": "STBWK9266APRKQ6GGKPAXZT99QGA41RZ67PD1EKK",
-            "network": "testnet",
-            "ltv": 0.803,
-            "health": 0.9963,
-            "debt": 109463.0758,
-            "collateral": 136320.4674,
-            "risk": 1.0037,
-            "maxRepay": {
-                "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 109463.4794
+            {
+                address: "ST2VWSP59FEVDXXYGGWYG90M3N67ZST2AGPA3P2HC",
+                network: "testnet",
+                ltv: 0.5038,
+                health: 0.9726,
+                debt: 35.7413,
+                collateral: 70.9416,
+                risk: 1.0282,
+                maxRepay: {
+                    "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 17.9313224,
+                },
+                totalRepayAmount: 17.9313224,
+            }
+        ];
+
+        const batch = makeLiquidationBatch(marketAsset, collateralAsset, borrowers, priceFeed);
+        expect(batch).toEqual([
+            {
+                user: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
+                liquidatorRepayAmount: 201000000,
+                minCollateralExpected: 2058,
+                details: {
+                    repayAmount: 2.125664850930649,
+                    repayAmountAdjusted: 2.01,
+                    repayAmountAdjustedBn: 201000000,
+                    repayAmountFinalBn: 201000000,
+                    repayAmountFinal: 2.01,
+                    collateralPrice: 97652.95458695,
+                    minCollateralExpected: 0.00002058,
+                    minCollateralExpectedBn: 2058,
+                },
             },
-            "totalRepayAmount": 109463.4794
-        }
-    ];
+            {
+                user: "ST2DXHX9Q844EBT80DYJXFWXJKCJ5FFAX53H4AZFA",
+                liquidatorRepayAmount: 439000000,
+                minCollateralExpected: 4495,
+                details: {
+                    repayAmount: 4.623614857930649,
+                    repayAmountAdjusted: 4.39,
+                    repayAmountAdjustedBn: 439000000,
+                    repayAmountFinalBn: 439000000,
+                    repayAmountFinal: 4.39,
+                    collateralPrice: 97652.95458695,
+                    minCollateralExpected: 0.00004495,
+                    minCollateralExpectedBn: 4495,
+                },
+            }, {
+                user: "ST2VWSP59FEVDXXYGGWYG90M3N67ZST2AGPA3P2HC",
+                liquidatorRepayAmount: 1360000000,
+                minCollateralExpected: 13926,
+                details: {
+                    repayAmount: 17.9313224,
+                    repayAmountAdjusted: 17.03,
+                    repayAmountAdjustedBn: 1703000000,
+                    repayAmountFinalBn: 1360000000,
+                    repayAmountFinal: 13.6,
+                    collateralPrice: 97652.95458695,
+                    minCollateralExpected: 0.00013926,
+                    minCollateralExpectedBn: 13926,
+                },
+            }
+        ]);
+    });
 
-      const batch = makeLiquidationBatch(marketAsset, collateralAsset, borrowers, priceFeed);
+    test("20 usdc is available, 3 borrowers, should only cover the first borrower's partial repay amount", () => {
+        const borrowers: BorrowerStatusEntity[] = [
+            {
+                address: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
+                network: "testnet",
+                ltv: 0.5038,
+                health: 0.9726,
+                debt: 35.7413,
+                collateral: 70.9416,
+                risk: 1.0282,
+                maxRepay: {
+                    "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 21.125664850930649,
+                },
+                totalRepayAmount: 21.125664850930649,
+            },
+            {
+                address: "ST2DXHX9Q844EBT80DYJXFWXJKCJ5FFAX53H4AZFA",
+                network: "testnet",
+                ltv: 0.5038,
+                health: 0.9726,
+                debt: 35.7413,
+                collateral: 70.9416,
+                risk: 1.0282,
+                maxRepay: {
+                    "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 4.623614857930649,
+                },
+                totalRepayAmount: 4.623614857930649,
+            },
+            {
+                address: "ST2VWSP59FEVDXXYGGWYG90M3N67ZST2AGPA3P2HC",
+                network: "testnet",
+                ltv: 0.5038,
+                health: 0.9726,
+                debt: 35.7413,
+                collateral: 70.9416,
+                risk: 1.0282,
+                maxRepay: {
+                    "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 17.9313224,
+                },
+                totalRepayAmount: 17.9313224,
+            }
+        ];
 
- 
-      expect(batch).toEqual([
-          {
-              user: "ST39B0S4TZP6H89VPBCCSCYXKX43DNNPNQV3BEWNW",
-              liquidatorRepayAmount: 20000000000,
-              minCollateralExpected: 204807,
-          }
-      ]);
- 
-  });
-
-  /*
-  test("0 usdc is available. should have one liquidation", () => {
-      marketAsset = {
-          "address": "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-usdc",
-          "name": "mock-usdc",
-          "symbol": "mock-usdc",
-          "decimals": 8,
-          "balance": 0
-      };
-      const batch = makeLiquidationBatch(marketAsset, collateralAsset, borrowers, priceFeed);
-      expect(batch).toEqual([]);
-  });
-
-  test("6280 usdc is available. should have two liquidations + only pick from correct collateral", () => {
-      marketAsset = {
-          "address": "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-usdc",
-          "name": "mock-usdc",
-          "symbol": "mock-usdc",
-          "decimals": 8,
-          "balance": 628000000000
-      };
-
-      borrowers = [
-          {
-              "address": "ST39B0S4TZP6H89VPBCCSCYXKX43DNNPNQV3BEWNW",
-              "network": "testnet",
-              "ltv": 0.8263,
-              "health": 0.8688,
-              "debt": 560981.3451,
-              "collateral": 678929.1726,
-              "risk": 1.151,
-              "maxRepay": {
-                  "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 5983.4133,
-                  "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth": 100.1
-              },
-              "totalRepayAmount": 6083.5133
-          },
-          {
-              "address": "ST2N7SK0W83NJSZHFH8HH31ZT3DXJG7NFE6Y058RD",
-              "network": "testnet",
-              "ltv": 0.8558,
-              "health": 0.9348,
-              "debt": 416664.4053,
-              "collateral": 486847.8102,
-              "risk": 1.0698,
-              "maxRepay": {
-                  "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 321.9415
-              },
-              "totalRepayAmount": 321.9415
-          },
-          {
-              "address": "STBWK9266APRKQ6GGKPAXZT99QGA41RZ67PD1EKK",
-              "network": "testnet",
-              "ltv": 0.803,
-              "health": 0.9963,
-              "debt": 109463.0758,
-              "collateral": 136320.4674,
-              "risk": 1.0037,
-              "maxRepay": {
-                  "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 110.4794
-              },
-              "totalRepayAmount": 110.4794
-          }
-      ];
-
-      const batch = makeLiquidationBatch(marketAsset, collateralAsset, borrowers, priceFeed);
-
-      expect(batch).toEqual([
-          {
-              user: "ST39B0S4TZP6H89VPBCCSCYXKX43DNNPNQV3BEWNW",
-              liquidatorRepayAmount: 598300000000,
-              minCollateralExpected: 6126799,
-          }, {
-              user: "ST2N7SK0W83NJSZHFH8HH31ZT3DXJG7NFE6Y058RD",
-              liquidatorRepayAmount: 29700000000,
-              minCollateralExpected: 304138,
-          }
-      ]
-      );
-  });
-  */
+        const batch = makeLiquidationBatch(marketAsset, collateralAsset, borrowers, priceFeed);
+        expect(batch).toEqual([
+            {
+                user: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
+                liquidatorRepayAmount: 2000000000,
+                minCollateralExpected: 20480,
+                details: {
+                    repayAmount: 21.125664850930647,
+                    repayAmountAdjusted: 20.06,
+                    repayAmountAdjustedBn: 2006000000,
+                    repayAmountFinalBn: 2000000000,
+                    repayAmountFinal: 20,
+                    collateralPrice: 97652.95458695,
+                    minCollateralExpected: 0.0002048,
+                    minCollateralExpectedBn: 20480,
+                },
+            }
+        ])
+    });
 });
