@@ -9,6 +9,7 @@ import { getBorrowerStatusList, getContractList } from "../../db-helper";
 import { hexToUint8Array } from "../../helper";
 import { createLogger } from "../../logger";
 import { epoch } from "../../util";
+import { getBorrowersToSync } from "../db-helper";
 import { liquidationBatchCv, makeLiquidationBatch, swapOutCv } from "./lib";
 
 const logger = createLogger("liquidate");
@@ -28,6 +29,11 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
 
     if (contract.lockTx) {
         // logger.info("Contract is locked, skipping");
+        return;
+    }
+
+    if ((await getBorrowersToSync(dbClient)).length > 0) {
+        // logger.info("Borrowers to sync found, skipping");
         return;
     }
 
