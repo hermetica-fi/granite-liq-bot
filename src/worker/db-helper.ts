@@ -45,13 +45,6 @@ export const switchBorrowerSyncFlagOff = async (dbClient: PoolClient, address: s
     return dbClient.query("UPDATE borrower SET sync_flag = 0, sync_ts = 0 WHERE address = $1", [address]);
 }
 
-export const switchBorrowerSyncFlagOn = async (dbClient: PoolClient, address: string): Promise<any> => {
-    // wait some time before syncing to make sure blockchain data settled
-    const syncTs = epoch() + BORROWER_SYNC_DELAY;
-    
-    await dbClient.query("UPDATE borrower SET sync_flag = 1, sync_ts=$1 WHERE address = $2", [syncTs, address]);
-}
-
 export const syncBorrowerPosition = async (dbClient: PoolClient, userPosition: BorrowerPositionEntity): Promise<any> => {
     await dbClient.query("DELETE FROM borrower_position WHERE address = $1 ", [userPosition.address]);
     return dbClient.query("INSERT INTO borrower_position (address, network, debt_shares, collaterals) VALUES ($1, $2, $3, $4)",
