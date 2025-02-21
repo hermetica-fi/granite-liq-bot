@@ -88,7 +88,7 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
         }
     }
 
-    let swapDataCv: ClarityValue = swapRoute ? swapOutCv(swapRoute): noneCV();
+    let swapDataCv: ClarityValue = swapRoute ? swapOutCv(swapRoute) : noneCV();
 
     const functionArgs = [
         someCV(bufferCV(priceAttestationBuff)),
@@ -139,8 +139,6 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
 
     if (tx.txid) {
         await dbClient.query("UPDATE contract SET lock_tx = $1 WHERE id = $2", [tx.txid, contract.id]);
-        await dbClient.query("INSERT INTO transaction (txid, network, contract_id, batch, swap_route, fee, created) VALUES ($1, $2, $3, $4, $5, $6, $7)", 
-            [tx.txid, contract.network, contract.id, batch, swapRoute, fee, epoch()]);
         logger.info(`Transaction broadcasted ${tx.txid}`);
         return;
     }
