@@ -61,6 +61,22 @@ export const createDb = async (client: PoolClient) => {
         "total_repay_amount NUMERIC NOT NULL" +
         ");";
 
+    CREATE += "CREATE TABLE IF NOT EXISTS public.transaction(" +
+        "txid VARCHAR PRIMARY KEY NOT NULL," +
+        "network VARCHAR NOT NULL," +
+        "contract_id VARCHAR NOT NULL REFERENCES contract(id) ON DELETE RESTRICT," +
+        "batch JSON NOT NULL," +
+        "swap_route JSON NOT NULL," +
+        "fee VARCHAR NOT NULL," +
+        "created INTEGER NOT NULL," +
+        "status VARCHAR NOT NULL DEFAULT 'pending'," +
+        "finalized INTEGER," +
+        "error VARCHAR," +
+        "balance_before NUMERIC,"+
+        "balance_after NUMERIC,"+
+        "profit NUMERIC"+
+        ");";
+
     CREATE += "CREATE UNIQUE INDEX IF NOT EXISTS borrower_collateral_address_idx ON borrower_collaterals (address, collateral);";
 
     CREATE += "INSERT INTO kv_store VALUES ('db_ver', 1);";
