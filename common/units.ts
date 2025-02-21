@@ -14,3 +14,7 @@ export const parseUnits = (
 ) => {
   return Number(BigNumber(amount).multipliedBy(BigNumber(10).pow(decimals)).toString());
 };
+
+export const toFixedHalfDown = (num: number, precision: number) => {
+  return Number(BigNumber(num).toFixed(precision, BigNumber.ROUND_HALF_DOWN).toString());
+}

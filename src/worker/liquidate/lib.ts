@@ -1,5 +1,5 @@
 import { listCV, noneCV, principalCV, someCV, tupleCV, uintCV, type ClarityValue } from "@stacks/transactions";
-import { formatUnits, parseUnits, type AssetInfo, type BorrowerStatusEntity } from "granite-liq-bot-common";
+import { formatUnits, parseUnits, toFixedHalfDown, type AssetInfo, type BorrowerStatusEntity } from "granite-liq-bot-common";
 import type { SwapResult } from "../../alex";
 import type { PriceFeedResponse } from "../../client/pyth";
 import { REPAY_ADJUSTMENT } from "../../constants";
@@ -16,13 +16,6 @@ export const liquidationBatchCv = (batch: LiquidationBatch[]) => {
         })));
 
     return listCV(listItems)
-}
-
-// to fixed precision without rounding
-const toFixed = (value: number, precision: number) => {
-    const s = value.toString();
-    const [integer, decimal] = s.split('.');
-    return Number(`${integer}.${decimal.slice(0, precision)}`);
 }
 
 export const makeLiquidationBatch = (marketAssetInfo: AssetInfo, collateralAssetInfo: AssetInfo, borrowers: BorrowerStatusEntity[], priceFeed: PriceFeedResponse): LiquidationBatch[] => {
@@ -51,16 +44,17 @@ export const makeLiquidationBatch = (marketAssetInfo: AssetInfo, collateralAsset
 
         // Adjust down max repay amount %5 to prevent transaction failure in case volatility 
         // + removes decimals to protects from decimal precision issues (TODO: Not great solution, needs improvements)
-        const repayAmountAdjusted = toFixed(repayAmount - (repayAmount / 100 * REPAY_ADJUSTMENT), 2);
+        const repayAmountAdjusted = toFixedHalfDown(repayAmount - (repayAmount / 100 * REPAY_ADJUSTMENT), 2);
         const repayAmountAdjustedBn = parseUnits(repayAmountAdjusted, marketAssetInfo.decimals);
         const repayAmountFinalBn = Math.min(availableBn, repayAmountAdjustedBn);
         const repayAmountFinal = formatUnits(repayAmountFinalBn, marketAssetInfo.decimals);
 
         availableBn = availableBn - repayAmountFinalBn;
 
-        const minCollateralExpected = toFixed((repayAmountFinal / collateralPrice), collateralAssetInfo.decimals);
+        const minCollateralExpected = toFixedHalfDown((repayAmountFinal / collateralPrice), collateralAssetInfo.decimals);
         const minCollateralExpectedBn = Math.floor(parseUnits(minCollateralExpected, collateralAssetInfo.decimals));
-
+        //0,05 / 98626,25332706
+        //0,000000506964407
         batch.push({
             user: borrower.address,
             liquidatorRepayAmount: repayAmountFinalBn,
