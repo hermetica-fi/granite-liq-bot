@@ -12,7 +12,7 @@ import type {
 import { epoch } from "../util";
 
 
-export const upsertBorrower = async (dbClient: PoolClient, network: NetworkName, address: string): Promise< 0 | 1 | 2> => {
+export const upsertBorrower = async (dbClient: PoolClient, network: NetworkName, address: string): Promise<0 | 1 | 2> => {
     const rec = await dbClient.query("SELECT sync_flag FROM borrower WHERE address = $1", [address]).then((r) => r.rows[0]);
     // wait some time before syncing to make sure blockchain data settled
     const syncTs = epoch() + BORROWER_SYNC_DELAY;
@@ -45,6 +45,13 @@ export const switchBorrowerSyncFlagOff = async (dbClient: PoolClient, address: s
     return dbClient.query("UPDATE borrower SET sync_flag = 0, sync_ts = 0 WHERE address = $1", [address]);
 }
 
+export const switchBorrowerSyncFlagOn = async (dbClient: PoolClient, address: string): Promise<any> => {
+    // wait some time before syncing to make sure blockchain data settled
+    const syncTs = epoch() + BORROWER_SYNC_DELAY;
+    
+    await dbClient.query("UPDATE borrower SET sync_flag = 1, sync_ts=$1 WHERE address = $2", [syncTs, address]);
+}
+
 export const syncBorrowerPosition = async (dbClient: PoolClient, userPosition: BorrowerPositionEntity): Promise<any> => {
     await dbClient.query("DELETE FROM borrower_position WHERE address = $1 ", [userPosition.address]);
     return dbClient.query("INSERT INTO borrower_position (address, network, debt_shares, collaterals) VALUES ($1, $2, $3, $4)",
@@ -55,7 +62,7 @@ export const syncBorrowerCollaterals = async (dbClient: PoolClient, address: str
     await dbClient.query("DELETE FROM borrower_collaterals WHERE address = $1", [address]);
 
     for (const collateral of collaterals) {
-        await dbClient.query("INSERT INTO borrower_collaterals (address, network, collateral, amount) VALUES ($1, $2, $3, $4)", 
+        await dbClient.query("INSERT INTO borrower_collaterals (address, network, collateral, amount) VALUES ($1, $2, $3, $4)",
             [address, collateral.network, collateral.collateral, collateral.amount]);
     }
 }
@@ -136,7 +143,7 @@ export const setCollateralParamsLocal = async (dbClient: PoolClient, network: Ne
 
 export const getMarketState = async (dbClient: PoolClient, network: NetworkName): Promise<MarketState> => {
     const irParams = await getIrParamsLocal(dbClient, network);
-    assert(irParams, 'irParams not found'); 
+    assert(irParams, 'irParams not found');
     const lpParams = await getLpParamsLocal(dbClient, network);
     assert(lpParams, 'lpParams not found');
     const accrueInterestParams = await getAccrueInterestParamsLocal(dbClient, network);
@@ -155,7 +162,7 @@ export const getMarketState = async (dbClient: PoolClient, network: NetworkName)
         collateralParams,
         marketAssetParams: {
             decimals: MARKET_ASSET_DECIMAL[network],
-        }   
+        }
     }
 }
 
