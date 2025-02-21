@@ -59,6 +59,7 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
     const priceFeed = await fetchAndProcessPriceFeed();
     const priceAttestationBuff = hexToUint8Array(priceFeed.attestation);
     const batch = makeLiquidationBatch(marketAsset, collateralAsset, borrowers, priceFeed);
+    let swapRoute;
 
     if (batch.length === 0) {
         // logger.info("Nothing to liquidate");
@@ -66,7 +67,6 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
     }
 
     const batchCV = liquidationBatchCv(batch);
-    let swapDataCv: ClarityValue = noneCV();
 
     const totalSpendBn = batch.reduce((acc, b) => acc + b.liquidatorRepayAmount, 0);
     const totalSpend = formatUnits(totalSpendBn, marketAsset.decimals);
@@ -80,17 +80,15 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
 
     if (contract.network === 'mainnet') {
         // Profitability check
-        const bestSwap = await getBestSwap(totalReceive);
+        swapRoute = await getBestSwap(totalReceive);
 
-        if (bestSwap.out < totalSpend) {
-            logger.error(`Not profitable to liquidate. total spend: ${totalSpend}, total receive: ${totalReceive}, best swap: ${bestSwap.out}`);
+        if (swapRoute.out < totalSpend) {
+            logger.error(`Not profitable to liquidate. total spend: ${totalSpend}, total receive: ${totalReceive}, best swap: ${swapRoute.out}`);
             return;
         }
-
-        console.log('using swap', bestSwap.option.path, bestSwap.option.factors);
-        
-        swapDataCv = swapOutCv(bestSwap);
     }
+
+    let swapDataCv: ClarityValue = swapRoute ? swapOutCv(swapRoute): noneCV();
 
     const functionArgs = [
         someCV(bufferCV(priceAttestationBuff)),
@@ -141,9 +139,9 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
 
     if (tx.txid) {
         await dbClient.query("UPDATE contract SET lock_tx = $1 WHERE id = $2", [tx.txid, contract.id]);
+        await dbClient.query("INSERT INTO transaction (txid, network, contract_id, batch, swap_route, fee, created) VALUES ($1, $2, $3, $4, $5, $6, $7)", 
+            [tx.txid, contract.network, contract.id, batch, swapRoute, fee, epoch()]);
         logger.info(`Transaction broadcasted ${tx.txid}`);
-        console.log('batch', batch);
-        console.log('--------------------------------');
         return;
     }
 }
