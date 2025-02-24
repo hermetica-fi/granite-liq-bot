@@ -31,7 +31,7 @@ export const PRICE_FEED_IDS: { ticker: Ticker, feed_id: string }[] = [
 export const LIQUIDATION_PREMIUM = 0.1;
 
 export const MIN_TO_LIQUIDATE = 2; // usdc
-export const MIN_TO_LIQUIDATE_PER_USER = 0.1; // usdc
+export const MIN_TO_LIQUIDATE_PER_USER = 0.5; // usdc
 export const REPAY_ADJUSTMENT = 2; // percent
 export const TX_TIMEOUT = 60 * 10; // seconds
 export const BORROWER_SYNC_DELAY = 10; // seconds
