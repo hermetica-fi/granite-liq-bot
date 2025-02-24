@@ -74,7 +74,7 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
     const totalReceive = formatUnits(totalReceiveBn, collateralAsset.decimals);
 
     if (totalSpend < MIN_TO_LIQUIDATE) {
-        logger.info(`Too small to liquidate. total spend: ${totalSpend}, total receive: ${totalReceive}`);
+        // logger.info(`Too small to liquidate. total spend: ${totalSpend}, total receive: ${totalReceive}`);
         return;
     }
 
