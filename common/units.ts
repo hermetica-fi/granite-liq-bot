@@ -18,3 +18,7 @@ export const parseUnits = (
 export const toFixedHalfDown = (num: number, precision: number) => {
   return Number(BigNumber(num).toFixed(precision, BigNumber.ROUND_HALF_DOWN).toString());
 }
+
+export const toFixedDown = (num: number, precision: number) => {
+  return Number(BigNumber(num).toFixed(precision, BigNumber.ROUND_DOWN).toString());
+}
