@@ -2,7 +2,7 @@ import { listCV, noneCV, principalCV, someCV, tupleCV, uintCV, type ClarityValue
 import { formatUnits, parseUnits, toFixedHalfDown, type AssetInfo, type BorrowerStatusEntity } from "granite-liq-bot-common";
 import type { SwapResult } from "../../alex";
 import type { PriceFeedResponse } from "../../client/pyth";
-import { REPAY_ADJUSTMENT } from "../../constants";
+import { MIN_TO_LIQUIDATE_PER_USER, REPAY_ADJUSTMENT } from "../../constants";
 import { toTicker } from "../../helper";
 import type { LiquidationBatch } from "../../types";
 
@@ -39,6 +39,10 @@ export const makeLiquidationBatch = (marketAssetInfo: AssetInfo, collateralAsset
 
         const repayAmount = borrower.maxRepay[collateralAssetInfo.address];
         if (!repayAmount) {
+            continue;
+        }
+
+        if(repayAmount < MIN_TO_LIQUIDATE_PER_USER){
             continue;
         }
 
