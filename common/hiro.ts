@@ -3,7 +3,7 @@ import type { AddressBalanceResponse, AddressNonces, MempoolTransaction, Mempool
 
 const MAX_RETRIES = 5;
 const INITIAL_DELAY = 5000;
-const HIRO_API_KEY = process.env.HIRO_API_KEY;
+const HIRO_API_KEY = process?.env?.HIRO_API_KEY 
 
 export const fetchFn = async (
     input: string | URL,
