@@ -57,12 +57,12 @@ export const makeLiquidationBatch = (marketAssetInfo: AssetInfo, collateralAsset
 
         const minCollateralExpected = toFixedDown((repayAmountFinal / collateralPrice), collateralAssetInfo.decimals);
         const minCollateralExpectedBn = Math.floor(parseUnits(minCollateralExpected, collateralAssetInfo.decimals));
-        //0,05 / 98626,25332706
-        //0,000000506964407
+        const minCollateralExpectedFinalBn = toFixedDown(minCollateralExpectedBn - (minCollateralExpectedBn / 1000 * 4), 0);
+
         batch.push({
             user: borrower.address,
             liquidatorRepayAmount: repayAmountFinalBn,
-            minCollateralExpected: minCollateralExpectedBn,
+            minCollateralExpected: minCollateralExpectedFinalBn,
             details: {
                 repayAmount,
                 repayAmountAdjusted,
@@ -71,7 +71,8 @@ export const makeLiquidationBatch = (marketAssetInfo: AssetInfo, collateralAsset
                 repayAmountFinal,
                 collateralPrice,
                 minCollateralExpected,
-                minCollateralExpectedBn
+                minCollateralExpectedBn,
+                minCollateralExpectedFinalBn
             }
         });
     }

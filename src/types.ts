@@ -67,6 +67,7 @@ export type LiquidationBatch = {
         repayAmountFinal: number,
         collateralPrice: number,
         minCollateralExpected: number,
-        minCollateralExpectedBn: number
+        minCollateralExpectedBn: number,
+        minCollateralExpectedFinalBn: number
     }
 }
