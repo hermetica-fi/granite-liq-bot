@@ -13,6 +13,8 @@ export const main = async () => {
                 res = await routes.addContract(req);
             } else if (req.method === "GET" && url.pathname === "/borrowers") {
                 res = await routes.getBorrowers(req, url);
+            } else if (req.method === "GET" && url.pathname === "/health") {
+                res = await routes.health();
             } else {
                 res = new Response("Not found", { status: 404 });
             }

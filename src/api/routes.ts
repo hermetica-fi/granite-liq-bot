@@ -7,6 +7,7 @@ import { getContractInfo } from "granite-liq-bot-common";
 import { getAssetInfo } from "../client/read-only-call";
 import { pool } from "../db";
 import { getBorrowerStatusList, getContractList } from "../db-helper";
+import { kvStoreGet } from "../db/helper";
 import { getNetworkNameFromAddress } from "../helper";
 
 export const errorResponse = (error: any) => {
@@ -135,5 +136,19 @@ export const routes = {
         });
         dbClient.release();
         return Response.json(borrowers);
+    },
+    health: async () => {
+        const dbClient = await pool.connect();
+        const lastSync = await kvStoreGet(dbClient, "last-sync");
+        dbClient.release();
+
+        const now = Date.now();
+        const isHealthy = lastSync && Number(lastSync) > now - 120_000; // Healthy if last sync was less than 120 seconds ago
+
+        return Response.json({
+            now: new Date(now).toISOString(),
+            lastSync: new Date(Number(lastSync)).toISOString(),
+            isHealthy
+        });
     }
 }
