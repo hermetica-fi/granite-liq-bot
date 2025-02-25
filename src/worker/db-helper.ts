@@ -89,11 +89,6 @@ export const insertBorrowerStatus = async (dbClient: PoolClient, address: string
         [address, network, status.ltv.toFixed(4), status.health.toFixed(4), status.debt.toFixed(4), status.collateral.toFixed(4), status.risk.toFixed(4), status.maxRepay, status.totalRepayAmount])
 }
 
-
-export const getDistinctCollateralList = async (dbClient: PoolClient): Promise<string[]> => {
-    return dbClient.query("SELECT collateral FROM borrower_collaterals GROUP BY collateral").then(r => r.rows.map(r => r.collateral));
-}
-
 export const getIrParamsLocal = async (dbClient: PoolClient, network: NetworkName): Promise<InterestRateParams | null> => {
     return await kvStoreGet(dbClient, `ir-params-${network}`).then((r: any) => r ? JSON.parse(r) : null);
 }

@@ -5,7 +5,8 @@ import {
     clearBorrowerStatuses,
     getAccrueInterestParamsLocal,
     getBorrowerCollateralAmount, getBorrowersForHealthCheck, getBorrowersToSync,
-    getCollateralParamsLocal, getDebtParamsLocal, getDistinctCollateralList, getIrParamsLocal,
+    getCollateralParamsLocal, getDebtParamsLocal,
+    getIrParamsLocal,
     getLpParamsLocal, getMarketState, insertBorrowerStatus,
     setAccrueInterestParamsLocal, setCollateralParamsLocal, setDebtParamsLocal,
     setIrParamsLocal, setLpParamsLocal, switchBorrowerSyncFlagOff,
@@ -197,17 +198,6 @@ describe("sync db helper", () => {
         await clearBorrowerStatuses(client);
         const resp = await client.query("SELECT * FROM borrower_status").then((r: any) => r.rows);
         expect(resp).toEqual([]);
-    });
-
-
-    test("getDistinctCollateralList", async () => {
-        await upsertBorrower(client, 'mainnet', 'SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR');
-        await syncBorrowerCollaterals(client, 'SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR', [
-            { network: 'mainnet', collateral: 'SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth', amount: 200 },
-            { network: 'mainnet', collateral: 'SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc', amount: 300 },
-        ]);
-        const resp = await getDistinctCollateralList(client);
-        expect(resp).toEqual(["SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth", "SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc"]);
     });
 
     test("IrParamsLocal", async () => {

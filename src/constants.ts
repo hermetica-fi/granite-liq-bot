@@ -1,5 +1,6 @@
 require("dotenv").config();
 
+import type { NetworkName } from "granite-liq-bot-common";
 import type { Ticker } from "./client/pyth";
 
 export const IR_PARAMS_SCALING_FACTOR = 12;
@@ -25,13 +26,20 @@ const STAGING_CONTRACTS = {
 
 const USE_STAGING = process.env.USE_STAGING === "1";
 
-export const CONTRACTS = {
-    "mainnet": USE_STAGING ? STAGING_CONTRACTS : PRODUCTION_CONTRACTS,
+export const CONTRACTS: Record<NetworkName, {
+    borrower: string;
+    state: string;
+    ir: string;
+    liquidator: string;
+    collaterals: string[];
+}> = {
+    "mainnet": { ...(USE_STAGING ? STAGING_CONTRACTS : PRODUCTION_CONTRACTS), collaterals: ["SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token"] },
     "testnet": {
         "borrower": "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.borrower-v1",
         "state": "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.state-v1",
         "ir": "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.linear-kinked-ir-v1",
-        "liquidator": "ST12YKQ22YZZF044Q1SW8W9A3BRZMCY2XSQ8YWBK8.liquidator-v1"
+        "liquidator": "ST12YKQ22YZZF044Q1SW8W9A3BRZMCY2XSQ8YWBK8.liquidator-v1",
+        "collaterals": ["ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth", "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc"]
     }
 }
 
