@@ -3,6 +3,7 @@ import type { AddressBalanceResponse, AddressNonces, MempoolTransaction, Mempool
 
 const MAX_RETRIES = 5;
 const INITIAL_DELAY = 5000;
+const HIRO_API_KEY = process.env.HIRO_API_KEY;
 
 export const fetchFn = async (
     input: string | URL,
@@ -13,7 +14,18 @@ export const fetchFn = async (
     for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
         try {
 
-            const r = await fetch(input, init);
+            const r = await fetch(input, HIRO_API_KEY ? {
+                ...init,
+                headers: {
+                    ...init?.headers,
+                    'X-API-Key': HIRO_API_KEY
+                }
+            } : init);
+
+            if(r.status === 403){
+                throw new Error('Hiro api key is invalid');
+            }
+            
             if (r.status !== 429) {
                 return r;
             }
