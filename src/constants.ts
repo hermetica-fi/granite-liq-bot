@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 import type { Ticker } from "./client/pyth";
 
 export const IR_PARAMS_SCALING_FACTOR = 12;
@@ -7,13 +9,24 @@ export const MARKET_ASSET_DECIMAL = {
     "testnet": 8
 }
 
+const PRODUCTION_CONTRACTS = {
+    "borrower": "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.borrower-v1",
+    "state": "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.state-v1",
+    "ir": "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.linear-kinked-ir-v1",
+    "liquidator": "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.liquidator-v1"
+};
+
+const STAGING_CONTRACTS = {
+    "borrower": "SP1M6MHD4EJ70MPJSH1C0PXSHCQ3D9C881AB7CVAZ.borrower-v1",
+    "state": "SP1M6MHD4EJ70MPJSH1C0PXSHCQ3D9C881AB7CVAZ.state-v1",
+    "ir": "SP1M6MHD4EJ70MPJSH1C0PXSHCQ3D9C881AB7CVAZ.linear-kinked-ir-v1",
+    "liquidator": "SP1M6MHD4EJ70MPJSH1C0PXSHCQ3D9C881AB7CVAZ.liquidator-v1"
+};
+
+const USE_STAGING = process.env.USE_STAGING === "1";
+
 export const CONTRACTS = {
-    "mainnet": {
-        "borrower": "SP1M6MHD4EJ70MPJSH1C0PXSHCQ3D9C881AB7CVAZ.borrower-v1",
-        "state": "SP1M6MHD4EJ70MPJSH1C0PXSHCQ3D9C881AB7CVAZ.state-v1",
-        "ir": "SP1M6MHD4EJ70MPJSH1C0PXSHCQ3D9C881AB7CVAZ.linear-kinked-ir-v1",
-        "liquidator": "SP1M6MHD4EJ70MPJSH1C0PXSHCQ3D9C881AB7CVAZ.liquidator-v1"
-    },
+    "mainnet": USE_STAGING ? STAGING_CONTRACTS : PRODUCTION_CONTRACTS,
     "testnet": {
         "borrower": "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.borrower-v1",
         "state": "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.state-v1",
@@ -21,6 +34,8 @@ export const CONTRACTS = {
         "liquidator": "ST12YKQ22YZZF044Q1SW8W9A3BRZMCY2XSQ8YWBK8.liquidator-v1"
     }
 }
+
+console.log(CONTRACTS)
 
 export const PRICE_FEED_IDS: { ticker: Ticker, feed_id: string }[] = [
     { ticker: "btc", feed_id: "0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43" },
