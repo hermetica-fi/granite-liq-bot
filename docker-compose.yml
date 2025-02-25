@@ -20,12 +20,12 @@ services:
       - internal
     ports:
       - "${VITE_PORT:-8080}:${VITE_PORT:-8080}"
-  api:
-    container_name: api
+  backend:
+    container_name: backend
     build:
       context: .
-      dockerfile: .Dockerfile
-    entrypoint: bun start:api
+      dockerfile: .Dockerfile-back
+    entrypoint: bun start
     restart: always
     depends_on:
       - postgres
@@ -38,21 +38,6 @@ services:
       - internal
     ports:
       - "${API_PORT:-8081}:${API_PORT:-8081}"
-  worker:
-    container_name: worker
-    build:
-      context: .
-      dockerfile: .Dockerfile
-    entrypoint: bun start:worker
-    restart: always
-    depends_on:
-      - postgres
-    environment:
-      - DB=postgres://postgres:postgres-pwd@postgres:5432/granite_liq_bot
-    volumes:
-      - ./logs:/app/logs
-    networks:
-      - internal
   postgres:
     restart: always
     image: postgres:16.0
