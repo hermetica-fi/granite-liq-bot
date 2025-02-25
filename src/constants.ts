@@ -35,8 +35,6 @@ export const CONTRACTS = {
     }
 }
 
-console.log(CONTRACTS)
-
 export const PRICE_FEED_IDS: { ticker: Ticker, feed_id: string }[] = [
     { ticker: "btc", feed_id: "0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43" },
     { ticker: "eth", feed_id: "0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace" },

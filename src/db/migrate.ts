@@ -1,4 +1,5 @@
 import type { PoolClient } from "pg";
+import { CONTRACTS } from "../constants";
 import { pool } from "../db";
 
 export const createDb = async (client: PoolClient) => {
@@ -64,6 +65,7 @@ export const createDb = async (client: PoolClient) => {
         ");";
 
     CREATE += "INSERT INTO kv_store VALUES ('db_ver', 1);";
+    CREATE += "INSERT INTO kv_store VALUES ('contract_hash', '" + Bun.hash(JSON.stringify(CONTRACTS)).toString() + "');";
 
     return client.query(CREATE, []).then(() => {
         console.log("db created")
@@ -104,6 +106,11 @@ export const migrateDb = async () => {
 
     if (!exists) {
         await createDb(dbClient);
+    } else {
+        const contractHash = await dbClient.query('SELECT "value" FROM kv_store where "key"=$1 LIMIT 1', ["contract_hash"]).then(r => r.rows[0]?.value || '');
+        if (contractHash !== Bun.hash(JSON.stringify(CONTRACTS)).toString()) {
+            throw new Error(`Can't change contracts. Revert it to previous version or reset database and start from zero.`);
+        }
     }
 
     let dbVer = await dbClient.query('SELECT "value" FROM kv_store where "key"=$1 LIMIT 1', ["db_ver"]).then(r => Number(r.rows[0].value));
