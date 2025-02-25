@@ -9,12 +9,12 @@ import { getNetworkNameFromAddress } from "../../helper";
 import { createLogger } from "../../logger";
 import { upsertBorrower } from "../db-helper";
 
-
 const logger = createLogger("event-sync");
 
 const TRACKED_CONTRACTS = [
   CONTRACTS.mainnet.borrower,
   CONTRACTS.mainnet.state,
+  CONTRACTS.mainnet.liquidator,
   CONTRACTS.testnet.borrower,
   CONTRACTS.testnet.state,
   CONTRACTS.testnet.liquidator,
@@ -52,9 +52,9 @@ const worker = async (dbClient: PoolClient, contract: string) => {
 
   const limit = 50;
   let offset = 0;
-  let lastSeenTxRemote = null;
+  let lastSeenTxRemote: string | null = null;
 
-  while (true) {
+  const fetchEvents = async () => {
     const events = await getContractEvents(
       contract,
       limit,
@@ -81,11 +81,15 @@ const worker = async (dbClient: PoolClient, contract: string) => {
     }
 
     if (events.results.length < limit || breakFlag) {
-      break;
+      return;
     }
 
     offset += limit;
+
+    await fetchEvents();
   }
+
+  await fetchEvents();
 
   if (lastSeenTxRemote) {
     await kvStoreSet(dbClient, key, lastSeenTxRemote);
