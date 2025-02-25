@@ -14,11 +14,11 @@ const BASE_DELAY = 7_000;
 const logger = createLogger('worker');
 
 const workerInner = async () => {
+    await contractSync();
     await eventSync();
     await borrowerSync();
     await marketSync();
     await healthSync();
-    await contractSync();
     await liquidate();
 
     const dbClient = await pool.connect();
