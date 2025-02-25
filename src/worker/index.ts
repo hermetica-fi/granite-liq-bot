@@ -1,4 +1,6 @@
 import { CONTRACTS } from "../constants";
+import { pool } from "../db";
+import { kvStoreSet } from "../db/helper";
 import { createLogger } from "../logger";
 import { main as borrowerSync } from "./borrower-sync";
 import { main as contractSync } from "./contract-sync";
@@ -18,6 +20,10 @@ const workerInner = async () => {
     await healthSync();
     await contractSync();
     await liquidate();
+
+    const dbClient = await pool.connect();
+    await kvStoreSet(dbClient, "last-sync", Date.now());
+    dbClient.release();
 }
 
 const worker = async () => {
@@ -37,7 +43,7 @@ const worker = async () => {
 export const main = async () => {
     console.log("--------------------------------");
     console.log("Worker started with contracts:")
-    console.log(CONTRACTS); 
+    console.log(CONTRACTS);
     console.log("--------------------------------");
     worker();
 }
