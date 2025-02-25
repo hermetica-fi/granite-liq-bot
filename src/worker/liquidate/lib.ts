@@ -77,7 +77,7 @@ export const makeLiquidationBatch = (marketAssetInfo: AssetInfo, collateralAsset
         });
     }
 
-    return [batch[0]];
+    return batch;
 }
 
 export const swapOutCv = (swap: SwapResult) => {
