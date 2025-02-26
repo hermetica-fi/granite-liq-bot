@@ -9,7 +9,7 @@ import { getBorrowerStatusList, getContractList } from "../../db-helper";
 import { hexToUint8Array } from "../../helper";
 import { createLogger } from "../../logger";
 import { epoch } from "../../util";
-import { getBorrowersToSync } from "../db-helper";
+import { getBorrowersToSync, getMarketState } from "../db-helper";
 import { liquidationBatchCv, makeLiquidationBatch, swapOutCv } from "./lib";
 
 const logger = createLogger("liquidate");
@@ -56,9 +56,15 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
         orderBy: 'total_repay_amount DESC'
     });
 
+    const marketState = await getMarketState(dbClient, network);
+    const liquidationPremium = marketState.collateralParams[collateralAsset.address].liquidationPremium;
+    if (!liquidationPremium) {
+        throw new Error("Collateral liquidation premium not found");
+    }
+
     const priceFeed = await fetchAndProcessPriceFeed();
     const priceAttestationBuff = hexToUint8Array(priceFeed.attestation);
-    const batch = makeLiquidationBatch(marketAsset, collateralAsset, borrowers, priceFeed);
+    const batch = makeLiquidationBatch(marketAsset, collateralAsset, borrowers, priceFeed, liquidationPremium);
     let swapRoute;
 
     if (batch.length === 0) {

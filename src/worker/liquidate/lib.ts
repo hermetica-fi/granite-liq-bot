@@ -1,8 +1,8 @@
 import { listCV, noneCV, principalCV, someCV, tupleCV, uintCV, type ClarityValue } from "@stacks/transactions";
-import { formatUnits, parseUnits, toFixedDown, type AssetInfo, type BorrowerStatusEntity } from "granite-liq-bot-common";
+import { parseUnits, toFixedDown, type AssetInfo, type BorrowerStatusEntity } from "granite-liq-bot-common";
 import type { SwapResult } from "../../alex";
 import type { PriceFeedResponse } from "../../client/pyth";
-import { MIN_TO_LIQUIDATE_PER_USER, REPAY_ADJUSTMENT } from "../../constants";
+import { MIN_TO_LIQUIDATE_PER_USER } from "../../constants";
 import { toTicker } from "../../helper";
 import type { LiquidationBatch } from "../../types";
 
@@ -18,7 +18,35 @@ export const liquidationBatchCv = (batch: LiquidationBatch[]) => {
     return listCV(listItems)
 }
 
-export const makeLiquidationBatch = (marketAssetInfo: AssetInfo, collateralAssetInfo: AssetInfo, borrowers: BorrowerStatusEntity[], priceFeed: PriceFeedResponse): LiquidationBatch[] => {
+export const calcCollateralToGive = (repayAmount: bigint, liquidationDiscount: bigint, collateralPrice: bigint, collateralDecimals: bigint, marketTokenDecimals: bigint) => {
+
+    const SCALING_FACTOR = 100000000n;
+
+    const safeDiv = (x: bigint, y: bigint) => {
+        if (y > 0n) {
+            return x / y;
+        }
+
+        throw new Error("ERR-DIVIDE-BY-ZERO");
+    }
+
+    const toFixed = (a: bigint, decimalsA: bigint, fixedPrecision: bigint) => {
+        if (decimalsA > fixedPrecision) {
+            return a / (10n ** (decimalsA - fixedPrecision));
+        } else {
+            return a * (10n ** (fixedPrecision - decimalsA));
+        }
+
+    }
+
+    const repayAmountWithDiscount = repayAmount * (SCALING_FACTOR + liquidationDiscount) / SCALING_FACTOR;
+    const collateralAmount = safeDiv(repayAmountWithDiscount * SCALING_FACTOR, collateralPrice);
+    const decimalCorrectedCollateral = toFixed(collateralAmount, marketTokenDecimals, collateralDecimals);
+
+    return decimalCorrectedCollateral;
+}
+
+export const makeLiquidationBatch = (marketAssetInfo: AssetInfo, collateralAssetInfo: AssetInfo, borrowers: BorrowerStatusEntity[], priceFeed: PriceFeedResponse, liquidationPremium: number): LiquidationBatch[] => {
     const cTicker = toTicker(collateralAssetInfo.symbol);
     const cFeed = priceFeed.items[cTicker];
 
@@ -26,7 +54,7 @@ export const makeLiquidationBatch = (marketAssetInfo: AssetInfo, collateralAsset
         throw new Error("Collateral asset price feed not found");
     }
 
-    const collateralPrice = formatUnits(Number(cFeed.price.price), -1 * cFeed.price.expo);
+    const collateralPrice = Number(cFeed.price.price)
 
     const batch: LiquidationBatch[] = [];
 
@@ -46,34 +74,18 @@ export const makeLiquidationBatch = (marketAssetInfo: AssetInfo, collateralAsset
             continue;
         }
 
-        // Adjust down max repay amount %5 to prevent transaction failure in case volatility 
-        // + removes decimals to protects from decimal precision issues (TODO: Not great solution, needs improvements)
-        const repayAmountAdjusted = toFixedDown(repayAmount - (repayAmount / 100 * REPAY_ADJUSTMENT), 2);
+        const repayAmountAdjusted = toFixedDown(repayAmount, 3);
         const repayAmountAdjustedBn = parseUnits(repayAmountAdjusted, marketAssetInfo.decimals);
         const repayAmountFinalBn = Math.min(availableBn, repayAmountAdjustedBn);
-        const repayAmountFinal = formatUnits(repayAmountFinalBn, marketAssetInfo.decimals);
 
         availableBn = availableBn - repayAmountFinalBn;
 
-        const minCollateralExpected = toFixedDown((repayAmountFinal / collateralPrice), collateralAssetInfo.decimals);
-        const minCollateralExpectedBn = Math.floor(parseUnits(minCollateralExpected, collateralAssetInfo.decimals));
-        const minCollateralExpectedFinalBn = toFixedDown(minCollateralExpectedBn - (minCollateralExpectedBn / 1000 * 4), 0);
+        const minCollateralExpected = calcCollateralToGive(BigInt(repayAmountFinalBn), BigInt(liquidationPremium), BigInt(collateralPrice), BigInt(collateralAssetInfo.decimals), BigInt(marketAssetInfo.decimals));
 
         batch.push({
             user: borrower.address,
             liquidatorRepayAmount: repayAmountFinalBn,
-            minCollateralExpected: minCollateralExpectedFinalBn,
-            details: {
-                repayAmount,
-                repayAmountAdjusted,
-                repayAmountAdjustedBn,
-                repayAmountFinalBn,
-                repayAmountFinal,
-                collateralPrice,
-                minCollateralExpected,
-                minCollateralExpectedBn,
-                minCollateralExpectedFinalBn
-            }
+            minCollateralExpected: Number(minCollateralExpected)
         });
     }
 
@@ -106,48 +118,3 @@ export const swapOutCv = (swap: SwapResult) => {
     return someCV(tupleCV(swapData));
 }
 
-/*
-(define-private (calc-collateral-to-give (repay-amount uint) (liquidation-discount uint) (collateral-price uint) (collateral-decimals uint))
-  (let
-    (
-      (repay-amount-with-discount (/ (* repay-amount (+ SCALING-FACTOR liquidation-discount)) SCALING-FACTOR))
-      (collateral-amount (try! (safe-div (* repay-amount-with-discount SCALING-FACTOR) collateral-price)))
-      (decimal-corrected-collateral (contract-call? .math-v1 to-fixed collateral-amount MARKET-TOKEN-DECIMALS collateral-decimals))
-    )
-    (ok decimal-corrected-collateral)
-))
-*/
-
-
-// const MARKET_TOKEN_DECIMALS = 6n
-
-// const marketTokenDecimals = 6n;
-// const liquidationDiscount = 10000000n;
-
-export const calcCollateralToGive = (repayAmount: bigint, liquidationDiscount: bigint, collateralPrice: bigint, collateralDecimals: bigint, marketTokenDecimals: bigint) => {
-
-    const SCALING_FACTOR = 100000000n;
-
-    const safeDiv = (x: bigint, y: bigint) => {
-        if (y > 0n) {
-            return x / y;
-        }
-
-        throw new Error("ERR-DIVIDE-BY-ZERO");
-    }
-
-    const toFixed = (a: bigint, decimalsA: bigint, fixedPrecision: bigint) => {
-        if (decimalsA > fixedPrecision) {
-            return a / (10n ** (decimalsA - fixedPrecision));
-        } else {
-            return a * (10n ** (fixedPrecision - decimalsA));
-        }
-
-    }
-
-    const repayAmountWithDiscount = repayAmount * (SCALING_FACTOR + liquidationDiscount) / SCALING_FACTOR;
-    const collateralAmount = safeDiv(repayAmountWithDiscount * SCALING_FACTOR, collateralPrice);
-    const decimalCorrectedCollateral = toFixed(collateralAmount, marketTokenDecimals, collateralDecimals);
-
-    return decimalCorrectedCollateral;
-}
