@@ -118,3 +118,25 @@ export const swapOutCv = (swap: SwapResult) => {
     return someCV(tupleCV(swapData));
 }
 
+
+/*
+(define-private (calculate-repayment-info
+    (debt uint)
+    (total-collaterals-liquid-value uint)
+    (collateral-value uint)
+    (liquidation-discount uint)
+    (collateral-liquid-ltv uint)
+  )
+  (let
+    (
+      (denominator (-
+          SCALING-FACTOR
+          (try! (safe-div (* (+ SCALING-FACTOR liquidation-discount) collateral-liquid-ltv) SCALING-FACTOR))
+      ))
+      (total-repay-amount (try! (safe-div (* (- debt total-collaterals-liquid-value) SCALING-FACTOR) denominator)))
+      (repay-amount-without-discount (/ (* collateral-value SCALING-FACTOR) (+ liquidation-discount SCALING-FACTOR)))
+      (repay-allowed (if (< total-repay-amount repay-amount-without-discount) total-repay-amount repay-amount-without-discount))
+    )
+    (ok {repay-allowed: repay-allowed, repay-amount-without-discount: repay-amount-without-discount})
+))
+*/
