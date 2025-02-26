@@ -3,7 +3,7 @@ import { estimateTxFeeOptimistic, fetchFn, formatUnits, getAccountNonces, type N
 import type { PoolClient } from "pg";
 import { getBestSwap } from "../../alex";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
-import { MIN_TO_LIQUIDATE, TX_TIMEOUT } from "../../constants";
+import { DRY_RUN, MIN_TO_LIQUIDATE, TX_TIMEOUT } from "../../constants";
 import { pool } from "../../db";
 import { getBorrowerStatusList, getContractList } from "../../db-helper";
 import { hexToUint8Array } from "../../helper";
@@ -86,6 +86,15 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
             logger.error(`Not profitable to liquidate. total spend: ${totalSpend}, total receive: ${totalReceive}, best swap: ${swapRoute.out}`);
             return;
         }
+    }
+
+    if (DRY_RUN) {
+        logger.info('Dry run mode on, skipping.', {
+            totalSpend,
+            totalReceive,
+            batch
+        });
+        return;
     }
 
     let swapDataCv: ClarityValue = swapRoute ? swapOutCv(swapRoute) : noneCV();
