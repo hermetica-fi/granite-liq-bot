@@ -42,7 +42,7 @@ export const makeLiquidationBatch = (marketAssetInfo: AssetInfo, collateralAsset
             continue;
         }
 
-        if(repayAmount < MIN_TO_LIQUIDATE_PER_USER){
+        if (repayAmount < MIN_TO_LIQUIDATE_PER_USER) {
             continue;
         }
 
@@ -104,4 +104,50 @@ export const swapOutCv = (swap: SwapResult) => {
     }
 
     return someCV(tupleCV(swapData));
+}
+
+/*
+(define-private (calc-collateral-to-give (repay-amount uint) (liquidation-discount uint) (collateral-price uint) (collateral-decimals uint))
+  (let
+    (
+      (repay-amount-with-discount (/ (* repay-amount (+ SCALING-FACTOR liquidation-discount)) SCALING-FACTOR))
+      (collateral-amount (try! (safe-div (* repay-amount-with-discount SCALING-FACTOR) collateral-price)))
+      (decimal-corrected-collateral (contract-call? .math-v1 to-fixed collateral-amount MARKET-TOKEN-DECIMALS collateral-decimals))
+    )
+    (ok decimal-corrected-collateral)
+))
+*/
+
+
+// const MARKET_TOKEN_DECIMALS = 6n
+
+// const marketTokenDecimals = 6n;
+// const liquidationDiscount = 10000000n;
+
+export const calcCollateralToGive = (repayAmount: bigint, liquidationDiscount: bigint, collateralPrice: bigint, collateralDecimals: bigint, marketTokenDecimals: bigint) => {
+
+    const SCALING_FACTOR = 100000000n;
+
+    const safeDiv = (x: bigint, y: bigint) => {
+        if (y > 0n) {
+            return x / y;
+        }
+
+        throw new Error("ERR-DIVIDE-BY-ZERO");
+    }
+
+    const toFixed = (a: bigint, decimalsA: bigint, fixedPrecision: bigint) => {
+        if (decimalsA > fixedPrecision) {
+            return a / (10n ** (decimalsA - fixedPrecision));
+        } else {
+            return a * (10n ** (fixedPrecision - decimalsA));
+        }
+
+    }
+
+    const repayAmountWithDiscount = repayAmount * (SCALING_FACTOR + liquidationDiscount) / SCALING_FACTOR;
+    const collateralAmount = safeDiv(repayAmountWithDiscount * SCALING_FACTOR, collateralPrice);
+    const decimalCorrectedCollateral = toFixed(collateralAmount, marketTokenDecimals, collateralDecimals);
+
+    return decimalCorrectedCollateral;
 }
