@@ -429,8 +429,8 @@ describe("makeLiquidationBatch", () => {
         expect(batch).toEqual([
             {
                 user: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
-                liquidatorRepayAmount: 212500000,
-                minCollateralExpected: 2393
+                liquidatorRepayAmount: 201900000,
+                minCollateralExpected: 2274
             }
         ]);
     });
@@ -470,12 +470,12 @@ describe("makeLiquidationBatch", () => {
         expect(batch).toEqual([
             {
                 user: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
-                liquidatorRepayAmount: 212500000,
-                minCollateralExpected: 2393
+                liquidatorRepayAmount: 201900000,
+                minCollateralExpected: 2274
             }, {
                 user: "ST2DXHX9Q844EBT80DYJXFWXJKCJ5FFAX53H4AZFA",
-                liquidatorRepayAmount: 462300000,
-                minCollateralExpected: 5207
+                liquidatorRepayAmount: 439200000,
+                minCollateralExpected: 4947
             }
         ]);
     });
@@ -527,16 +527,16 @@ describe("makeLiquidationBatch", () => {
         expect(batch).toEqual([
             {
                 user: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
-                liquidatorRepayAmount: 212500000,
-                minCollateralExpected: 2393
+                liquidatorRepayAmount: 201900000,
+                minCollateralExpected: 2274
             }, {
                 user: "ST2DXHX9Q844EBT80DYJXFWXJKCJ5FFAX53H4AZFA",
-                liquidatorRepayAmount: 462300000,
-                minCollateralExpected: 5207
+                liquidatorRepayAmount: 439200000,
+                minCollateralExpected: 4947
             }, {
                 user: "ST2VWSP59FEVDXXYGGWYG90M3N67ZST2AGPA3P2HC",
-                liquidatorRepayAmount: 1325200000,
-                minCollateralExpected: 14927
+                liquidatorRepayAmount: 1358900000,
+                minCollateralExpected: 15307
             }
         ]);
     });
