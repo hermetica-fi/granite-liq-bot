@@ -1,7 +1,8 @@
 import type { BorrowerStatus } from "granite-liq-bot-common";
 import {
     calculateAccountHealth, calculateAccountLiqLTV,
-    calculateLiquidationPoint, calculateMaxRepayAmount, calculateTotalCollateralValue, convertDebtSharesToAssets, liquidatorMaxRepayAmount
+    calculateLiquidationPoint,
+    calculateTotalCollateralValue, convertDebtSharesToAssets, liquidatorMaxRepayAmount
 } from "granite-math-sdk";
 import type { PriceFeedResponse } from "../../client/pyth";
 import { IR_PARAMS_SCALING_FACTOR, LIQUIDATION_PREMIUM } from "../../constants";
@@ -19,12 +20,11 @@ export const calcBorrowerStatus = (borrower: {
         slope2: marketState.irParams.slope2 / 10 ** IR_PARAMS_SCALING_FACTOR,
     };
 
-    const now = Date.now();
     const debtShares = borrower.debtShares / 10 ** marketState.marketAssetParams.decimals;
     const openInterest = marketState.debtParams.openInterest / 10 ** marketState.marketAssetParams.decimals;
     const totalDebtShares = marketState.debtParams.totalDebtShares / 10 ** marketState.marketAssetParams.decimals;
     const totalAssets = marketState.lpParams.totalAssets / 10 ** marketState.marketAssetParams.decimals;
-    const timeDelta = Math.ceil(now / 1000) - marketState.accrueInterestParams.lastAccruedBlockTime;
+    const timeDelta = 0; //  Math.ceil(now / 1000) - marketState.accrueInterestParams.lastAccruedBlockTime;
     const debtAssets = convertDebtSharesToAssets(
         debtShares,
         openInterest,
@@ -72,15 +72,6 @@ export const calcBorrowerStatus = (borrower: {
     const totalCollateralValue = calculateTotalCollateralValue(collaterals);
 
     const liquidationRisk = liquidationPoint / totalCollateralValue;
-
-    const maxRepayAmount = calculateMaxRepayAmount(
-        debtShares,
-        openInterest,
-        totalDebtShares,
-        totalAssets,
-        irParams,
-        timeDelta
-    );
 
     const maxRepay: Record<string, number> = {};
     let totalRepayAmount = 0;
