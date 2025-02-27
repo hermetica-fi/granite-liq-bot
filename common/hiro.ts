@@ -1,9 +1,10 @@
 import { networkFromName, type StacksNetworkName } from "@stacks/network";
 import type { AddressBalanceResponse, AddressNonces, MempoolTransaction, MempoolTransactionListResponse, Transaction, TransactionEventsResponse } from "@stacks/stacks-blockchain-api-types";
 
+const TIMEOUT = 10000;
 const MAX_RETRIES = 5;
 const INITIAL_DELAY = 5000;
-const HIRO_API_KEY = process?.env?.HIRO_API_KEY 
+const HIRO_API_KEY = process?.env?.HIRO_API_KEY
 
 export const fetchFn = async (
     input: string | URL,
@@ -12,20 +13,30 @@ export const fetchFn = async (
     let lastError: Error | null = null;
 
     for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), TIMEOUT);
+
+        const _init = HIRO_API_KEY ? {
+            ...init,
+            headers: {
+                ...init?.headers,
+                'X-API-Key': HIRO_API_KEY
+            }
+        } : init;
+
         try {
+            const r = await fetch(input, {
+                ..._init,
+                signal: controller.signal
+            });
 
-            const r = await fetch(input, HIRO_API_KEY ? {
-                ...init,
-                headers: {
-                    ...init?.headers,
-                    'X-API-Key': HIRO_API_KEY
-                }
-            } : init);
+            clearTimeout(timeoutId);
 
-            if(r.status === 403){
+            if (r.status === 403) {
                 throw new Error('Hiro api key is invalid');
             }
-            
+
             if (r.status !== 429) {
                 return r;
             }
