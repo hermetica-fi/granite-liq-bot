@@ -118,7 +118,7 @@ export const routes = {
         await dbClient.query('INSERT INTO contract (id, address, name, network, operator_address, operator_priv, market_asset, collateral_asset) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
             [
                 address, contractAddress, contractName, network, operatorAddress, operator.stxPrivateKey,
-                { address: marketAsset, ...marketAssetInfo }, { address: collateralAsset, ...collateralAssetInfo }
+                { ...marketAssetInfo }, { ...collateralAssetInfo }
             ]);
         const contracts = await getContractList(dbClient);
         dbClient.release();
