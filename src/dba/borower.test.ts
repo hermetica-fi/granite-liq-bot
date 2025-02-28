@@ -2,7 +2,7 @@ import { describe, expect, mock, setSystemTime, test } from "bun:test";
 import { newDb } from "pg-mem";
 import { migrateDb } from "../db/migrate";
 import {
-    clearBorrowerStatuses, getBorrowerCollateralAmount, getBorrowersForHealthCheck,
+    clearBorrowerStatuses, getBorrowerCollateralAmount, getBorrowerStatusList, getBorrowersForHealthCheck,
     getBorrowersToSync, insertBorrowerStatus, switchBorrowerSyncFlagOff, syncBorrowerCollaterals,
     syncBorrowerPosition, upsertBorrower
 } from "./borrower";
@@ -186,6 +186,26 @@ describe("dba borrower", () => {
                 total_repay_amount: 0
             }
         ])
+    });
+
+    test("getBorrowerStatusList", async () => {
+        const resp = await getBorrowerStatusList(client, { filters: { network: 'mainnet' } });
+        expect(resp).toEqual([
+            {
+                address: "SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR",
+                network: "mainnet",
+                ltv: 0.6978,
+                health: 1.0206,
+                debt: 526735.7297,
+                collateral: 754865.5289,
+                risk: 0.9798,
+                maxRepay: {},
+                totalRepayAmount: 0,
+            }
+        ]);
+
+        const resp2 = await getBorrowerStatusList(client, { filters: { network: 'testnet' } });
+        expect(resp2).toEqual([]);
     });
 
     test("clearBorrowerStatuses", async () => {
