@@ -5,12 +5,12 @@ import { getBestSwap } from "../../alex";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
 import { DRY_RUN, MIN_TO_LIQUIDATE, TX_TIMEOUT } from "../../constants";
 import { pool } from "../../db";
-import { getBorrowerStatusList } from "../../dba/borrower";
+import { getBorrowerStatusList, getBorrowersToSync } from "../../dba/borrower";
 import { getContractList, getContractOperatorPriv } from "../../dba/contract";
 import { hexToUint8Array } from "../../helper";
 import { createLogger } from "../../logger";
 import { epoch } from "../../util";
-import { getBorrowersToSync, getMarketState } from "../db-helper";
+import { getMarketState } from "../db-helper";
 import { liquidationBatchCv, makeLiquidationBatch, swapOutCv } from "./lib";
 
 const logger = createLogger("liquidate");

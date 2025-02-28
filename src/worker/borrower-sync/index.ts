@@ -1,9 +1,9 @@
 import type { PoolClient } from "pg";
 import { getUserCollateralAmount, getUserPosition } from "../../client/read-only-call";
 import { pool } from "../../db";
+import { getBorrowersToSync, switchBorrowerSyncFlagOff, syncBorrowerCollaterals, syncBorrowerPosition } from "../../dba/borrower";
 import { createLogger } from "../../logger";
 import { epoch } from "../../util";
-import { getBorrowersToSync, switchBorrowerSyncFlagOff, syncBorrowerCollaterals, syncBorrowerPosition } from "../db-helper";
 
 export const logger = createLogger("borrower-sync");
 

@@ -5,9 +5,9 @@ import type { PoolClient } from "pg";
 import { CONTRACTS } from "../../constants";
 import { pool } from "../../db";
 import { kvStoreGet, kvStoreSet } from "../../db/helper";
+import { upsertBorrower } from "../../dba/borrower";
 import { getNetworkNameFromAddress } from "../../helper";
 import { createLogger } from "../../logger";
-import { upsertBorrower } from "../db-helper";
 
 const logger = createLogger("event-sync");
 

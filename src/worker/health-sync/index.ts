@@ -3,7 +3,8 @@ import type { NetworkName } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
 import { pool } from "../../db";
-import { clearBorrowerStatuses, getBorrowerCollateralAmount, getBorrowersForHealthCheck, getMarketState, insertBorrowerStatus } from "../db-helper";
+import { clearBorrowerStatuses, getBorrowerCollateralAmount, getBorrowersForHealthCheck, insertBorrowerStatus } from "../../dba/borrower";
+import { getMarketState } from "../db-helper";
 import { calcBorrowerStatus } from "./lib";
 
 export const worker = async (dbClient: PoolClient) => {
