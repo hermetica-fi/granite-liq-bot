@@ -45,3 +45,8 @@ export const getContractList = async (dbClient: PoolClient, args?: {
             unlocksAt: row.unlocks_at ? Number(row.unlocks_at) : null
         })));
 }
+
+
+export const getContractOperatorPriv = (dbClient: PoolClient, contractId: string): Promise<string | undefined> => {
+    return dbClient.query("SELECT operator_priv FROM contract WHERE id = $1", [contractId]).then(r => r.rows[0]?.operator_priv)
+}

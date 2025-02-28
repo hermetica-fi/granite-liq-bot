@@ -1,7 +1,7 @@
 import { describe, expect, mock, setSystemTime, test } from "bun:test";
 import { newDb } from "pg-mem";
 import { migrateDb } from "../db/migrate";
-import { getContractList, insertContract } from "./contract";
+import { getContractList, getContractOperatorPriv, insertContract } from "./contract";
 
 const db = newDb();
 const pg = db.adapters.createPg();
@@ -24,7 +24,7 @@ describe("dba contracts", () => {
             'SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.liquidator',
             'mainnet',
             'SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T',
-            '0x..',
+            '0x1.',
             { address: "SP3Y2ZSH8P7D50B0VBTSX11S7XSG24M1VB9YFQA4K.token-aeusdc", name: "Ethereum USDC via Allbridge", symbol: "aeUSDC", decimals: 6 },
             { address: "SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token", name: "sBTC", symbol: "sBTC", decimals: 8 }
         );
@@ -36,7 +36,7 @@ describe("dba contracts", () => {
             'ST1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.liquidator',
             'testnet',
             'ST1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T',
-            '0x..',
+            '0x2.',
             { address: "ST3Y2ZSH8P7D50B0VBTSX11S7XSG24M1VB9YFQA4K.mock-usdc", name: "mock USDC", symbol: "USDC", decimals: 8 },
             { address: "SN3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.mock-sbtc", name: "mock sBTC", symbol: "sBTC", decimals: 8 }
         );
@@ -134,4 +134,14 @@ describe("dba contracts", () => {
             }
         ])
     });
+
+    test("getContractOperatorPriv", async () => {
+        const priv = await getContractOperatorPriv(client, "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.liquidator");
+        expect(priv).toEqual("0x1.");
+    });
+
+    test("getContractOperatorPriv", async () => {
+        const priv = await getContractOperatorPriv(client, "ST1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.liquidator");
+        expect(priv).toEqual("0x2.");
+    }); 
 });

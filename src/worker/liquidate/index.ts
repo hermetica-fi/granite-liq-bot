@@ -6,7 +6,7 @@ import { fetchAndProcessPriceFeed } from "../../client/pyth";
 import { DRY_RUN, MIN_TO_LIQUIDATE, TX_TIMEOUT } from "../../constants";
 import { pool } from "../../db";
 import { getBorrowerStatusList } from "../../dba/borrower";
-import { getContractList } from "../../dba/contract";
+import { getContractList, getContractOperatorPriv } from "../../dba/contract";
 import { hexToUint8Array } from "../../helper";
 import { createLogger } from "../../logger";
 import { epoch } from "../../util";
@@ -115,8 +115,7 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
         swapDataCv,
     ];
 
-    const priv = await dbClient.query("SELECT operator_priv FROM contract WHERE id = $1", [contract.id]).then(r => r.rows[0].operator_priv);
-
+    const priv = (await getContractOperatorPriv(dbClient, contract.id))!;
     const nonce = (await getAccountNonces(contract.operatorAddress, contract.network)).possible_next_nonce;
     const fee = await estimateTxFeeOptimistic(contract.network);
 
