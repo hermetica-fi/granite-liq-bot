@@ -17,9 +17,7 @@ mock.module("./db/index", () => {
 await migrateDb();
 
 describe("dba", () => {
-
-
-    describe("dba", () => {
+    describe("contracts", () => {
         test("insertContract", async () => {
             setSystemTime(1738262052565);
             await insertContract(client,
