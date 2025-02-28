@@ -6,7 +6,7 @@ import { generateWallet } from "@stacks/wallet-sdk";
 import { getContractInfo } from "granite-liq-bot-common";
 import { getAssetInfo } from "../client/read-only-call";
 import { pool } from "../db";
-import { getBorrowerStatusList, getContractList } from "../db-helper";
+import { getBorrowerStatusList, getContractList, insertContract } from "../db-helper";
 import { kvStoreGet } from "../db/helper";
 import { getNetworkNameFromAddress } from "../helper";
 
@@ -48,7 +48,7 @@ export const routes = {
         }
 
         let dbClient = await pool.connect();
-        if (await dbClient.query('SELECT * FROM contract WHERE network = $1', [network]).then(r => r.rows.length > 0)) {
+        if ((await getContractList(dbClient, { filters: { network } })).length > 0) {
             dbClient.release();
             return errorResponse(`A contract for ${network} already exists`);
         }
@@ -115,11 +115,7 @@ export const routes = {
         }
 
         dbClient = await pool.connect();
-        await dbClient.query('INSERT INTO contract (id, address, name, network, operator_address, operator_priv, market_asset, collateral_asset) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
-            [
-                address, contractAddress, contractName, network, operatorAddress, operator.stxPrivateKey,
-                { ...marketAssetInfo }, { ...collateralAssetInfo }
-            ]);
+        await insertContract(dbClient, address, network, operatorAddress, operator.stxPrivateKey, marketAssetInfo, collateralAssetInfo);
         const contracts = await getContractList(dbClient);
         dbClient.release();
         return Response.json(contracts);

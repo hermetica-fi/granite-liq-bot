@@ -1,5 +1,18 @@
-import { type BorrowerStatusEntity, type ContractEntity } from "granite-liq-bot-common";
+import { type AssetInfo, type BorrowerStatusEntity, type ContractEntity, type NetworkName } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
+import { epoch } from "./util";
+
+export const insertContract = async (dbClient: PoolClient, address: string, network: NetworkName, operator: string, operatorPriv: string, marketAsset: AssetInfo, collateralAsset: AssetInfo) => {
+    const [contractAddress, contractName] = address.trim().split('.');
+
+    await dbClient.query(`
+        INSERT INTO contract (id, address, name, network, operator_address, operator_priv, market_asset, collateral_asset, created_at) 
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        `,
+        [
+            address, contractAddress, contractName, network, operator, operatorPriv, marketAsset, collateralAsset, epoch()
+        ]);
+}
 
 export const getContractList = async (dbClient: PoolClient, args?: {
     filters?: Record<string, string>,

@@ -22,7 +22,7 @@ export const createDb = async (client: PoolClient) => {
         "collateral_asset_balance NUMERIC NOT NULL DEFAULT 0," +
         "lock_tx VARCHAR," +
         "unlocks_at INTEGER," +
-        "created_at TIMESTAMP NOT NULL DEFAULT NOW()" +
+        "created_at INTEGER NOT NULL" +
         ");";
 
     CREATE += "CREATE INDEX IF NOT EXISTS contract_network_idx ON contract (network);";
