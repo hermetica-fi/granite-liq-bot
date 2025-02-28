@@ -7,10 +7,10 @@ import { DRY_RUN, MIN_TO_LIQUIDATE, TX_TIMEOUT } from "../../constants";
 import { pool } from "../../db";
 import { getBorrowerStatusList, getBorrowersToSync } from "../../dba/borrower";
 import { getContractList, getContractOperatorPriv } from "../../dba/contract";
+import { getMarketState } from "../../dba/market";
 import { hexToUint8Array } from "../../helper";
 import { createLogger } from "../../logger";
 import { epoch } from "../../util";
-import { getMarketState } from "../db-helper";
 import { liquidationBatchCv, makeLiquidationBatch, swapOutCv } from "./lib";
 
 const logger = createLogger("liquidate");

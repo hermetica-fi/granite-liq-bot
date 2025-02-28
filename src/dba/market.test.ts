@@ -8,7 +8,7 @@ import {
     getLpParamsLocal, getMarketState,
     setAccrueInterestParamsLocal, setCollateralParamsLocal, setDebtParamsLocal,
     setIrParamsLocal, setLpParamsLocal
-} from "./db-helper";
+} from "./market";
 
 const db = newDb();
 const pg = db.adapters.createPg();
@@ -30,9 +30,7 @@ mock.module("../constants", () => {
 
 await migrateDb();
 
-describe("sync db helper", () => {
-    
-
+describe("dba market", () => {
     test("IrParamsLocal", async () => {
         await setIrParamsLocal(client, 'mainnet', {
             urKink: 100,

@@ -3,14 +3,14 @@ import type { PoolClient } from "pg";
 import { getAccrueInterestParams, getCollateralParams, getDebtParams, getIrParams, getLpParams } from "../../client/read-only-call";
 import { CONTRACTS } from "../../constants";
 import { pool } from "../../db";
+import {
+    setAccrueInterestParamsLocal, setCollateralParamsLocal,
+    setDebtParamsLocal, setIrParamsLocal, setLpParamsLocal
+} from "../../dba/market";
 import { getNetworkNameFromAddress } from "../../helper";
 import { createLogger } from "../../logger";
 import type { CollateralParams } from "../../types";
 import { epoch } from "../../util";
-import {
-    setAccrueInterestParamsLocal, setCollateralParamsLocal,
-    setDebtParamsLocal, setIrParamsLocal, setLpParamsLocal
-} from "../db-helper";
 
 const logger = createLogger("market-sync");
 
