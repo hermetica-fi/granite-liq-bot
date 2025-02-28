@@ -7,7 +7,8 @@ import { getContractInfo } from "granite-liq-bot-common";
 import { getAssetInfo } from "../client/read-only-call";
 import { pool } from "../db";
 import { kvStoreGet } from "../db/helper";
-import { getBorrowerStatusList, getContractList, insertContract } from "../dba";
+import { getBorrowerStatusList } from "../dba/borrower";
+import { getContractList, insertContract } from "../dba/contract";
 import { getNetworkNameFromAddress } from "../helper";
 
 export const errorResponse = (error: any) => {

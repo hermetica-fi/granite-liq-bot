@@ -1,6 +1,6 @@
-import { type AssetInfo, type BorrowerStatusEntity, type ContractEntity, type NetworkName } from "granite-liq-bot-common";
+import { type AssetInfo, type ContractEntity, type NetworkName } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
-import { epoch } from "./util";
+import { epoch } from "../util";
 
 export const insertContract = async (dbClient: PoolClient, address: string, network: NetworkName, operator: string, operatorPriv: string, marketAsset: AssetInfo, collateralAsset: AssetInfo) => {
     const [contractAddress, contractName] = address.trim().split('.');
@@ -45,29 +45,3 @@ export const getContractList = async (dbClient: PoolClient, args?: {
             unlocksAt: row.unlocks_at ? Number(row.unlocks_at) : null
         })));
 }
-
-export const getBorrowerStatusList = async (dbClient: PoolClient, args?: {
-    filters?: Record<string, string>,
-    orderBy?: 'total_repay_amount DESC, risk DESC' | 'total_repay_amount DESC'
-}): Promise<BorrowerStatusEntity[]> => {
-    const filters = args?.filters || {};
-    const orderBy = args?.orderBy || 'total_repay_amount DESC, risk DESC';
-
-    let sql = 'SELECT * FROM borrower_status';
-    if (Object.keys(filters).length > 0) {
-        sql += ' WHERE ' + Object.keys(filters).map((key, index) => `${key} = $${index + 1}`).join(' AND ');
-    }
-    sql += ` ORDER BY ${orderBy}`;
-    return dbClient.query(sql, Object.values(filters))
-        .then(r => r.rows).then(rows => rows.map(row => ({
-            address: row.address,
-            network: row.network,
-            ltv: Number(row.ltv),
-            health: Number(row.health),
-            debt: Number(row.debt),
-            collateral: Number(row.collateral),
-            risk: Number(row.risk),
-            maxRepay: row.max_repay,
-            totalRepayAmount: Number(row.total_repay_amount)
-        })));
-}   
