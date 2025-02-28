@@ -6,8 +6,8 @@ import { generateWallet } from "@stacks/wallet-sdk";
 import { getContractInfo } from "granite-liq-bot-common";
 import { getAssetInfo } from "../client/read-only-call";
 import { pool } from "../db";
-import { getBorrowerStatusList, getContractList, insertContract } from "../db-helper";
 import { kvStoreGet } from "../db/helper";
+import { getBorrowerStatusList, getContractList, insertContract } from "../dba";
 import { getNetworkNameFromAddress } from "../helper";
 
 export const errorResponse = (error: any) => {

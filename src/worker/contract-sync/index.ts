@@ -3,7 +3,7 @@ import { getTransaction, type ContractEntity } from "granite-liq-bot-common";
 import type { PoolClient } from "pg";
 import { getAssetBalance } from "../../client/read-only-call";
 import { pool } from "../../db";
-import { getContractList } from "../../db-helper";
+import { getContractList } from "../../dba";
 import { createLogger } from "../../logger";
 import { epoch } from "../../util";
 import { upsertBorrower } from "../db-helper";

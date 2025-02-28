@@ -5,7 +5,7 @@ import { getBestSwap } from "../../alex";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
 import { DRY_RUN, MIN_TO_LIQUIDATE, TX_TIMEOUT } from "../../constants";
 import { pool } from "../../db";
-import { getBorrowerStatusList, getContractList } from "../../db-helper";
+import { getBorrowerStatusList, getContractList } from "../../dba";
 import { hexToUint8Array } from "../../helper";
 import { createLogger } from "../../logger";
 import { epoch } from "../../util";
