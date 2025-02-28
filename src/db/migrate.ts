@@ -13,7 +13,7 @@ export const createDb = async (client: PoolClient) => {
         "id VARCHAR PRIMARY KEY NOT NULL," +
         "address VARCHAR NOT NULL," +
         "name VARCHAR NOT NULL," +
-        "network VARCHAR NOT NULL," +
+        "network VARCHAR NOT NULL UNIQUE," +
         "operator_address VARCHAR NOT NULL," +
         "operator_priv VARCHAR NOT NULL," +
         "market_asset JSON," +
@@ -24,8 +24,6 @@ export const createDb = async (client: PoolClient) => {
         "unlocks_at INTEGER," +
         "created_at INTEGER NOT NULL" +
         ");";
-
-    CREATE += "CREATE INDEX IF NOT EXISTS contract_network_idx ON contract (network);";
 
     CREATE += "CREATE TABLE IF NOT EXISTS public.borrower(" +
         "address VARCHAR PRIMARY KEY NOT NULL," +
