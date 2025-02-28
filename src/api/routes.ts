@@ -121,7 +121,7 @@ export const routes = {
         return Response.json(contracts);
 
     },
-    getBorrowers: async (req: Request, url: URL) => {
+    getBorrowers: async (_: Request, url: URL) => {
         const network = url.searchParams.get('network') || 'mainnet';
         const dbClient = await pool.connect();
         const borrowers = await getBorrowerStatusList(dbClient, {
