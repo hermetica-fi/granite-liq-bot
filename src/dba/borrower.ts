@@ -46,7 +46,7 @@ export const switchBorrowerSyncFlagOff = async (dbClient: PoolClient, address: s
 export const syncBorrowerPosition = async (dbClient: PoolClient, userPosition: BorrowerPositionEntity): Promise<any> => {
     await dbClient.query("DELETE FROM borrower_position WHERE address = $1 ", [userPosition.address]);
     return dbClient.query("INSERT INTO borrower_position (address, network, debt_shares, collaterals) VALUES ($1, $2, $3, $4)",
-        [userPosition.address, userPosition.network, userPosition.debtShares, userPosition.collaterals]);
+        [userPosition.address, userPosition.network, userPosition.debtShares, JSON.stringify(userPosition.collaterals)]);
 }
 
 export const syncBorrowerCollaterals = async (dbClient: PoolClient, address: string, collaterals: Omit<BorrowerCollateralEntity, 'address'>[]): Promise<any> => {
@@ -64,7 +64,7 @@ export const getBorrowersForHealthCheck = async (dbClient: PoolClient): Promise<
             address: row.address,
             network: row.network,
             debtShares: Number(row.debt_shares),
-            collaterals: row.collaterals
+            collaterals: JSON.parse(row.collaterals)
         }))
     ))
 }

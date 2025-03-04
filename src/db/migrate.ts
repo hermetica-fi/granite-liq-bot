@@ -37,7 +37,7 @@ export const createDb = async (client: PoolClient) => {
         "address VARCHAR PRIMARY KEY REFERENCES borrower(address) ON DELETE RESTRICT," +
         "network VARCHAR NOT NULL," +
         "debt_shares NUMERIC NOT NULL," +
-        "collaterals VARCHAR[] NOT NULL" +
+        "collaterals VARCHAR NOT NULL" +
         ");";
 
 

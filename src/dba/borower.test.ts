@@ -105,7 +105,7 @@ describe("dba borrower", () => {
                 address: "SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR",
                 network: "mainnet",
                 debt_shares: 100,
-                collaterals: ["SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth", "SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc"],
+                collaterals: '["SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth","SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc"]',
             }
         ]);
     });
