@@ -1,8 +1,8 @@
 import { listCV, noneCV, principalCV, someCV, tupleCV, uintCV, type ClarityValue } from "@stacks/transactions";
-import { parseUnits, toFixedDown, type AssetInfoWithBalance, type BorrowerStatusEntity } from "granite-liq-bot-common";
+import { parseUnits, type AssetInfoWithBalance, type BorrowerStatusEntity } from "granite-liq-bot-common";
 import type { SwapResult } from "../../alex";
 import type { PriceFeedResponse } from "../../client/pyth";
-import { MIN_TO_LIQUIDATE_PER_USER, REPAY_ADJUSTMENT } from "../../constants";
+import { MIN_TO_LIQUIDATE_PER_USER } from "../../constants";
 import { toTicker } from "../../helper";
 import type { LiquidationBatch } from "../../types";
 
@@ -74,7 +74,7 @@ export const makeLiquidationBatch = (marketAssetInfo: AssetInfoWithBalance, coll
             continue;
         }
 
-        const repayAmountAdjusted = toFixedDown(repayAmount - (repayAmount / 100 * REPAY_ADJUSTMENT), 3);
+        const repayAmountAdjusted = repayAmount; // toFixedDown(repayAmount - (repayAmount / 100 * REPAY_ADJUSTMENT), 3);
         const repayAmountAdjustedBn = parseUnits(repayAmountAdjusted, marketAssetInfo.decimals);
         const repayAmountFinalBn = Math.min(availableBn, repayAmountAdjustedBn);
 

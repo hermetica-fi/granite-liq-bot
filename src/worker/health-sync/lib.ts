@@ -20,11 +20,12 @@ export const calcBorrowerStatus = (borrower: {
         slope2: marketState.irParams.slope2 / 10 ** IR_PARAMS_SCALING_FACTOR,
     };
 
+    const now = Date.now();
     const debtShares = borrower.debtShares / 10 ** marketState.marketAssetParams.decimals;
     const openInterest = marketState.debtParams.openInterest / 10 ** marketState.marketAssetParams.decimals;
     const totalDebtShares = marketState.debtParams.totalDebtShares / 10 ** marketState.marketAssetParams.decimals;
     const totalAssets = marketState.lpParams.totalAssets / 10 ** marketState.marketAssetParams.decimals;
-    const timeDelta = 0; //  Math.ceil(now / 1000) - marketState.accrueInterestParams.lastAccruedBlockTime;
+    const timeDelta = Math.ceil(now / 1000) - marketState.accrueInterestParams.lastAccruedBlockTime;
     const debtAssets = convertDebtSharesToAssets(
         debtShares,
         openInterest,
