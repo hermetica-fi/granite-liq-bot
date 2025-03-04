@@ -10,7 +10,7 @@ export const insertContract = async (dbClient: PoolClient, address: string, netw
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         `,
         [
-            address, contractAddress, contractName, network, operator, operatorPriv, marketAsset, collateralAsset, epoch()
+            address, contractAddress, contractName, network, operator, operatorPriv, JSON.stringify(marketAsset), JSON.stringify(collateralAsset), epoch()
         ]);
 }
 
@@ -34,11 +34,11 @@ export const getContractList = async (dbClient: PoolClient, args?: {
             network: row.network,
             operatorAddress: row.operator_address,
             marketAsset: row.market_asset ? {
-                ...row.market_asset,
+                ...JSON.parse(row.market_asset),
                 balance: Number(row.market_asset_balance)
             } : null,
             collateralAsset: row.collateral_asset ? {
-                ...row.collateral_asset,
+                ...JSON.parse(row.collateral_asset),
                 balance: Number(row.collateral_asset_balance)
             } : null,
             lockTx: row.lock_tx,

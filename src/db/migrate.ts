@@ -16,9 +16,9 @@ export const createDb = async (client: PoolClient) => {
         "network VARCHAR NOT NULL UNIQUE," +
         "operator_address VARCHAR NOT NULL," +
         "operator_priv VARCHAR NOT NULL," +
-        "market_asset JSON," +
+        "market_asset VARCHAR," +
         "market_asset_balance NUMERIC NOT NULL DEFAULT 0," +
-        "collateral_asset JSON," +
+        "collateral_asset VARCHAR," +
         "collateral_asset_balance NUMERIC NOT NULL DEFAULT 0," +
         "lock_tx VARCHAR," +
         "unlocks_at INTEGER," +
