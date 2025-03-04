@@ -1,27 +1,26 @@
 import assert from "assert";
 import type { NetworkName } from "granite-liq-bot-common";
-import type { PoolClient } from "pg";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
-import { pool } from "../../db";
+import { dbCon } from "../../db/con";
 import { clearBorrowerStatuses, getBorrowerCollateralAmount, getBorrowersForHealthCheck, insertBorrowerStatus } from "../../dba/borrower";
 import { getMarketState } from "../../dba/market";
 import { calcBorrowerStatus } from "./lib";
 
-export const worker = async (dbClient: PoolClient) => {
-  await dbClient.query("BEGIN");
-  await clearBorrowerStatuses(dbClient);
-  const borrowers = await getBorrowersForHealthCheck(dbClient);
+export const worker = async () => {
+  dbCon.run("BEGIN");
+  clearBorrowerStatuses();
+  const borrowers = getBorrowersForHealthCheck();
   for (const borrower of borrowers) {
     if (borrower.debtShares === 0) {
       continue;
     }
 
     const network = borrower.network as NetworkName;
-    const marketState = await getMarketState(dbClient, borrower.network as NetworkName);
+    const marketState = getMarketState(borrower.network as NetworkName);
 
     const collateralsDeposited: Record<string, number> = {}
     for (const collateral of borrower.collaterals) {
-      const amount = await getBorrowerCollateralAmount(dbClient, borrower.address, collateral);
+      const amount = getBorrowerCollateralAmount(borrower.address, collateral);
       assert(amount !== undefined, "User collateral amount is undefined");
       collateralsDeposited[collateral] = amount;
     }
@@ -33,15 +32,13 @@ export const worker = async (dbClient: PoolClient) => {
       collateralsDeposited
     }, marketState, priceFeed);
 
-    await insertBorrowerStatus(dbClient, borrower.address, network, status);
+    insertBorrowerStatus(borrower.address, network, status);
   }
-  await dbClient.query("COMMIT");
+  dbCon.run("COMMIT");
 };
 
 export const main = async () => {
-  let dbClient = await pool.connect();
-  await worker(dbClient);
-  dbClient.release();
+  await worker();
 }
 
 

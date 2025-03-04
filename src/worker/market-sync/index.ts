@@ -1,8 +1,8 @@
 import type { NetworkName } from "granite-liq-bot-common";
-import type { PoolClient } from "pg";
 import { getAccrueInterestParams, getCollateralParams, getDebtParams, getIrParams, getLpParams } from "../../client/read-only-call";
 import { CONTRACTS } from "../../constants";
-import { pool } from "../../db";
+
+import { dbCon } from "../../db/con";
 import {
     setAccrueInterestParamsLocal, setCollateralParamsLocal,
     setDebtParamsLocal, setIrParamsLocal, setLpParamsLocal
@@ -33,36 +33,36 @@ const lastSyncTs = {
     }
 }
 
-const syncMarketState = async (dbClient: PoolClient) => {
-    await dbClient.query("BEGIN");
+const syncMarketState = async () => {
+    dbCon.run("BEGIN");
 
     for (const network of ["mainnet", "testnet"] as NetworkName[]) {
         const now = epoch();
 
         if (lastSyncTs[network].irParams < now - 600) {
             const val = await getIrParams(network);
-            await setIrParamsLocal(dbClient, network, val);
+            setIrParamsLocal(network, val);
             // logger.info(`setIrParamsLocal: ${network} ${JSON.stringify(val)}`);
             lastSyncTs[network].irParams = now;
         }
 
         if (lastSyncTs[network].lpParams < now - 30) {
             const val = await getLpParams(network);
-            await setLpParamsLocal(dbClient, network, val);
+            setLpParamsLocal(network, val);
             //logger.info(`setLpParamsLocal: ${network} ${JSON.stringify(val)}`);
             lastSyncTs[network].lpParams = now;
         }
 
         if (lastSyncTs[network].accrueInterestParams < now - 30) {
             const val = await getAccrueInterestParams(network);
-            await setAccrueInterestParamsLocal(dbClient, network, val);
+            setAccrueInterestParamsLocal(network, val);
             // logger.info(`setAccrueInterestParamsLocal: ${network} ${JSON.stringify(val)}`);
             lastSyncTs[network].accrueInterestParams = now;
         }
 
         if (lastSyncTs[network].debtParams < now - 30) {
             const val = await getDebtParams(network);
-            await setDebtParamsLocal(dbClient, network, val);
+            setDebtParamsLocal(network, val);
             // logger.info(`setDebtParamsLocal: ${network} ${JSON.stringify(val)}`);
             lastSyncTs[network].debtParams = now;
         }
@@ -73,20 +73,18 @@ const syncMarketState = async (dbClient: PoolClient) => {
             for (const collateral of collaterals.filter(c => getNetworkNameFromAddress(c) === network)) {
                 collateralParams[collateral] = await getCollateralParams(collateral, network);
             }
-            await setCollateralParamsLocal(dbClient, network, collateralParams);
+            setCollateralParamsLocal(network, collateralParams);
             // logger.info(`setCollateralParamsLocal: ${network} ${JSON.stringify(collateralParams)}`);
             lastSyncTs[network].collateralParams = now;
         }
     }
 
-    await dbClient.query("COMMIT");
+    dbCon.run("COMMIT");
     
     // logger.info(`setPriceFeedLocal: ${JSON.stringify(priceFeed)}`);
 }
 
 export const main = async () => {
-    let dbClient = await pool.connect();
-    await syncMarketState(dbClient);
-    dbClient.release();
+    await syncMarketState();
 }
 

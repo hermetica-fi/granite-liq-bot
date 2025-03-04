@@ -1,6 +1,5 @@
 import assert from "assert";
 import type { NetworkName } from "granite-liq-bot-common";
-import type { PoolClient } from "pg";
 import { MARKET_ASSET_DECIMAL } from "../constants";
 import { kvStoreGet, kvStoreSet } from "../db/helper";
 import type {
@@ -10,56 +9,61 @@ import type {
 } from "../types";
 
 
-export const getIrParamsLocal = async (dbClient: PoolClient, network: NetworkName): Promise<InterestRateParams | null> => {
-    return await kvStoreGet(dbClient, `ir-params-${network}`).then((r: any) => r ? JSON.parse(r) : null);
+export const getIrParamsLocal = (network: NetworkName): InterestRateParams | null => {
+    const r = kvStoreGet(`ir-params-${network}`);
+    return r ? JSON.parse(r) : null;
 }
 
-export const setIrParamsLocal = async (dbClient: PoolClient, network: NetworkName, irParams: InterestRateParams) => {
-    await kvStoreSet(dbClient, `ir-params-${network}`, JSON.stringify(irParams));
+export const setIrParamsLocal = (network: NetworkName, irParams: InterestRateParams) => {
+    kvStoreSet(`ir-params-${network}`, JSON.stringify(irParams));
 }
 
-export const getLpParamsLocal = async (dbClient: PoolClient, network: NetworkName): Promise<LpParams | null> => {
-    return await kvStoreGet(dbClient, `lp-params-${network}`).then((r: any) => r ? JSON.parse(r) : null);
+export const getLpParamsLocal = (network: NetworkName): LpParams | null => {
+    const r = kvStoreGet(`lp-params-${network}`);
+    return r ? JSON.parse(r) : null;
 }
 
-export const setLpParamsLocal = async (dbClient: PoolClient, network: NetworkName, lpParams: LpParams) => {
-    await kvStoreSet(dbClient, `lp-params-${network}`, JSON.stringify(lpParams));
+export const setLpParamsLocal = (network: NetworkName, lpParams: LpParams) => {
+    kvStoreSet(`lp-params-${network}`, JSON.stringify(lpParams));
 }
 
-export const getAccrueInterestParamsLocal = async (dbClient: PoolClient, network: NetworkName): Promise<AccrueInterestParams | null> => {
-    return await kvStoreGet(dbClient, `accrue-interest-params-${network}`).then((r: any) => r ? JSON.parse(r) : null);
+export const getAccrueInterestParamsLocal = (network: NetworkName): AccrueInterestParams | null => {
+    const r = kvStoreGet(`accrue-interest-params-${network}`);
+    return r ? JSON.parse(r) : null;
 }
 
-export const setAccrueInterestParamsLocal = async (dbClient: PoolClient, network: NetworkName, accrueInterestParams: AccrueInterestParams) => {
-    await kvStoreSet(dbClient, `accrue-interest-params-${network}`, JSON.stringify(accrueInterestParams));
+export const setAccrueInterestParamsLocal = (network: NetworkName, accrueInterestParams: AccrueInterestParams) => {
+    kvStoreSet(`accrue-interest-params-${network}`, JSON.stringify(accrueInterestParams));
 }
 
-export const getDebtParamsLocal = async (dbClient: PoolClient, network: NetworkName): Promise<DebtParams | null> => {
-    return await kvStoreGet(dbClient, `debt-params-${network}`).then((r: any) => r ? JSON.parse(r) : null);
+export const getDebtParamsLocal = (network: NetworkName): DebtParams | null => {
+    const r = kvStoreGet(`debt-params-${network}`);
+    return r ? JSON.parse(r) : null;
 }
 
-export const setDebtParamsLocal = async (dbClient: PoolClient, network: NetworkName, debtParams: DebtParams) => {
-    await kvStoreSet(dbClient, `debt-params-${network}`, JSON.stringify(debtParams));
+export const setDebtParamsLocal = (network: NetworkName, debtParams: DebtParams) => {
+    kvStoreSet(`debt-params-${network}`, JSON.stringify(debtParams));
 }
 
-export const getCollateralParamsLocal = async (dbClient: PoolClient, network: NetworkName): Promise<Record<string, CollateralParams> | null> => {
-    return await kvStoreGet(dbClient, `collateral-params-${network}`).then((r: any) => r ? JSON.parse(r) : null);
+export const getCollateralParamsLocal = (network: NetworkName): Record<string, CollateralParams> | null => {
+    const r = kvStoreGet(`collateral-params-${network}`);
+    return r ? JSON.parse(r) : null;
 }
 
-export const setCollateralParamsLocal = async (dbClient: PoolClient, network: NetworkName, collateralParams: Record<string, CollateralParams>) => {
-    await kvStoreSet(dbClient, `collateral-params-${network}`, JSON.stringify(collateralParams));
+export const setCollateralParamsLocal = (network: NetworkName, collateralParams: Record<string, CollateralParams>) => {
+    kvStoreSet(`collateral-params-${network}`, JSON.stringify(collateralParams));
 }
 
-export const getMarketState = async (dbClient: PoolClient, network: NetworkName): Promise<MarketState> => {
-    const irParams = await getIrParamsLocal(dbClient, network);
+export const getMarketState = (network: NetworkName): MarketState => {
+    const irParams = getIrParamsLocal(network);
     assert(irParams, 'irParams not found');
-    const lpParams = await getLpParamsLocal(dbClient, network);
+    const lpParams = getLpParamsLocal(network);
     assert(lpParams, 'lpParams not found');
-    const accrueInterestParams = await getAccrueInterestParamsLocal(dbClient, network);
+    const accrueInterestParams = getAccrueInterestParamsLocal(network);
     assert(accrueInterestParams, 'accrueInterestParams not found');
-    const debtParams = await getDebtParamsLocal(dbClient, network);
+    const debtParams = getDebtParamsLocal(network);
     assert(debtParams, 'debtParams not found');
-    const collateralParams = await getCollateralParamsLocal(dbClient, network);
+    const collateralParams = getCollateralParamsLocal(network);
     assert(collateralParams, 'collateralParams not found');
     assert(Object.keys(collateralParams).length > 0, 'collateralParams is empty');
 

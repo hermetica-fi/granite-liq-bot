@@ -1,10 +1,9 @@
 import { broadcastTransaction, bufferCV, contractPrincipalCV, makeContractCall, noneCV, PostConditionMode, someCV, uintCV, type ClarityValue } from "@stacks/transactions";
 import { estimateTxFeeOptimistic, fetchFn, formatUnits, getAccountNonces, type NetworkName } from "granite-liq-bot-common";
-import type { PoolClient } from "pg";
 import { getBestSwap } from "../../alex";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
 import { DRY_RUN, MIN_TO_LIQUIDATE, TX_TIMEOUT } from "../../constants";
-import { pool } from "../../db";
+import { dbCon } from "../../db/con";
 import { getBorrowerStatusList, getBorrowersToSync } from "../../dba/borrower";
 import { getContractList, getContractOperatorPriv } from "../../dba/contract";
 import { getMarketState } from "../../dba/market";
@@ -15,8 +14,8 @@ import { liquidationBatchCv, makeLiquidationBatch, swapOutCv } from "./lib";
 
 const logger = createLogger("liquidate");
 
-const worker = async (dbClient: PoolClient, network: NetworkName) => {
-    const contract = (await getContractList(dbClient, {
+const worker = async (network: NetworkName) => {
+    const contract = (getContractList({
         filters: {
             network,
         },
@@ -33,7 +32,7 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
         return;
     }
 
-    if ((await getBorrowersToSync(dbClient)).length > 0) {
+    if (getBorrowersToSync().length > 0) {
         // logger.info("Borrowers to sync found, skipping");
         return;
     }
@@ -50,14 +49,14 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
         return;
     }
 
-    const borrowers = await getBorrowerStatusList(dbClient, {
+    const borrowers = getBorrowerStatusList({
         filters: {
             network,
         },
         orderBy: 'total_repay_amount DESC'
     });
 
-    const marketState = await getMarketState(dbClient, network);
+    const marketState = getMarketState(network);
     const liquidationPremium = marketState.collateralParams[collateralAsset.address].liquidationPremium;
     if (!liquidationPremium) {
         throw new Error("Collateral liquidation premium not found");
@@ -115,7 +114,7 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
         swapDataCv,
     ];
 
-    const priv = (await getContractOperatorPriv(dbClient, contract.id))!;
+    const priv = getContractOperatorPriv(contract.id)!;
     const nonce = (await getAccountNonces(contract.operatorAddress, contract.network)).possible_next_nonce;
     const fee = await estimateTxFeeOptimistic(contract.network);
 
@@ -153,7 +152,7 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
     }
 
     if (tx.txid) {
-        await dbClient.query("UPDATE contract SET lock_tx = $1 WHERE id = $2", [tx.txid, contract.id]);
+        dbCon.run("UPDATE contract SET lock_tx = ? WHERE id = ?", [tx.txid, contract.id]);
         logger.info(`Transaction broadcasted ${tx.txid}`);
         console.log('Batch', batch);
         return;
@@ -161,8 +160,6 @@ const worker = async (dbClient: PoolClient, network: NetworkName) => {
 }
 
 export const main = async () => {
-    let dbClient = await pool.connect();
-    await worker(dbClient, 'testnet');
-    await worker(dbClient, 'mainnet');
-    dbClient.release();
+    await worker('testnet');
+    await worker('mainnet');
 }

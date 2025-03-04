@@ -5,7 +5,6 @@ import {
 import { generateWallet } from "@stacks/wallet-sdk";
 import { getContractInfo } from "granite-liq-bot-common";
 import { getAssetInfo } from "../client/read-only-call";
-import { pool } from "../db";
 import { kvStoreGet } from "../db/helper";
 import { getBorrowerStatusList } from "../dba/borrower";
 import { getContractList, insertContract } from "../dba/contract";
@@ -22,9 +21,7 @@ export const errorResponse = (error: any) => {
 
 export const routes = {
     getContracts: async (_: Request) => {
-        const dbClient = await pool.connect();
-        const contracts = await getContractList(dbClient);
-        dbClient.release();
+        const contracts = getContractList({});
         return Response.json(contracts);
     },
     addContract: async (req: Request) => {
@@ -48,12 +45,12 @@ export const routes = {
             return errorResponse(error);
         }
 
-        let dbClient = await pool.connect();
-        if ((await getContractList(dbClient, { filters: { network } })).length > 0) {
-            dbClient.release();
+
+        if ((await getContractList({ filters: { network } })).length > 0) {
+
             return errorResponse(`A contract for ${network} already exists`);
         }
-        dbClient.release();
+
 
         let wallet;
         try {
@@ -115,29 +112,25 @@ export const routes = {
             return errorResponse('Could not fetch collateral asset info');
         }
 
-        dbClient = await pool.connect();
-        await insertContract(dbClient, address, network, operatorAddress, operator.stxPrivateKey, marketAssetInfo, collateralAssetInfo);
-        const contracts = await getContractList(dbClient);
-        dbClient.release();
+        insertContract(address, network, operatorAddress, operator.stxPrivateKey, marketAssetInfo, collateralAssetInfo);
+        const contracts = getContractList({});
         return Response.json(contracts);
 
     },
     getBorrowers: async (_: Request, url: URL) => {
         const network = url.searchParams.get('network') || 'mainnet';
-        const dbClient = await pool.connect();
-        const borrowers = await getBorrowerStatusList(dbClient, {
+
+        const borrowers = await getBorrowerStatusList({
             filters: {
                 network: network
             },
             orderBy: 'total_repay_amount DESC, risk DESC'
         });
-        dbClient.release();
+
         return Response.json(borrowers);
     },
     health: async () => {
-        const dbClient = await pool.connect();
-        const lastSync = await kvStoreGet(dbClient, "last-sync");
-        dbClient.release();
+        const lastSync = kvStoreGet("last-sync");
 
         const now = Date.now();
         const isHealthy = lastSync && Number(lastSync) > now - 120_000; // Healthy if last sync was less than 120 seconds ago

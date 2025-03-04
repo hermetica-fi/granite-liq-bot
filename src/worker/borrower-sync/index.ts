@@ -1,16 +1,15 @@
-import type { PoolClient } from "pg";
 import { getUserCollateralAmount, getUserPosition } from "../../client/read-only-call";
-import { pool } from "../../db";
+import { dbCon } from "../../db/con";
 import { getBorrowersToSync, switchBorrowerSyncFlagOff, syncBorrowerCollaterals, syncBorrowerPosition } from "../../dba/borrower";
 import { createLogger } from "../../logger";
 import { epoch } from "../../util";
 
 export const logger = createLogger("borrower-sync");
 
-const worker = async (dbClient: PoolClient) => {
-  await dbClient.query("BEGIN");
+const worker = async () => {
+  dbCon.run("BEGIN");
 
-  const borrowers = await getBorrowersToSync(dbClient);
+  const borrowers = getBorrowersToSync();
   for (const borrower of borrowers) {
 
     if (epoch() < borrower.syncTs) {
@@ -19,11 +18,11 @@ const worker = async (dbClient: PoolClient) => {
     }
 
     //  Turn off check flag
-    await switchBorrowerSyncFlagOff(dbClient, borrower.address);
+    switchBorrowerSyncFlagOff(borrower.address);
 
     // Sync user position
     const userPosition = await getUserPosition(borrower.address, borrower.network);
-    await syncBorrowerPosition(dbClient, { address: borrower.address, network: borrower.network, ...userPosition });
+    syncBorrowerPosition({ address: borrower.address, network: borrower.network, ...userPosition });
 
     // Sync user collaterals
     const collaterals = [];
@@ -31,16 +30,14 @@ const worker = async (dbClient: PoolClient) => {
       const amount = await getUserCollateralAmount(borrower.address, col, borrower.network);
       collaterals.push({ collateral: col, amount, network: borrower.network });
     }
-    await syncBorrowerCollaterals(dbClient, borrower.address, collaterals);
+    syncBorrowerCollaterals(borrower.address, collaterals);
 
     logger.info(`Synced borrower ${borrower.address}`);
   }
 
-  await dbClient.query("COMMIT");
+  dbCon.run("COMMIT");
 }
 
 export const main = async () => {
-  let dbClient = await pool.connect();
-  await worker(dbClient);
-  dbClient.release();
+  await worker();
 };

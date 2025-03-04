@@ -1,22 +1,11 @@
 import { describe, expect, mock, setSystemTime, test } from "bun:test";
-import { newDb } from "pg-mem";
-import { migrateDb } from "../db/migrate";
+import { dbCon } from "../db/con";
 import {
     clearBorrowerStatuses, getBorrowerCollateralAmount, getBorrowerStatusList, getBorrowersForHealthCheck,
     getBorrowersToSync, insertBorrowerStatus, switchBorrowerSyncFlagOff, syncBorrowerCollaterals,
     syncBorrowerPosition, upsertBorrower
 } from "./borrower";
 
-const db = newDb();
-const pg = db.adapters.createPg();
-const pool = new pg.Pool();
-const client = new pg.Client();
-
-mock.module("../db/index", () => {
-    return {
-        pool
-    };
-});
 
 mock.module("../constants", () => {
     return {
@@ -24,16 +13,13 @@ mock.module("../constants", () => {
     };
 });
 
-
-await migrateDb();
-
 describe("dba borrower", () => {
     setSystemTime(1738262052565);
-    test("upsertBorrower (insert)", async () => {
-        let resp = await upsertBorrower(client, 'mainnet', 'SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR');
+    test("upsertBorrower (insert)", () => {
+        let resp = upsertBorrower('mainnet', 'SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR');
         expect(resp).toEqual(1);
 
-        let resp2 = await client.query("SELECT * FROM borrower").then((r: any) => r.rows);
+        let resp2 = dbCon.query("SELECT * FROM borrower").all()
         expect(resp2).toEqual([
             {
                 address: "SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR",
@@ -44,16 +30,16 @@ describe("dba borrower", () => {
         ]);
     });
 
-    test("upsertBorrower (nothing)", async () => {
-        const resp = await upsertBorrower(client, 'mainnet', 'SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR');
+    test("upsertBorrower (nothing)", () => {
+        const resp = upsertBorrower('mainnet', 'SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR');
         expect(resp).toEqual(0);
     });
 
-    test("upsertBorrower (update)", async () => {
-        await client.query("UPDATE borrower set sync_flag=0 WHERE address=$1", ['SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR']);
-        const resp = await upsertBorrower(client, 'mainnet', 'SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR');
+    test("upsertBorrower (update)", () => {
+        dbCon.run("UPDATE borrower set sync_flag=0 WHERE address=?", ['SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR']);
+        const resp = upsertBorrower('mainnet', 'SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR');
         expect(resp).toEqual(2);
-        const resp2 = await client.query("SELECT * FROM borrower").then((r: any) => r.rows);
+        const resp2 = dbCon.query("SELECT * FROM borrower").all();
         expect(resp2).toEqual([
             {
                 address: "SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR",
@@ -64,13 +50,13 @@ describe("dba borrower", () => {
         ])
     });
 
-    test("getBorrowersToSync", async () => {
-        await client.query("DELETE FROM borrower");
+    test("getBorrowersToSync", () => {
+        dbCon.run("DELETE FROM borrower");
 
-        await upsertBorrower(client, 'mainnet', 'SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR');
-        await upsertBorrower(client, 'testnet', 'ST39B0S4TZP6H89VPBCCSCYXKX43DNNPNQV3BEWNW');
+        upsertBorrower('mainnet', 'SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR');
+        upsertBorrower('testnet', 'ST39B0S4TZP6H89VPBCCSCYXKX43DNNPNQV3BEWNW');
 
-        let resp = await getBorrowersToSync(client);
+        let resp = getBorrowersToSync();
         expect(resp).toEqual([
             {
                 address: "SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR",
@@ -84,9 +70,9 @@ describe("dba borrower", () => {
         ]);
     });
 
-    test("getBorrowersToSync (after update)", async () => {
-        await switchBorrowerSyncFlagOff(client, 'SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR');
-        const resp = await getBorrowersToSync(client);
+    test("getBorrowersToSync (after update)", () => {
+        switchBorrowerSyncFlagOff('SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR');
+        const resp = getBorrowersToSync();
         expect(resp).toEqual([
             {
                 address: "ST39B0S4TZP6H89VPBCCSCYXKX43DNNPNQV3BEWNW",
@@ -97,9 +83,9 @@ describe("dba borrower", () => {
     });
 
 
-    test("syncBorrowerPosition", async () => {
-        await syncBorrowerPosition(client, { address: 'SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR', network: 'mainnet', debtShares: 100, collaterals: ['SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth', 'SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc'] });
-        const resp = await client.query("SELECT * FROM borrower_position WHERE address = $1", ['SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR']).then((r: any) => r.rows);
+    test("syncBorrowerPosition", () => {
+        syncBorrowerPosition({ address: 'SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR', network: 'mainnet', debtShares: 100, collaterals: ['SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth', 'SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc'] });
+        const resp = dbCon.prepare("SELECT * FROM borrower_position WHERE address = $1", ['SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR']).all();
         expect(resp).toEqual([
             {
                 address: "SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR",
@@ -110,27 +96,31 @@ describe("dba borrower", () => {
         ]);
     });
 
-    test("syncBorrowerCollaterals", async () => {
-        await syncBorrowerCollaterals(client, 'SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR', [{ collateral: 'SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth', amount: 100, network: 'mainnet' }, { collateral: 'SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc', amount: 90, network: 'mainnet' }]);
-        const resp = await client.query("SELECT * FROM borrower_collaterals WHERE address = $1", ['SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR']).then((r: any) => r.rows);
+    test("syncBorrowerCollaterals", () => {
+        syncBorrowerCollaterals('SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR', [
+            { collateral: 'SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth', amount: 100, network: 'mainnet' },
+            { collateral: 'SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc', amount: 90, network: 'mainnet' }
+        ]);
+        const resp = dbCon.prepare("SELECT * FROM borrower_collaterals WHERE address = $1", ['SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR']).all();
         expect(resp).toEqual([
+            {
+                address: "SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR",
+                network: "mainnet",
+                collateral: "SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc",
+                amount: 90,
+            },
             {
                 address: "SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR",
                 network: "mainnet",
                 collateral: "SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth",
                 amount: 100,
-            }, {
-                address: "SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR",
-                network: "mainnet",
-                collateral: "SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc",
-                amount: 90,
             }
         ]);
     });
 
-    test("syncBorrowerCollaterals (update)", async () => {
-        await syncBorrowerCollaterals(client, 'SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR', [{ collateral: 'SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc', amount: 60, network: 'mainnet' }]);
-        const resp = await client.query("SELECT * FROM borrower_collaterals WHERE address = $1", ['SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR']).then((r: any) => r.rows);
+    test("syncBorrowerCollaterals (update)", () => {
+        syncBorrowerCollaterals('SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR', [{ collateral: 'SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc', amount: 60, network: 'mainnet' }]);
+        const resp = dbCon.prepare("SELECT * FROM borrower_collaterals WHERE address = $1", ['SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR']).all();
         expect(resp).toEqual([
             {
                 address: "SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR",
@@ -141,11 +131,11 @@ describe("dba borrower", () => {
         ]);
     });
 
-    test("getBorrowersForHealthCheck", async () => {
-        await syncBorrowerPosition(client, { address: 'SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR', network: 'mainnet', debtShares: 15, collaterals: ['SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth', 'SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc'] });
-        await syncBorrowerPosition(client, { address: 'ST39B0S4TZP6H89VPBCCSCYXKX43DNNPNQV3BEWNW', network: 'testnet', debtShares: 201, collaterals: ['ST39B0S4TZP6H89VPBCCSCYXKX43DNNPNQV3BEWNW.mock-btc'] });
+    test("getBorrowersForHealthCheck", () => {
+        syncBorrowerPosition({ address: 'SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR', network: 'mainnet', debtShares: 15, collaterals: ['SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth', 'SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc'] });
+        syncBorrowerPosition({ address: 'ST39B0S4TZP6H89VPBCCSCYXKX43DNNPNQV3BEWNW', network: 'testnet', debtShares: 201, collaterals: ['ST39B0S4TZP6H89VPBCCSCYXKX43DNNPNQV3BEWNW.mock-btc'] });
 
-        const resp = await getBorrowersForHealthCheck(client);
+        const resp = getBorrowersForHealthCheck();
 
         expect(resp).toEqual([
             {
@@ -163,16 +153,15 @@ describe("dba borrower", () => {
     });
 
 
-    test("getBorrowerCollateralAmount", async () => {
-        await syncBorrowerCollaterals(client, 'SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR', [{ network: 'mainnet', collateral: 'SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth', amount: 100 }]);
-        const resp = await getBorrowerCollateralAmount(client, 'SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR', 'SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth');
+    test("getBorrowerCollateralAmount", () => {
+        syncBorrowerCollaterals('SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR', [{ network: 'mainnet', collateral: 'SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth', amount: 100 }]);
+        const resp = getBorrowerCollateralAmount('SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR', 'SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth');
         expect(resp).toEqual(100);
     });
 
-
-    test("insertBorrowerStatus", async () => {
-        await insertBorrowerStatus(client, 'SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR', 'mainnet', { ltv: 0.6977874992015272, health: 1.0206104956758972, debt: 526735.7296664099, collateral: 754865.5289313, risk: 0.9798057184761282, maxRepay: {}, totalRepayAmount: 0 });
-        const resp = await client.query("SELECT * FROM borrower_status").then((r: any) => r.rows);
+    test("insertBorrowerStatus", () => {
+        insertBorrowerStatus('SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR', 'mainnet', { ltv: 0.6977874992015272, health: 1.0206104956758972, debt: 526735.7296664099, collateral: 754865.5289313, risk: 0.9798057184761282, maxRepay: {}, totalRepayAmount: 0 });
+        const resp = dbCon.query("SELECT * FROM borrower_status").all();
         expect(resp).toEqual([
             {
                 address: "SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR",
@@ -188,8 +177,8 @@ describe("dba borrower", () => {
         ])
     });
 
-    test("getBorrowerStatusList", async () => {
-        const resp = await getBorrowerStatusList(client, { filters: { network: 'mainnet' } });
+    test("getBorrowerStatusList", () => {
+        const resp = getBorrowerStatusList({ filters: { network: 'mainnet' } });
         expect(resp).toEqual([
             {
                 address: "SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR",
@@ -204,13 +193,13 @@ describe("dba borrower", () => {
             }
         ]);
 
-        const resp2 = await getBorrowerStatusList(client, { filters: { network: 'testnet' } });
+        const resp2 = getBorrowerStatusList({ filters: { network: 'testnet' } });
         expect(resp2).toEqual([]);
     });
 
-    test("clearBorrowerStatuses", async () => {
-        await clearBorrowerStatuses(client);
-        const resp = await client.query("SELECT * FROM borrower_status").then((r: any) => r.rows);
+    test("clearBorrowerStatuses", () => {
+        clearBorrowerStatuses();
+        const resp = dbCon.query("SELECT * FROM borrower_status").all();
         expect(resp).toEqual([]);
     });
 });

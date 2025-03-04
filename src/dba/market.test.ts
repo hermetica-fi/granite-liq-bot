@@ -1,6 +1,5 @@
 import { describe, expect, mock, test } from "bun:test";
-import { newDb } from "pg-mem";
-import { migrateDb } from "../db/migrate";
+import { dbCon } from "../db/con";
 import {
     getAccrueInterestParamsLocal,
     getCollateralParamsLocal, getDebtParamsLocal,
@@ -10,35 +9,21 @@ import {
     setIrParamsLocal, setLpParamsLocal
 } from "./market";
 
-const db = newDb();
-const pg = db.adapters.createPg();
-const pool = new pg.Pool();
-const client = new pg.Client();
-
-mock.module("../db/index", () => {
-    return {
-        pool
-    };
-});
-
-
 mock.module("../constants", () => {
     return {
         BORROWER_SYNC_DELAY: 10
     };
 });
 
-await migrateDb();
-
 describe("dba market", () => {
-    test("IrParamsLocal", async () => {
-        await setIrParamsLocal(client, 'mainnet', {
+    test("IrParamsLocal", () => {
+        setIrParamsLocal('mainnet', {
             urKink: 100,
             baseIR: 1000,
             slope1: 2000,
             slope2: 3000,
         });
-        const resp = await getIrParamsLocal(client, 'mainnet');
+        const resp = getIrParamsLocal('mainnet');
         expect(resp).toEqual({
             urKink: 100,
             baseIR: 1000,
@@ -47,42 +32,42 @@ describe("dba market", () => {
         });
     });
 
-    test("LpParamsLocal", async () => {
-        await setLpParamsLocal(client, 'mainnet', {
+    test("LpParamsLocal", () => {
+        setLpParamsLocal('mainnet', {
             totalAssets: 1000,
             totalShares: 1000,
         });
-        const resp = await getLpParamsLocal(client, 'mainnet');
+        const resp = getLpParamsLocal('mainnet');
         expect(resp).toEqual({
             totalAssets: 1000,
             totalShares: 1000,
         });
     });
 
-    test("AccrueInterestParamsLocal", async () => {
-        await setAccrueInterestParamsLocal(client, 'mainnet', {
+    test("AccrueInterestParamsLocal", () => {
+        setAccrueInterestParamsLocal('mainnet', {
             lastAccruedBlockTime: 1000,
         });
-        const resp = await getAccrueInterestParamsLocal(client, 'mainnet');
+        const resp = getAccrueInterestParamsLocal('mainnet');
         expect(resp).toEqual({
             lastAccruedBlockTime: 1000,
         });
     });
 
-    test("DebtParamsLocal", async () => {
-        await setDebtParamsLocal(client, 'mainnet', {
+    test("DebtParamsLocal", () => {
+        setDebtParamsLocal('mainnet', {
             openInterest: 2000,
             totalDebtShares: 1000,
         });
-        const resp = await getDebtParamsLocal(client, 'mainnet');
+        const resp = getDebtParamsLocal('mainnet');
         expect(resp).toEqual({
             openInterest: 2000,
             totalDebtShares: 1000,
         });
     });
 
-    test("CollateralParamsLocal", async () => {
-        await setCollateralParamsLocal(client, 'mainnet', {
+    test("CollateralParamsLocal", () => {
+        setCollateralParamsLocal('mainnet', {
             'SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth': {
                 liquidationLTV: 100,
                 maxLTV: 200,
@@ -92,7 +77,7 @@ describe("dba market", () => {
                 maxLTV: 209,
             },
         });
-        const resp = await getCollateralParamsLocal(client, 'mainnet');
+        const resp = getCollateralParamsLocal('mainnet');
         expect(resp).toEqual({
             'SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth': {
                 liquidationLTV: 100,
@@ -106,39 +91,39 @@ describe("dba market", () => {
     });
 
 
-    test("getMarketState", async () => {
-        await client.query("DELETE FROM kv_store");
+    test("getMarketState", () => {
+        dbCon.run("DELETE FROM kv_store");
 
-        expect(async () => { await getMarketState(client, 'mainnet') }).toThrow(Error('irParams not found'));
-        await setIrParamsLocal(client, 'mainnet', {
+        expect(() => { getMarketState('mainnet') }).toThrow(Error('irParams not found'));
+        setIrParamsLocal('mainnet', {
             urKink: 100,
             baseIR: 1000,
             slope1: 2000,
             slope2: 3000,
         });
 
-        expect(async () => { await getMarketState(client, 'mainnet') }).toThrow(Error('lpParams not found'));
-        await setLpParamsLocal(client, 'mainnet', {
+        expect(() => { getMarketState('mainnet') }).toThrow(Error('lpParams not found'));
+        setLpParamsLocal('mainnet', {
             totalAssets: 1000,
             totalShares: 2000,
         });
 
-        expect(async () => { await getMarketState(client, 'mainnet') }).toThrow(Error('accrueInterestParams not found'));
-        await setAccrueInterestParamsLocal(client, 'mainnet', {
+        expect(() => { getMarketState('mainnet') }).toThrow(Error('accrueInterestParams not found'));
+        setAccrueInterestParamsLocal('mainnet', {
             lastAccruedBlockTime: 1000,
         });
 
-        expect(async () => { await getMarketState(client, 'mainnet') }).toThrow(Error('debtParams not found'));
-        await setDebtParamsLocal(client, 'mainnet', {
+        expect(() => { getMarketState('mainnet') }).toThrow(Error('debtParams not found'));
+        setDebtParamsLocal('mainnet', {
             openInterest: 2000,
             totalDebtShares: 1000,
         });
 
-        expect(async () => { await getMarketState(client, 'mainnet') }).toThrow(Error('collateralParams not found'));
-        await setCollateralParamsLocal(client, 'mainnet', {});
+        expect(() => { getMarketState('mainnet') }).toThrow(Error('collateralParams not found'));
+        setCollateralParamsLocal('mainnet', {});
 
-        expect(async () => { await getMarketState(client, 'mainnet') }).toThrow(Error('collateralParams is empty'));
-        await setCollateralParamsLocal(client, 'mainnet', {
+        expect(() => { getMarketState('mainnet') }).toThrow(Error('collateralParams is empty'));
+        setCollateralParamsLocal('mainnet', {
             'SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth': {
                 liquidationLTV: 100,
                 maxLTV: 200,
@@ -149,7 +134,7 @@ describe("dba market", () => {
             },
         });
 
-        const resp = await getMarketState(client, 'mainnet');
+        const resp = getMarketState('mainnet');
         expect(resp).toEqual({
             irParams: {
                 urKink: 100,

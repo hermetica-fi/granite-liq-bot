@@ -1,11 +1,16 @@
-import { type PoolClient } from 'pg';
+import { dbCon } from "./con";
 
-export const kvStoreGet = (db_client: PoolClient, key: string): Promise<string | undefined> => db_client.query('SELECT "value" FROM kv_store WHERE "key"=$1', [key]).then(r => r.rows[0]?.value);
+export const kvStoreGet = (key: string): string | undefined => {
+    const row = dbCon.prepare('SELECT "value" FROM kv_store WHERE "key"=?', [key]).get() as any;
+    return row ? row.value : undefined;
+}
 
-export const kvStoreSet = (db_client: PoolClient, key: string, value: any) => db_client.query('SELECT "value" FROM kv_store WHERE "key"=$1', [key]).then(r => {
-    if (!r.rows[0]) {
-        return db_client.query('INSERT INTO kv_store VALUES ($1, $2)', [key, value]).then(() => value);
+export const kvStoreSet = (key: string, value: any) => {
+    const row = dbCon.prepare('SELECT "value" FROM kv_store WHERE "key"=?', [key]).get() as any;
+ 
+    if(!row){
+        dbCon.run('INSERT INTO kv_store VALUES (?, ?)', [key, value])
+    } else {
+        dbCon.run('UPDATE kv_store SET "value"=$1 WHERE "key"=$2', [value, key]);
     }
-
-    return db_client.query('UPDATE kv_store SET "value"=$1 WHERE "key"=$2', [value, key]);
-});
+}

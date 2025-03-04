@@ -1,27 +1,10 @@
-import { describe, expect, mock, setSystemTime, test } from "bun:test";
-import { newDb } from "pg-mem";
-import { migrateDb } from "../db/migrate";
+import { describe, expect, setSystemTime, test } from "bun:test";
 import { getContractList, getContractOperatorPriv, insertContract } from "./contract";
 
-const db = newDb();
-const pg = db.adapters.createPg();
-const pool = new pg.Pool();
-const client = new pg.Client();
-
-mock.module("../db/index", () => {
-    return {
-        pool
-    };
-});
-
-await migrateDb();
-
-
 describe("dba contracts", () => {
-    test("insertContract", async () => {
+    test("insertContract", () => {
         setSystemTime(1738262052565);
-        await insertContract(client,
-            'SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.liquidator',
+        insertContract('SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.liquidator',
             'mainnet',
             'SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T',
             '0x1.',
@@ -30,10 +13,9 @@ describe("dba contracts", () => {
         );
     });
 
-    test("insertContract", async () => {
+    test("insertContract", () => {
         setSystemTime(1738262062565);
-        await insertContract(client,
-            'ST1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.liquidator',
+        insertContract('ST1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.liquidator',
             'testnet',
             'ST1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T',
             '0x2.',
@@ -42,10 +24,9 @@ describe("dba contracts", () => {
         );
     });
 
-    test("insertContract network must be unique", async () => {
-        expect(async () => {
-            await insertContract(client,
-                'SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.liquidator',
+    test("insertContract network must be unique", () => {
+        expect(() => {
+            insertContract('SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.liquidator',
                 'mainnet', 'SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T',
                 '0x..',
                 { address: "SP3Y2ZSH8P7D50B0VBTSX11S7XSG24M1VB9YFQA4K.token-aeusdc", name: "Ethereum USDC via Allbridge", symbol: "aeUSDC", decimals: 6 },
@@ -55,8 +36,8 @@ describe("dba contracts", () => {
     });
 
 
-    test("getContractList", async () => {
-        const contracts = await getContractList(client, { orderBy: 'created_at DESC' });
+    test("getContractList", () => {
+        const contracts = getContractList({ orderBy: 'created_at DESC' });
         expect(contracts).toEqual([
             {
                 id: "ST1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.liquidator",
@@ -106,8 +87,8 @@ describe("dba contracts", () => {
         ])
     });
 
-    test("getContractList with filters", async () => {
-        const contracts = await getContractList(client, { filters: { network: 'mainnet' }, orderBy: 'created_at DESC' });
+    test("getContractList with filters", () => {
+        const contracts = getContractList({ filters: { network: 'mainnet' }, orderBy: 'created_at DESC' });
         expect(contracts).toEqual([
             {
                 id: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.liquidator",
@@ -135,13 +116,13 @@ describe("dba contracts", () => {
         ])
     });
 
-    test("getContractOperatorPriv", async () => {
-        const priv = await getContractOperatorPriv(client, "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.liquidator");
+    test("getContractOperatorPriv", () => {
+        const priv = getContractOperatorPriv("SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.liquidator");
         expect(priv).toEqual("0x1.");
     });
 
-    test("getContractOperatorPriv", async () => {
-        const priv = await getContractOperatorPriv(client, "ST1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.liquidator");
+    test("getContractOperatorPriv", () => {
+        const priv = getContractOperatorPriv("ST1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.liquidator");
         expect(priv).toEqual("0x2.");
-    }); 
+    });
 });
