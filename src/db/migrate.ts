@@ -17,9 +17,9 @@ export const createDb = async (client: PoolClient) => {
         "operator_address VARCHAR NOT NULL," +
         "operator_priv VARCHAR NOT NULL," +
         "market_asset VARCHAR," +
-        "market_asset_balance NUMERIC NOT NULL DEFAULT 0," +
+        "market_asset_balance REAL NOT NULL DEFAULT 0," +
         "collateral_asset VARCHAR," +
-        "collateral_asset_balance NUMERIC NOT NULL DEFAULT 0," +
+        "collateral_asset_balance REAL NOT NULL DEFAULT 0," +
         "lock_tx VARCHAR," +
         "unlocks_at INTEGER," +
         "created_at INTEGER NOT NULL" +
@@ -36,7 +36,7 @@ export const createDb = async (client: PoolClient) => {
     CREATE += "CREATE TABLE IF NOT EXISTS public.borrower_position(" +
         "address VARCHAR PRIMARY KEY REFERENCES borrower(address) ON DELETE RESTRICT," +
         "network VARCHAR NOT NULL," +
-        "debt_shares NUMERIC NOT NULL," +
+        "debt_shares REAL NOT NULL," +
         "collaterals VARCHAR NOT NULL" +
         ");";
 
@@ -45,7 +45,7 @@ export const createDb = async (client: PoolClient) => {
         "address VARCHAR NOT NULL REFERENCES borrower(address) ON DELETE RESTRICT," +
         "network VARCHAR NOT NULL," +
         "collateral VARCHAR NOT NULL," +
-        "amount NUMERIC NOT NULL" +
+        "amount REAL NOT NULL" +
         ");";
 
     CREATE += "CREATE UNIQUE INDEX IF NOT EXISTS borrower_collateral_address_idx ON borrower_collaterals (address, collateral);";
@@ -53,13 +53,13 @@ export const createDb = async (client: PoolClient) => {
     CREATE += "CREATE TABLE IF NOT EXISTS public.borrower_status(" +
         "address VARCHAR PRIMARY KEY REFERENCES borrower(address) ON DELETE RESTRICT," +
         "network VARCHAR NOT NULL," +
-        "ltv NUMERIC NOT NULL," +
-        "health NUMERIC NOT NULL," +
-        "debt NUMERIC NOT NULL," +
-        "collateral NUMERIC NOT NULL," +
-        "risk NUMERIC NOT NULL," +
+        "ltv REAL NOT NULL," +
+        "health REAL NOT NULL," +
+        "debt REAL NOT NULL," +
+        "collateral REAL NOT NULL," +
+        "risk REAL NOT NULL," +
         "max_repay VARCHAR NOT NULL," +
-        "total_repay_amount NUMERIC NOT NULL" +
+        "total_repay_amount REAL NOT NULL" +
         ");";
 
     CREATE += "INSERT INTO kv_store VALUES ('db_ver', 1);";
