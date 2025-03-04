@@ -84,7 +84,7 @@ export const insertBorrowerStatus = async (dbClient: PoolClient, address: string
         ) VALUES (
             $1, $2, $3, $4, $5, $6, $7, $8, $9
         )`,
-        [address, network, status.ltv.toFixed(4), status.health.toFixed(4), status.debt.toFixed(4), status.collateral.toFixed(4), status.risk.toFixed(4), status.maxRepay, status.totalRepayAmount])
+        [address, network, status.ltv.toFixed(4), status.health.toFixed(4), status.debt.toFixed(4), status.collateral.toFixed(4), status.risk.toFixed(4), JSON.stringify(status.maxRepay), status.totalRepayAmount])
 }
 
 export const getBorrowerStatusList = async (dbClient: PoolClient, args?: {
@@ -108,7 +108,7 @@ export const getBorrowerStatusList = async (dbClient: PoolClient, args?: {
             debt: Number(row.debt),
             collateral: Number(row.collateral),
             risk: Number(row.risk),
-            maxRepay: row.max_repay,
+            maxRepay: JSON.parse(row.max_repay),
             totalRepayAmount: Number(row.total_repay_amount)
         })));
 }   

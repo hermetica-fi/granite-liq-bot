@@ -58,7 +58,7 @@ export const createDb = async (client: PoolClient) => {
         "debt NUMERIC NOT NULL," +
         "collateral NUMERIC NOT NULL," +
         "risk NUMERIC NOT NULL," +
-        "max_repay JSON NOT NULL," +
+        "max_repay VARCHAR NOT NULL," +
         "total_repay_amount NUMERIC NOT NULL" +
         ");";
 
