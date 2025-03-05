@@ -16,7 +16,7 @@ const handleContractLocks = async (dbClient: PoolClient, contract: ContractEntit
     // schedule contract unlock
     if (contract.lockTx && contract.unlocksAt === null) {
         const tx = await getTransaction(contract.lockTx, contract.network);
-        if (tx.tx_status !== "pending") {
+        if (tx.tx_status && tx.tx_status !== "pending") {
 
             const unlocksAt = epoch() + 60;
             await dbClient.query("UPDATE contract SET unlocks_at = $1 WHERE id = $2", [unlocksAt, contract.id]);
