@@ -1,5 +1,5 @@
 import { listCV, noneCV, principalCV, someCV, tupleCV, uintCV, type ClarityValue } from "@stacks/transactions";
-import { parseUnits, toFixedDown, type AssetInfo, type BorrowerStatusEntity } from "granite-liq-bot-common";
+import { parseUnits, toFixedDown, type AssetInfoWithBalance, type BorrowerStatusEntity } from "granite-liq-bot-common";
 import type { SwapResult } from "../../alex";
 import type { PriceFeedResponse } from "../../client/pyth";
 import { MIN_TO_LIQUIDATE_PER_USER, REPAY_ADJUSTMENT } from "../../constants";
@@ -46,7 +46,7 @@ export const calcCollateralToGive = (repayAmount: bigint, liquidationDiscount: b
     return decimalCorrectedCollateral;
 }
 
-export const makeLiquidationBatch = (marketAssetInfo: AssetInfo, collateralAssetInfo: AssetInfo, borrowers: BorrowerStatusEntity[], priceFeed: PriceFeedResponse, liquidationPremium: number): LiquidationBatch[] => {
+export const makeLiquidationBatch = (marketAssetInfo: AssetInfoWithBalance, collateralAssetInfo: AssetInfoWithBalance, borrowers: BorrowerStatusEntity[], priceFeed: PriceFeedResponse, liquidationPremium: number): LiquidationBatch[] => {
     const cTicker = toTicker(collateralAssetInfo.symbol);
     const cFeed = priceFeed.items[cTicker];
 

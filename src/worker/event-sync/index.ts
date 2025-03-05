@@ -1,13 +1,13 @@
 import type { TransactionEventSmartContractLog } from "@stacks/stacks-blockchain-api-types";
 import { cvToJSON, hexToCV } from "@stacks/transactions";
 import { getContractEvents, type NetworkName } from "granite-liq-bot-common";
-import type { PoolClient } from "pg";
 import { CONTRACTS } from "../../constants";
-import { pool } from "../../db";
+
+import { dbCon } from "../../db/con";
 import { kvStoreGet, kvStoreSet } from "../../db/helper";
+import { upsertBorrower } from "../../dba/borrower";
 import { getNetworkNameFromAddress } from "../../helper";
 import { createLogger } from "../../logger";
-import { upsertBorrower } from "../db-helper";
 
 const logger = createLogger("event-sync");
 
@@ -20,7 +20,7 @@ const TRACKED_CONTRACTS = [
   CONTRACTS.testnet.liquidator,
 ]
 
-const processEvents = async (dbClient: PoolClient, network: NetworkName, event: TransactionEventSmartContractLog) => {
+const processEvents = (network: NetworkName, event: TransactionEventSmartContractLog) => {
   const decoded = hexToCV(event.contract_log.value.hex);
   const json = cvToJSON(decoded);
   const action = json?.value?.action?.value;
@@ -35,7 +35,7 @@ const processEvents = async (dbClient: PoolClient, network: NetworkName, event: 
   }
 
   if (user) {
-    const r = await upsertBorrower(dbClient, network, user);
+    const r = upsertBorrower(network, user);
     if (r === 1) {
       logger.info(`New borrower ${user}`);
     }
@@ -45,9 +45,9 @@ const processEvents = async (dbClient: PoolClient, network: NetworkName, event: 
   }
 }
 
-const worker = async (dbClient: PoolClient, contract: string) => {
+const worker = async (contract: string) => {
   const key = `borrower-sync-last-tx-seen-${contract}`;
-  const lastSeenTx = await kvStoreGet(dbClient, key);
+  const lastSeenTx = kvStoreGet(key);
   const network = getNetworkNameFromAddress(contract);
 
   const limit = 50;
@@ -76,7 +76,7 @@ const worker = async (dbClient: PoolClient, contract: string) => {
       }
 
       if ("contract_log" in event) {
-        await processEvents(dbClient, network, event);
+        await processEvents(network, event);
       }
     }
 
@@ -92,16 +92,15 @@ const worker = async (dbClient: PoolClient, contract: string) => {
   await fetchEvents();
 
   if (lastSeenTxRemote) {
-    await kvStoreSet(dbClient, key, lastSeenTxRemote);
+    kvStoreSet(key, lastSeenTxRemote);
   }
 }
 
 export const main = async () => {
-  let dbClient = await pool.connect();
-  await dbClient.query("BEGIN");
+  dbCon.query("BEGIN");
   for (const contract of TRACKED_CONTRACTS) {
-    await worker(dbClient, contract);
+    await worker(contract);
   }
-  await dbClient.query("COMMIT");
-  dbClient.release();
+  dbCon.query("COMMIT");
+
 };

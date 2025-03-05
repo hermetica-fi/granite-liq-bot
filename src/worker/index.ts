@@ -1,5 +1,5 @@
 import { CONTRACTS } from "../constants";
-import { pool } from "../db";
+
 import { kvStoreSet } from "../db/helper";
 import { createLogger } from "../logger";
 import { main as borrowerSync } from "./borrower-sync";
@@ -21,9 +21,8 @@ const workerInner = async () => {
     await healthSync();
     await liquidate();
 
-    const dbClient = await pool.connect();
-    await kvStoreSet(dbClient, "last-sync", Date.now());
-    dbClient.release();
+
+    kvStoreSet("last-sync", Date.now());
 }
 
 const worker = async () => {

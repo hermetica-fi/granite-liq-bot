@@ -1,6 +1,6 @@
 import { cvToJSON } from "@stacks/transactions";
 import { describe, expect, mock, test } from "bun:test";
-import type { AssetInfo, BorrowerStatusEntity } from "granite-liq-bot-common";
+import type { AssetInfoWithBalance, BorrowerStatusEntity } from "granite-liq-bot-common";
 import { options } from "../../alex";
 import type { PriceFeedResponse } from "../../client/pyth";
 import type { LiquidationBatch } from "../../types";
@@ -391,7 +391,7 @@ describe("makeLiquidationBatch", () => {
         }
     };
 
-    let marketAsset: AssetInfo = {
+    let marketAsset: AssetInfoWithBalance = {
         "address": "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-usdc",
         "name": "mock-usdc",
         "symbol": "mock-usdc",
@@ -399,7 +399,7 @@ describe("makeLiquidationBatch", () => {
         "balance": 2000000000
     };
 
-    let collateralAsset: AssetInfo = {
+    let collateralAsset: AssetInfoWithBalance = {
         "address": "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc",
         "name": "mock-btc",
         "symbol": "mock-btc",

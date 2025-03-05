@@ -1,5 +1,5 @@
 import { contractPrincipalCV, cvToJSON, fetchCallReadOnlyFunction, principalCV } from "@stacks/transactions";
-import { fetchFn, type NetworkName } from "granite-liq-bot-common";
+import { fetchFn, type AssetInfo, type NetworkName } from "granite-liq-bot-common";
 import { CONTRACTS } from "../constants";
 import type { AccrueInterestParams, BorrowerPositionEntity, CollateralParams, DebtParams, InterestRateParams, LpParams } from "../types";
 
@@ -168,8 +168,8 @@ export const getUserCollateralAmount = async (address: string, collateral: strin
   })
 }
 
-export const getAssetInfo = async (assetAddress: string, network: NetworkName) => {
-  const [contractAddress, contractName] = assetAddress.split(".");
+export const getAssetInfo = async (address: string, network: NetworkName): Promise<AssetInfo> => {
+  const [contractAddress, contractName] = address.split(".");
   const name = await fetchCallReadOnlyFunction({
     contractAddress,
     contractName,
@@ -207,7 +207,7 @@ export const getAssetInfo = async (assetAddress: string, network: NetworkName) =
   }).then(r => cvToJSON(r).value.value);
 
   return {
-    name, symbol, decimals: Number(decimals)
+    address, name, symbol, decimals: Number(decimals)
   }
 }
 

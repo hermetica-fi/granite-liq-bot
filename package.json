@@ -7,8 +7,7 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@types/bun": "latest",
-    "pg-mem": "^3.0.4"
+    "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5.7.3"
@@ -18,11 +17,9 @@
     "@stacks/stacks-blockchain-api-types": "^7.14.1",
     "@stacks/transactions": "^7.0.2",
     "@stacks/wallet-sdk": "^7.0.2",
-    "@types/pg": "^8.11.11",
     "assert": "^2.1.0",
     "dotenv": "^16.4.7",
     "granite-liq-bot-common": "./common",
-    "granite-math-sdk": "^1.0.23",
-    "pg": "^8.13.1"
+    "granite-math-sdk": "^1.0.23"
   }
 }

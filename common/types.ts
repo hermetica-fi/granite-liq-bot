@@ -5,6 +5,9 @@ export type AssetInfo = {
     name: string,
     symbol: string,
     decimals: number,
+}
+
+export type AssetInfoWithBalance = AssetInfo & {
     balance: number,
 }
 
@@ -14,8 +17,8 @@ export type ContractEntity = {
     name: string,
     network: NetworkName,
     operatorAddress: string,
-    marketAsset: AssetInfo | null,
-    collateralAsset: AssetInfo | null,
+    marketAsset: AssetInfoWithBalance | null,
+    collateralAsset: AssetInfoWithBalance | null,
     lockTx: string | null
     unlocksAt: number | null,
 }
