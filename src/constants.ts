@@ -21,7 +21,7 @@ const STAGING_CONTRACTS = {
     "borrower": "SP1M6MHD4EJ70MPJSH1C0PXSHCQ3D9C881AB7CVAZ.borrower-v1",
     "state": "SP1M6MHD4EJ70MPJSH1C0PXSHCQ3D9C881AB7CVAZ.state-v1",
     "ir": "SP1M6MHD4EJ70MPJSH1C0PXSHCQ3D9C881AB7CVAZ.linear-kinked-ir-v1",
-    "liquidator": "SP1M6MHD4EJ70MPJSH1C0PXSHCQ3D9C881AB7CVAZ.liquidator-v1"
+    "liquidator": "SPHBBDR66ZRW80BRRPNSJ02BH9005S0JQ30TC6J1.liquidator-v1"
 };
 
 const USE_STAGING = process.env.USE_STAGING === "1";
@@ -51,8 +51,8 @@ export const PRICE_FEED_IDS: { ticker: Ticker, feed_id: string }[] = [
 
 export const LIQUIDATION_PREMIUM = 0.1;
 
-export const MIN_TO_LIQUIDATE = 0.7; // usdc
-export const MIN_TO_LIQUIDATE_PER_USER = 0.5; // usdc
+export const MIN_TO_LIQUIDATE = 0.1; // usdc
+export const MIN_TO_LIQUIDATE_PER_USER = 0.1; // usdc
 export const REPAY_ADJUSTMENT = 3; // percent
 export const TX_TIMEOUT = 60 * 10; // seconds
 export const BORROWER_SYNC_DELAY = 10; // seconds
