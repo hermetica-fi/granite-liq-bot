@@ -8,12 +8,11 @@ import type { LiquidationBatch } from "../../types";
 
 
 export const liquidationBatchCv = (batch: LiquidationBatch[]) => {
-    const listItems = batch.map(b => someCV(
-        tupleCV({
-            "user": principalCV(b.user),
-            "liquidator-repay-amount": uintCV(b.liquidatorRepayAmount),
-            "min-collateral-expected": uintCV(b.minCollateralExpected)
-        })));
+    const listItems = batch.map(b => tupleCV({
+        "user": principalCV(b.user),
+        "liquidator-repay-amount": uintCV(b.liquidatorRepayAmount),
+        "min-collateral-expected": uintCV(b.minCollateralExpected)
+    }));
 
     return listCV(listItems)
 }

@@ -22,45 +22,39 @@ test("liquidationBatchCv", () => {
     ];
 
     expect(cvToJSON(liquidationBatchCv(batch))).toEqual({
-        "type": "(list 2 (optional (tuple (user principal) (liquidator-repay-amount uint) (min-collateral-expected uint))))",
+        "type": "(list 2 (tuple (user principal) (liquidator-repay-amount uint) (min-collateral-expected uint)))",
         "value": [
             {
-                "type": "(optional (tuple (user principal) (liquidator-repay-amount uint) (min-collateral-expected uint)))",
+                "type": "(tuple (user principal) (liquidator-repay-amount uint) (min-collateral-expected uint))",
                 "value": {
-                    "type": "(tuple (user principal) (liquidator-repay-amount uint) (min-collateral-expected uint))",
-                    "value": {
-                        "user": {
-                            "type": "principal",
-                            "value": "ST39B0S4TZP6H89VPBCCSCYXKX43DNNPNQV3BEWNW"
-                        },
-                        "liquidator-repay-amount": {
-                            "type": "uint",
-                            "value": "20000000000"
-                        },
-                        "min-collateral-expected": {
-                            "type": "uint",
-                            "value": "205455"
-                        }
+                    "user": {
+                        "type": "principal",
+                        "value": "ST39B0S4TZP6H89VPBCCSCYXKX43DNNPNQV3BEWNW"
+                    },
+                    "liquidator-repay-amount": {
+                        "type": "uint",
+                        "value": "20000000000"
+                    },
+                    "min-collateral-expected": {
+                        "type": "uint",
+                        "value": "205455"
                     }
                 }
             },
             {
-                "type": "(optional (tuple (user principal) (liquidator-repay-amount uint) (min-collateral-expected uint)))",
+                "type": "(tuple (user principal) (liquidator-repay-amount uint) (min-collateral-expected uint))",
                 "value": {
-                    "type": "(tuple (user principal) (liquidator-repay-amount uint) (min-collateral-expected uint))",
-                    "value": {
-                        "user": {
-                            "type": "principal",
-                            "value": "ST29Z7DDEPKNBP9Y17SDG3AQZMWKGS722M77HN9WR"
-                        },
-                        "liquidator-repay-amount": {
-                            "type": "uint",
-                            "value": "10000000000"
-                        },
-                        "min-collateral-expected": {
-                            "type": "uint",
-                            "value": "105455"
-                        }
+                    "user": {
+                        "type": "principal",
+                        "value": "ST29Z7DDEPKNBP9Y17SDG3AQZMWKGS722M77HN9WR"
+                    },
+                    "liquidator-repay-amount": {
+                        "type": "uint",
+                        "value": "10000000000"
+                    },
+                    "min-collateral-expected": {
+                        "type": "uint",
+                        "value": "105455"
                     }
                 }
             }
