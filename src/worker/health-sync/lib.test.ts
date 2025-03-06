@@ -117,11 +117,11 @@ describe("health-sync lib", () => {
         }
 
         expect(calcBorrowerStatus(borrower, marketState, makePriceFeed("10524868578626", "326603000000", "100005237"))).toEqual({
-            ltv: 0.6967019938059168,
-            health: 1.022200670829295,
-            debt: 525916.3190617947,
+            ltv: 0.6977874992015272,
+            health: 1.0206104956758972,
+            debt: 526735.7296664099,
             collateral: 754865.5289313,
-            risk: 0.9782814945608633,
+            risk: 0.9798057184761282,
             maxRepay: {},
             totalRepayAmount: 0
         });
@@ -170,15 +170,15 @@ describe("health-sync lib", () => {
         }
 
         expect(calcBorrowerStatus(borrower, marketState, makePriceFeed("10549298752013", "327439303121", "100003543"))).toEqual({
-            ltv: 0.6965102092611046,
-            health: 0.732221858658806,
-            debt: 15013.906895738992,
+            ltv: 0.6976290663298624,
+            health: 0.7310475216909251,
+            debt: 15038.024870804698,
             collateral: 21555.903554761313,
-            risk: 1.3657062926688326,
+            risk: 1.3679001300585538,
             maxRepay: {
-               'ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth': 9158.077637382057
+               'ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth': 9213.016077167267
             },
-            totalRepayAmount: 9158.077637382057
+            totalRepayAmount: 9213.016077167267
         });
     });
 });
