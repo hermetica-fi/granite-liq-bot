@@ -1,0 +1,71 @@
+name: Build and Push to ECR
+
+on:
+  workflow_dispatch:
+
+env:
+  AWS_REGION: eu-central-1
+  ECR_REPOSITORY: liquidation-bot-mainnet
+
+jobs:
+  build:
+    name: Build Image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Get latest version and increment
+        id: version
+        run: |
+          # Get the latest version tag from ECR
+          LATEST_VERSION=$(aws ecr describe-images \
+            --repository-name ${{ env.ECR_REPOSITORY }} \
+            --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags[?contains(@, `v`)]' \
+            --output text || echo "v0.0.0")
+          
+          # If no version found, start with v0.0.0
+          if [ -z "$LATEST_VERSION" ] || [ "$LATEST_VERSION" == "None" ]; then
+            LATEST_VERSION="v0.0.0"
+          fi
+          
+          # Extract version numbers
+          VERSION_NUMBERS=$(echo $LATEST_VERSION | sed 's/v//')
+          MAJOR=$(echo $VERSION_NUMBERS | cut -d. -f1)
+          MINOR=$(echo $VERSION_NUMBERS | cut -d. -f2)
+          PATCH=$(echo $VERSION_NUMBERS | cut -d. -f3)
+          
+          # Increment patch version
+          NEW_PATCH=$((PATCH + 1))
+          NEW_VERSION="v$MAJOR.$MINOR.$NEW_PATCH"
+          
+          echo "New version will be: $NEW_VERSION"
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          VERSION_TAG: ${{ steps.version.outputs.new_version }}
+        run: |
+          # Build Docker image
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG .
+          # Also tag as latest for convenience
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          # Push both tags to ECR
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          # Output the image tags for reference
+          echo "Built and pushed image: $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG"
+          echo "Also tagged as: $ECR_REGISTRY/$ECR_REPOSITORY:latest"
