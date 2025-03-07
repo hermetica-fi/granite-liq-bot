@@ -102,7 +102,7 @@ const worker = async (network: NetworkName) => {
         return;
     }
 
-    const swapDataCv: ClarityValue = swapOutCv(swapRoute);
+    const swapDataCv = swapOutCv(swapRoute);
 
     const functionArgs = [
         someCV(bufferCV(priceAttestationBuff)),
