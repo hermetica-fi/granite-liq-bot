@@ -73,52 +73,50 @@ describe("swapOutCv", () => {
         const cv = swapOutCv({ option: options[0], out: 100 });
 
         expect(cvToJSON(cv)).toEqual({
-            "type": "(optional (tuple (token-x principal) (token-y principal) (token-z (optional principal)) (token-w (optional none)) (token-v (optional none)) (factor-x uint) (factor-y (optional uint)) (factor-z (optional none)) (factor-w (optional none))))",
+            "type": "(tuple (token-x principal) (token-y principal) (token-z (optional principal)) (token-w (optional none)) (token-v (optional none)) (factor-x uint) (factor-y (optional uint)) (factor-z (optional none)) (factor-w (optional none)))",
             "value": {
-                "type": "(tuple (token-x principal) (token-y principal) (token-z (optional principal)) (token-w (optional none)) (token-v (optional none)) (factor-x uint) (factor-y (optional uint)) (factor-z (optional none)) (factor-w (optional none)))",
-                "value": {
-                    "token-x": {
+
+                "token-x": {
+                    "type": "principal",
+                    "value": "SP1E0XBN9T4B10E9QMR7XMFJPMA19D77WY3KP2QKC.token-wsbtc"
+                },
+                "token-y": {
+                    "type": "principal",
+                    "value": "SP102V8P0F7JX67ARQ77WEA3D3CFB5XW39REDT0AM.token-wstx-v2"
+                },
+                "token-z": {
+                    "type": "(optional principal)",
+                    "value": {
                         "type": "principal",
-                        "value": "SP1E0XBN9T4B10E9QMR7XMFJPMA19D77WY3KP2QKC.token-wsbtc"
-                    },
-                    "token-y": {
-                        "type": "principal",
-                        "value": "SP102V8P0F7JX67ARQ77WEA3D3CFB5XW39REDT0AM.token-wstx-v2"
-                    },
-                    "token-z": {
-                        "type": "(optional principal)",
-                        "value": {
-                            "type": "principal",
-                            "value": "SP102V8P0F7JX67ARQ77WEA3D3CFB5XW39REDT0AM.token-waeusdc"
-                        }
-                    },
-                    "token-w": {
-                        "type": "(optional none)",
-                        "value": null
-                    },
-                    "token-v": {
-                        "type": "(optional none)",
-                        "value": null
-                    },
-                    "factor-x": {
+                        "value": "SP102V8P0F7JX67ARQ77WEA3D3CFB5XW39REDT0AM.token-waeusdc"
+                    }
+                },
+                "token-w": {
+                    "type": "(optional none)",
+                    "value": null
+                },
+                "token-v": {
+                    "type": "(optional none)",
+                    "value": null
+                },
+                "factor-x": {
+                    "type": "uint",
+                    "value": "100000000"
+                },
+                "factor-y": {
+                    "type": "(optional uint)",
+                    "value": {
                         "type": "uint",
                         "value": "100000000"
-                    },
-                    "factor-y": {
-                        "type": "(optional uint)",
-                        "value": {
-                            "type": "uint",
-                            "value": "100000000"
-                        }
-                    },
-                    "factor-z": {
-                        "type": "(optional none)",
-                        "value": null
-                    },
-                    "factor-w": {
-                        "type": "(optional none)",
-                        "value": null
                     }
+                },
+                "factor-z": {
+                    "type": "(optional none)",
+                    "value": null
+                },
+                "factor-w": {
+                    "type": "(optional none)",
+                    "value": null
                 }
             }
         })

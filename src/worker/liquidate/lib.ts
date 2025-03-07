@@ -114,7 +114,7 @@ export const swapOutCv = (swap: SwapResult) => {
         }
     }
 
-    return someCV(tupleCV(swapData));
+    return tupleCV(swapData);
 }
 
 
