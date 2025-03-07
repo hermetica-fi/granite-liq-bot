@@ -59,3 +59,4 @@ export const BORROWER_SYNC_DELAY = 10; // seconds
 
 
 export const DRY_RUN = process.env.DRY_RUN === "1";
+export const SKIP_PROFITABILITY_CHECK = process.env.SKIP_PROFITABILITY_CHECK === "1";

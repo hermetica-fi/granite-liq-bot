@@ -24,3 +24,4 @@ docker-compose up --build -d
 - `HIRO_API_KEY`: (optional) Hiro API key for stacks api
 - `USE_STAGING`: (optional) 1 to use staging contracts on mainnet
 - `DRY_RUN`: (optional) 1 to block liquidations
+- `SKIP_PROFITABILITY_CHECK`: (optional) 
