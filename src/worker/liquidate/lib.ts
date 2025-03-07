@@ -73,7 +73,7 @@ export const makeLiquidationBatch = (marketAssetInfo: AssetInfoWithBalance, coll
             continue;
         }
 
-        const repayAmountAdjusted = toFixedDown(repayAmount, 3); // toFixedDown(repayAmount - (repayAmount / 100 * REPAY_ADJUSTMENT), 3);
+        const repayAmountAdjusted = toFixedDown(repayAmount, 3); 
         const repayAmountAdjustedBn = parseUnits(repayAmountAdjusted, marketAssetInfo.decimals);
         const repayAmountFinalBn = Math.min(availableBn, repayAmountAdjustedBn);
 

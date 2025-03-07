@@ -316,13 +316,6 @@ describe("swapOutCv", () => {
 
 
 describe("makeLiquidationBatch", () => {
-
-    mock.module("../../constants", () => {
-        return {
-            REPAY_ADJUSTMENT: 5
-        }
-    });
-
     const priceFeed: PriceFeedResponse = {
         "attestation": "0",
         "items": {
