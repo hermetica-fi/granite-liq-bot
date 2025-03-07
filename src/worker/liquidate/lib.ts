@@ -8,12 +8,11 @@ import type { LiquidationBatch } from "../../types";
 
 
 export const liquidationBatchCv = (batch: LiquidationBatch[]) => {
-    const listItems = batch.map(b => someCV(
-        tupleCV({
-            "user": principalCV(b.user),
-            "liquidator-repay-amount": uintCV(b.liquidatorRepayAmount),
-            "min-collateral-expected": uintCV(b.minCollateralExpected)
-        })));
+    const listItems = batch.map(b => someCV(tupleCV({
+        "user": principalCV(b.user),
+        "liquidator-repay-amount": uintCV(b.liquidatorRepayAmount),
+        "min-collateral-expected": uintCV(b.minCollateralExpected)
+    })));
 
     return listCV(listItems)
 }
@@ -74,7 +73,7 @@ export const makeLiquidationBatch = (marketAssetInfo: AssetInfoWithBalance, coll
             continue;
         }
 
-        const repayAmountAdjusted = toFixedDown(repayAmount, 3); // toFixedDown(repayAmount - (repayAmount / 100 * REPAY_ADJUSTMENT), 3);
+        const repayAmountAdjusted = toFixedDown(repayAmount, 3); 
         const repayAmountAdjustedBn = parseUnits(repayAmountAdjusted, marketAssetInfo.decimals);
         const repayAmountFinalBn = Math.min(availableBn, repayAmountAdjustedBn);
 
@@ -115,7 +114,7 @@ export const swapOutCv = (swap: SwapResult) => {
         }
     }
 
-    return someCV(tupleCV(swapData));
+    return tupleCV(swapData);
 }
 
 

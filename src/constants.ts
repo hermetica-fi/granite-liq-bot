@@ -53,9 +53,9 @@ export const LIQUIDATION_PREMIUM = 0.1;
 
 export const MIN_TO_LIQUIDATE = 0.1; // usdc
 export const MIN_TO_LIQUIDATE_PER_USER = 0.1; // usdc
-export const REPAY_ADJUSTMENT = 3; // percent
 export const TX_TIMEOUT = 60 * 10; // seconds
 export const BORROWER_SYNC_DELAY = 10; // seconds
 
 
 export const DRY_RUN = process.env.DRY_RUN === "1";
+export const SKIP_PROFITABILITY_CHECK = process.env.SKIP_PROFITABILITY_CHECK === "1";

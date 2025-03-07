@@ -73,52 +73,50 @@ describe("swapOutCv", () => {
         const cv = swapOutCv({ option: options[0], out: 100 });
 
         expect(cvToJSON(cv)).toEqual({
-            "type": "(optional (tuple (token-x principal) (token-y principal) (token-z (optional principal)) (token-w (optional none)) (token-v (optional none)) (factor-x uint) (factor-y (optional uint)) (factor-z (optional none)) (factor-w (optional none))))",
+            "type": "(tuple (token-x principal) (token-y principal) (token-z (optional principal)) (token-w (optional none)) (token-v (optional none)) (factor-x uint) (factor-y (optional uint)) (factor-z (optional none)) (factor-w (optional none)))",
             "value": {
-                "type": "(tuple (token-x principal) (token-y principal) (token-z (optional principal)) (token-w (optional none)) (token-v (optional none)) (factor-x uint) (factor-y (optional uint)) (factor-z (optional none)) (factor-w (optional none)))",
-                "value": {
-                    "token-x": {
+
+                "token-x": {
+                    "type": "principal",
+                    "value": "SP1E0XBN9T4B10E9QMR7XMFJPMA19D77WY3KP2QKC.token-wsbtc"
+                },
+                "token-y": {
+                    "type": "principal",
+                    "value": "SP102V8P0F7JX67ARQ77WEA3D3CFB5XW39REDT0AM.token-wstx-v2"
+                },
+                "token-z": {
+                    "type": "(optional principal)",
+                    "value": {
                         "type": "principal",
-                        "value": "SP1E0XBN9T4B10E9QMR7XMFJPMA19D77WY3KP2QKC.token-wsbtc"
-                    },
-                    "token-y": {
-                        "type": "principal",
-                        "value": "SP102V8P0F7JX67ARQ77WEA3D3CFB5XW39REDT0AM.token-wstx-v2"
-                    },
-                    "token-z": {
-                        "type": "(optional principal)",
-                        "value": {
-                            "type": "principal",
-                            "value": "SP102V8P0F7JX67ARQ77WEA3D3CFB5XW39REDT0AM.token-waeusdc"
-                        }
-                    },
-                    "token-w": {
-                        "type": "(optional none)",
-                        "value": null
-                    },
-                    "token-v": {
-                        "type": "(optional none)",
-                        "value": null
-                    },
-                    "factor-x": {
+                        "value": "SP102V8P0F7JX67ARQ77WEA3D3CFB5XW39REDT0AM.token-waeusdc"
+                    }
+                },
+                "token-w": {
+                    "type": "(optional none)",
+                    "value": null
+                },
+                "token-v": {
+                    "type": "(optional none)",
+                    "value": null
+                },
+                "factor-x": {
+                    "type": "uint",
+                    "value": "100000000"
+                },
+                "factor-y": {
+                    "type": "(optional uint)",
+                    "value": {
                         "type": "uint",
                         "value": "100000000"
-                    },
-                    "factor-y": {
-                        "type": "(optional uint)",
-                        "value": {
-                            "type": "uint",
-                            "value": "100000000"
-                        }
-                    },
-                    "factor-z": {
-                        "type": "(optional none)",
-                        "value": null
-                    },
-                    "factor-w": {
-                        "type": "(optional none)",
-                        "value": null
                     }
+                },
+                "factor-z": {
+                    "type": "(optional none)",
+                    "value": null
+                },
+                "factor-w": {
+                    "type": "(optional none)",
+                    "value": null
                 }
             }
         })
@@ -318,13 +316,6 @@ describe("swapOutCv", () => {
 
 
 describe("makeLiquidationBatch", () => {
-
-    mock.module("../../constants", () => {
-        return {
-            REPAY_ADJUSTMENT: 5
-        }
-    });
-
     const priceFeed: PriceFeedResponse = {
         "attestation": "0",
         "items": {
@@ -429,8 +420,8 @@ describe("makeLiquidationBatch", () => {
         expect(batch).toEqual([
             {
                 user: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
-                liquidatorRepayAmount: 201900000,
-                minCollateralExpected: 2274
+                liquidatorRepayAmount: 212500000,
+                minCollateralExpected: 2393
             }
         ]);
     });
@@ -470,12 +461,12 @@ describe("makeLiquidationBatch", () => {
         expect(batch).toEqual([
             {
                 user: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
-                liquidatorRepayAmount: 201900000,
-                minCollateralExpected: 2274
+                liquidatorRepayAmount: 212500000,
+                minCollateralExpected: 2393,
             }, {
                 user: "ST2DXHX9Q844EBT80DYJXFWXJKCJ5FFAX53H4AZFA",
-                liquidatorRepayAmount: 439200000,
-                minCollateralExpected: 4947
+                liquidatorRepayAmount: 462300000,
+                minCollateralExpected: 5207,
             }
         ]);
     });
@@ -527,16 +518,16 @@ describe("makeLiquidationBatch", () => {
         expect(batch).toEqual([
             {
                 user: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
-                liquidatorRepayAmount: 201900000,
-                minCollateralExpected: 2274
+                liquidatorRepayAmount: 212500000,
+                minCollateralExpected: 2393,
             }, {
                 user: "ST2DXHX9Q844EBT80DYJXFWXJKCJ5FFAX53H4AZFA",
-                liquidatorRepayAmount: 439200000,
-                minCollateralExpected: 4947
+                liquidatorRepayAmount: 462300000,
+                minCollateralExpected: 5207,
             }, {
                 user: "ST2VWSP59FEVDXXYGGWYG90M3N67ZST2AGPA3P2HC",
-                liquidatorRepayAmount: 1358900000,
-                minCollateralExpected: 15307
+                liquidatorRepayAmount: 1325200000,
+                minCollateralExpected: 14927,
             }
         ]);
     });
