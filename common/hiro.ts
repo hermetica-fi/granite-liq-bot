@@ -63,7 +63,7 @@ export const fetchFn = async (
     throw lastError || new Error('Request failed after max retries');
 }
 
-export const fetchGetWrapper = async (path: string, network: StacksNetworkName, json?: any) => {
+export const fetchGetWrapper = async (path: string, network: StacksNetworkName) => {
     const networkObj = networkFromName(network);
     const url = `${networkObj.client.baseUrl}${path}`;
     return fetchFn(url);

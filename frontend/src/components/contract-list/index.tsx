@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import NetworkChip from "../../components/network-chip";
 import ThemedBox from "../../components/themed-box";
 import useTranslation from "../../hooks/use-translation";
-import { ContractEntity } from "../../types";
+import { ContractEntity } from "granite-liq-bot-common";
 
 const ContractList = ({ contracts }: { contracts: ContractEntity[] }) => {
   const [t] = useTranslation();
