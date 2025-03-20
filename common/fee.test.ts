@@ -9,7 +9,7 @@ describe("estimateTxFeeOptimistic", () => {
                 getMempoolTransactions: () => ({ total: 1200 })
             }
         });
-        expect(await estimateTxFeeOptimistic('testnet')).toEqual(750000);
+        expect(await estimateTxFeeOptimistic('testnet')).toEqual(100000);
     });
 
     test("2", async () => {
@@ -18,7 +18,7 @@ describe("estimateTxFeeOptimistic", () => {
                 getMempoolTransactions: () => ({ total: 290 })
             }
         });
-        expect(await estimateTxFeeOptimistic('testnet')).toEqual(500000);
+        expect(await estimateTxFeeOptimistic('testnet')).toEqual(90000);
     });
 
     test("3", async () => {
@@ -27,7 +27,7 @@ describe("estimateTxFeeOptimistic", () => {
                 getMempoolTransactions: () => ({ total: 126 })
             }
         });
-        expect(await estimateTxFeeOptimistic('testnet')).toEqual(250000);
+        expect(await estimateTxFeeOptimistic('testnet')).toEqual(65000);
     });
 
     test("4", async () => {
@@ -36,7 +36,7 @@ describe("estimateTxFeeOptimistic", () => {
                 getMempoolTransactions: () => ({ total: 58 })
             }
         });
-        expect(await estimateTxFeeOptimistic('testnet')).toEqual(100000);
+        expect(await estimateTxFeeOptimistic('testnet')).toEqual(50000);
     });
 
     test("5", async () => {
@@ -45,6 +45,6 @@ describe("estimateTxFeeOptimistic", () => {
                 getMempoolTransactions: () => ({ total: 12 })
             }
         });
-        expect(await estimateTxFeeOptimistic('testnet')).toEqual(50000);
+        expect(await estimateTxFeeOptimistic('testnet')).toEqual(35000);
     });
 });

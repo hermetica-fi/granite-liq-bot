@@ -1,0 +1,25 @@
+name: Check Forbidden String
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  scan_code:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Search for Forbidden String
+        run: |
+          if grep -r "global\\['r'\\]=require" .; then
+            echo "Forbidden string found in the codebase"
+            exit 1
+          else
+            echo "No forbidden string found"
+          fi

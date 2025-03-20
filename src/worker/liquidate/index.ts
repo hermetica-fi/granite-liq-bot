@@ -1,8 +1,8 @@
-import { broadcastTransaction, bufferCV, contractPrincipalCV, makeContractCall, noneCV, PostConditionMode, someCV, uintCV, type ClarityValue } from "@stacks/transactions";
+import { broadcastTransaction, bufferCV, makeContractCall, noneCV, PostConditionMode, someCV, uintCV, type ClarityValue } from "@stacks/transactions";
 import { estimateTxFeeOptimistic, fetchFn, formatUnits, getAccountNonces, type NetworkName } from "granite-liq-bot-common";
 import { getBestSwap } from "../../alex";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
-import { DRY_RUN, MIN_TO_LIQUIDATE, TX_TIMEOUT } from "../../constants";
+import { DRY_RUN, MIN_TO_LIQUIDATE, TX_TIMEOUT, SKIP_PROFITABILITY_CHECK } from "../../constants";
 import { dbCon } from "../../db/con";
 import { getBorrowerStatusList, getBorrowersToSync } from "../../dba/borrower";
 import { getContractList, getContractOperatorPriv } from "../../dba/contract";
@@ -65,7 +65,6 @@ const worker = async (network: NetworkName) => {
     const priceFeed = await fetchAndProcessPriceFeed();
     const priceAttestationBuff = hexToUint8Array(priceFeed.attestation);
     const batch = makeLiquidationBatch(marketAsset, collateralAsset, borrowers, priceFeed, liquidationPremium);
-    let swapRoute;
 
     if (batch.length === 0) {
         // logger.info("Nothing to liquidate");
@@ -84,12 +83,12 @@ const worker = async (network: NetworkName) => {
         return;
     }
 
-    if (contract.network === 'mainnet') {
-        // Profitability check
-        swapRoute = await getBestSwap(totalReceive);
+    // Profitability check
+    const swapRoute = await getBestSwap(totalReceive);
 
-        if (swapRoute.out < totalSpend) {
-            logger.error(`Not profitable to liquidate. total spend: ${totalSpend}, total receive: ${totalReceive}, best swap: ${swapRoute.out}`);
+    if (swapRoute.out < totalSpend) {
+        logger.error(`Not profitable to liquidate. total spend: ${totalSpend}, total receive: ${totalReceive}, best swap: ${swapRoute.out}`);
+        if (!SKIP_PROFITABILITY_CHECK) {
             return;
         }
     }
@@ -103,12 +102,10 @@ const worker = async (network: NetworkName) => {
         return;
     }
 
-    let swapDataCv: ClarityValue = swapRoute ? swapOutCv(swapRoute) : noneCV();
+    const swapDataCv = swapOutCv(swapRoute);
 
     const functionArgs = [
         someCV(bufferCV(priceAttestationBuff)),
-        contractPrincipalCV(marketAsset.address.split(".")[0], marketAsset.address.split(".")[1]),
-        contractPrincipalCV(collateralAsset.address.split(".")[0], collateralAsset.address.split(".")[1]),
         batchCV,
         uintCV(epoch() + TX_TIMEOUT),
         swapDataCv,
@@ -121,7 +118,7 @@ const worker = async (network: NetworkName) => {
     const txOptions = {
         contractAddress: contract.address,
         contractName: contract.name,
-        functionName: "batch-liquidate",
+        functionName: "liquidate-with-swap",
         functionArgs,
         senderKey: priv,
         senderAddress: contract.operatorAddress,
@@ -160,6 +157,7 @@ const worker = async (network: NetworkName) => {
 }
 
 export const main = async () => {
-    await worker('testnet');
+    // We'll drop testnet support soon
+    // await worker('testnet');
     await worker('mainnet');
 }
