@@ -11,6 +11,9 @@ jobs:
   build:
     name: Build Image
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # Required for OIDC
+      contents: read   # Needed to read repository content
 
     steps:
       - name: Checkout
@@ -19,9 +22,8 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: arn:aws:iam::851725226383:role/GithubActionsToECR
+          aws-region: eu-central-1
 
       - name: Login to Amazon ECR
         id: login-ecr
