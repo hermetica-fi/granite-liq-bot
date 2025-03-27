@@ -1,5 +1,5 @@
 import type { Transaction } from "@stacks/stacks-blockchain-api-types";
-import { getTransaction, type ContractEntity } from "granite-liq-bot-common";
+import { getAccountBalances, getTransaction, type ContractEntity } from "granite-liq-bot-common";
 import { getAssetBalance } from "../../client/read-only-call";
 import { dbCon } from "../../db/con";
 import { upsertBorrower } from "../../dba/borrower";
@@ -40,18 +40,16 @@ const handleContractLocks = async (contract: ContractEntity) => {
 }
 
 export const worker = async () => {
-    dbCon.run("BEGIN");
     const contracts = getContractList({});
     for (const contract of contracts) {
         await handleContractLocks(contract);
 
-        const balance1 = await getAssetBalance(contract.marketAsset!.address, contract.id);
-        dbCon.run("UPDATE contract SET market_asset_balance = $1 WHERE id = $2", [balance1, contract.id]);
+        const oBalance = (await getAccountBalances(contract.operatorAddress, "mainnet")).stx.balance;
+        const mBalance = await getAssetBalance(contract.marketAsset!.address, contract.id);
+        const cBalance = await getAssetBalance(contract.collateralAsset!.address, contract.id);
 
-        const balance2 = await getAssetBalance(contract.collateralAsset!.address, contract.id);
-        dbCon.run("UPDATE contract SET collateral_asset_balance = $1 WHERE id = $2", [balance2, contract.id])
+        dbCon.run("UPDATE contract SET operator_balance = ?, market_asset_balance = ?, collateral_asset_balance = ? WHERE id = ?", [oBalance, mBalance, cBalance, contract.id])
     }
-    dbCon.run("COMMIT");
 };
 
 export const main = async () => {

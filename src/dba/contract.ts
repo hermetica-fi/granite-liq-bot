@@ -15,7 +15,7 @@ export const insertContract = (address: string, operator: string, operatorPriv: 
 
 export const getContractList = (args: {
     filters?: Record<string, string>,
-    orderBy?: 'created_at DESC' | 'market_asset_balance DESC'
+    orderBy?: 'created_at DESC' | 'CAST(market_asset_balance AS REAL) DESC'
 }): ContractEntity[] => {
     const filters = args?.filters || {};
     const orderBy = args?.orderBy || 'created_at DESC';

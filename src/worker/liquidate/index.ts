@@ -17,7 +17,7 @@ const logger = createLogger("liquidate");
 
 const worker = async () => {
     const contract = (getContractList({
-        orderBy: 'market_asset_balance DESC'
+        orderBy: 'CAST(market_asset_balance AS REAL) DESC'
     }))[0];
 
     if (!contract) {
