@@ -4,6 +4,7 @@ import { getAssetBalance } from "../../client/read-only-call";
 import { dbCon } from "../../db/con";
 import { upsertBorrower } from "../../dba/borrower";
 import { getContractList } from "../../dba/contract";
+import { finalizeLiquidation } from "../../dba/liquidation";
 import { createLogger } from "../../logger";
 import { epoch } from "../../util";
 import { getLiquidatedPrincipals } from "./lib";
@@ -19,6 +20,7 @@ const handleContractLocks = async (contract: ContractEntity) => {
 
             const unlocksAt = epoch() + 60;
             dbCon.run("UPDATE contract SET unlocks_at = $1 WHERE id = $2", [unlocksAt, contract.id]);
+            finalizeLiquidation(contract.lockTx, tx.tx_status);
             logger.info(`transaction ${contract.lockTx} completed as ${tx.tx_status}. contract ${contract.id} will be unlocked in 60 seconds`);
 
             const principals = getLiquidatedPrincipals(tx as Transaction);

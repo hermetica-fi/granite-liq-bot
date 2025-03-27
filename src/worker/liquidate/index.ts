@@ -6,6 +6,7 @@ import { fetchAndProcessPriceFeed } from "../../client/pyth";
 import { DRY_RUN, MIN_TO_LIQUIDATE, SKIP_PROFITABILITY_CHECK, TX_TIMEOUT } from "../../constants";
 import { getBorrowerStatusList, getBorrowersToSync } from "../../dba/borrower";
 import { getContractList, getContractOperatorPriv, lockContract } from "../../dba/contract";
+import { insertLiquidation } from "../../dba/liquidation";
 import { getMarketState } from "../../dba/market";
 import { hexToUint8Array } from "../../helper";
 import { createLogger } from "../../logger";
@@ -144,6 +145,7 @@ const worker = async () => {
 
     if (tx.txid) {
         lockContract(tx.txid, contract.id);
+        insertLiquidation(tx.txid, contract.id);
         logger.info(`Transaction broadcasted ${tx.txid}`);
         console.log('Batch', batch);
         return;

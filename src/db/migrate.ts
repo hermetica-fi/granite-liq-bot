@@ -35,7 +35,6 @@ export const createDb = () => {
         "collaterals TEXT NOT NULL" +
         ");";
 
-
     CREATE += "CREATE TABLE IF NOT EXISTS borrower_collaterals(" +
         "address TEXT NOT NULL REFERENCES borrower(address) ON DELETE RESTRICT," +
         "collateral TEXT NOT NULL," +
@@ -53,6 +52,14 @@ export const createDb = () => {
         "risk REAL NOT NULL," +
         "max_repay TEXT NOT NULL," +
         "total_repay_amount REAL NOT NULL" +
+        ");";
+
+    CREATE += "CREATE TABLE IF NOT EXISTS liquidation(" +
+        "txid TEXT PRIMARY KEY NOT NULL," +
+        "contract TEXT NOT NULL," +
+        "status TEXT NOT NULL DEFAULT 'pending'," +
+        "created_at INTEGER NOT NULL," +
+        "updated_at INTEGER" +      
         ");";
 
     CREATE += "INSERT INTO kv_store VALUES ('db_ver', 1);";
