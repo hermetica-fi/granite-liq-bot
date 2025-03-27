@@ -11,7 +11,6 @@ export const createDb = () => {
         "id TEXT PRIMARY KEY NOT NULL," +
         "address TEXT NOT NULL," +
         "name TEXT NOT NULL," +
-        "network TEXT NOT NULL UNIQUE," +
         "operator_address TEXT NOT NULL," +
         "operator_priv TEXT NOT NULL," +
         "market_asset TEXT," +
@@ -25,14 +24,12 @@ export const createDb = () => {
 
     CREATE += "CREATE TABLE IF NOT EXISTS borrower(" +
         "address TEXT PRIMARY KEY NOT NULL," +
-        "network TEXT NOT NULL," +
         "sync_flag INTEGER NOT NULL DEFAULT 1," +
         "sync_ts INTEGER NOT NULL DEFAULT 0" +
         ");";
 
     CREATE += "CREATE TABLE IF NOT EXISTS borrower_position(" +
         "address TEXT PRIMARY KEY REFERENCES borrower(address) ON DELETE RESTRICT," +
-        "network TEXT NOT NULL," +
         "debt_shares REAL NOT NULL," +
         "collaterals TEXT NOT NULL" +
         ");";
@@ -40,7 +37,6 @@ export const createDb = () => {
 
     CREATE += "CREATE TABLE IF NOT EXISTS borrower_collaterals(" +
         "address TEXT NOT NULL REFERENCES borrower(address) ON DELETE RESTRICT," +
-        "network TEXT NOT NULL," +
         "collateral TEXT NOT NULL," +
         "amount REAL NOT NULL" +
         ");";
@@ -49,7 +45,6 @@ export const createDb = () => {
 
     CREATE += "CREATE TABLE IF NOT EXISTS borrower_status(" +
         "address TEXT PRIMARY KEY REFERENCES borrower(address) ON DELETE RESTRICT," +
-        "network TEXT NOT NULL," +
         "ltv REAL NOT NULL," +
         "health REAL NOT NULL," +
         "debt REAL NOT NULL," +
@@ -91,6 +86,12 @@ export const migrateDb = async () => {
     if (!exists) {
         createDb();
     }
+
+    const contract_hash = (dbCon.prepare('SELECT "value" FROM kv_store WHERE "key"=?', ['contract_hash']).get() as { value: string }).value;
+    if(Bun.hash(JSON.stringify(CONTRACTS)).toString() !== contract_hash){
+        throw new Error('Contracts changed. Delete database and sync again.');
+    }
+  
 
     let dbVer = Number((dbCon.prepare('SELECT "value" FROM kv_store where "key"=? LIMIT 1', ["db_ver"]).get() as { value: string }).value);
 
