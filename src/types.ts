@@ -1,7 +1,5 @@
 import type { CollateralParams as CollateralParams_, Collateral as Collateral_, InterestRateParams as InterestRateParams_ } from "granite-math-sdk";
 
-export type NetworkName = "mainnet" | "testnet";
-
 export type AssetInfo = {
     address: string,
     name: string,
@@ -11,6 +9,16 @@ export type AssetInfo = {
 
 export type AssetInfoWithBalance = AssetInfo & {
     balance: number,
+}
+
+export type BorrowerStatus = {
+    ltv: number,
+    health: number,
+    debt: number,
+    collateral: number,
+    risk: number,
+    maxRepay: Record<string, number>,
+    totalRepayAmount: number
 }
 
 export type ContractEntity = {
@@ -24,14 +32,21 @@ export type ContractEntity = {
     unlocksAt: number | null,
 }
 
-export type BorrowerStatus = {
-    ltv: number,
-    health: number,
-    debt: number,
-    collateral: number,
-    risk: number,
-    maxRepay: Record<string, number>,
-    totalRepayAmount: number
+export type BorrowerEntity = {
+    address: string,
+    syncTs: number
+}
+
+export type BorrowerPositionEntity = {
+    address: string,
+    debtShares: number,
+    collaterals: string[]
+}
+
+export type BorrowerCollateralEntity = {
+    address: string,
+    collateral: string,
+    amount: number
 }
 
 export type BorrowerStatusEntity = BorrowerStatus & { address: string }
@@ -67,23 +82,6 @@ export type MarketState = {
     debtParams: DebtParams;
     collateralParams: Record<string, CollateralParams>;
     marketAssetParams: MarketAssetParams;
-}
-
-export type BorrowerEntity = {
-    address: string,
-    syncTs: number
-}
-
-export type BorrowerPositionEntity = {
-    address: string,
-    debtShares: number,
-    collaterals: string[]
-}
-
-export type BorrowerCollateralEntity = {
-    address: string,
-    collateral: string,
-    amount: number
 }
 
 export type LiquidationBatch = {
