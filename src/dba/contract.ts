@@ -1,5 +1,5 @@
-import { type AssetInfo, type ContractEntity } from "granite-liq-bot-common";
 import { dbCon } from "../db/con";
+import { type AssetInfo, type ContractEntity } from "../types";
 import { epoch } from "../util";
 
 export const insertContract = (address: string, operator: string, operatorPriv: string, marketAsset: AssetInfo, collateralAsset: AssetInfo) => {

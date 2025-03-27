@@ -1,4 +1,3 @@
-import type { BorrowerStatus } from "granite-liq-bot-common";
 import {
     calculateAccountHealth, calculateAccountLiqLTV,
     calculateLiquidationPoint,
@@ -7,7 +6,7 @@ import {
 import type { PriceFeedResponse } from "../../client/pyth";
 import { IR_PARAMS_SCALING_FACTOR, LIQUIDATION_PREMIUM } from "../../constants";
 import { toTicker } from "../../helper";
-import type { InterestRateParams, MarketState } from "../../types";
+import type { BorrowerStatus, InterestRateParams, MarketState } from "../../types";
 
 export const calcBorrowerStatus = (borrower: {
     debtShares: number;

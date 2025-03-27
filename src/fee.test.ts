@@ -4,7 +4,7 @@ import { estimateTxFeeOptimistic } from "./fee";
 
 describe("estimateTxFeeOptimistic", () => {
     test("1", async () => {
-        mock.module("./hiro", () => {
+        mock.module("./client/hiro", () => {
             return {
                 getMempoolTransactions: () => ({ total: 1200 })
             }
@@ -13,7 +13,7 @@ describe("estimateTxFeeOptimistic", () => {
     });
 
     test("2", async () => {
-        mock.module("./hiro", () => {
+        mock.module("./client/hiro", () => {
             return {
                 getMempoolTransactions: () => ({ total: 290 })
             }
@@ -22,7 +22,7 @@ describe("estimateTxFeeOptimistic", () => {
     });
 
     test("3", async () => {
-        mock.module("./hiro", () => {
+        mock.module("./client/hiro", () => {
             return {
                 getMempoolTransactions: () => ({ total: 126 })
             }
@@ -31,7 +31,7 @@ describe("estimateTxFeeOptimistic", () => {
     });
 
     test("4", async () => {
-        mock.module("./hiro", () => {
+        mock.module("./client/hiro", () => {
             return {
                 getMempoolTransactions: () => ({ total: 58 })
             }
@@ -40,7 +40,7 @@ describe("estimateTxFeeOptimistic", () => {
     });
 
     test("5", async () => {
-        mock.module("./hiro", () => {
+        mock.module("./client/hiro", () => {
             return {
                 getMempoolTransactions: () => ({ total: 12 })
             }

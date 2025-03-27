@@ -3,7 +3,7 @@ import {
     getAddressFromPrivateKey
 } from "@stacks/transactions";
 import { generateWallet } from "@stacks/wallet-sdk";
-import { getContractInfo } from "granite-liq-bot-common";
+import { getContractInfo } from "../client/hiro";
 import { getAssetInfo } from "../client/read-only-call";
 import { kvStoreGet } from "../db/helper";
 import { getBorrowerStatusList } from "../dba/borrower";
