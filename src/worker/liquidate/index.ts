@@ -1,8 +1,9 @@
-import { broadcastTransaction, bufferCV, makeContractCall, noneCV, PostConditionMode, someCV, uintCV, type ClarityValue } from "@stacks/transactions";
-import { estimateTxFeeOptimistic, fetchFn, formatUnits, getAccountNonces, type NetworkName } from "granite-liq-bot-common";
+import type { StacksNetworkName } from "@stacks/network";
+import { broadcastTransaction, bufferCV, makeContractCall, PostConditionMode, someCV, uintCV } from "@stacks/transactions";
+import { estimateTxFeeOptimistic, fetchFn, formatUnits, getAccountNonces } from "granite-liq-bot-common";
 import { getBestSwap } from "../../alex";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
-import { DRY_RUN, MIN_TO_LIQUIDATE, TX_TIMEOUT, SKIP_PROFITABILITY_CHECK } from "../../constants";
+import { DRY_RUN, MIN_TO_LIQUIDATE, SKIP_PROFITABILITY_CHECK, TX_TIMEOUT } from "../../constants";
 import { dbCon } from "../../db/con";
 import { getBorrowerStatusList, getBorrowersToSync } from "../../dba/borrower";
 import { getContractList, getContractOperatorPriv } from "../../dba/contract";
@@ -14,16 +15,13 @@ import { liquidationBatchCv, makeLiquidationBatch, swapOutCv } from "./lib";
 
 const logger = createLogger("liquidate");
 
-const worker = async (network: NetworkName) => {
+const worker = async () => {
     const contract = (getContractList({
-        filters: {
-            network,
-        },
         orderBy: 'market_asset_balance DESC'
     }))[0];
 
     if (!contract) {
-        // logger.info(`No ${network} contract found`);
+        // logger.info(`No contract found`);
         return;
     }
 
@@ -50,13 +48,10 @@ const worker = async (network: NetworkName) => {
     }
 
     const borrowers = getBorrowerStatusList({
-        filters: {
-            network,
-        },
         orderBy: 'total_repay_amount DESC'
     });
 
-    const marketState = getMarketState(network);
+    const marketState = getMarketState();
     const liquidationPremium = marketState.collateralParams[collateralAsset.address].liquidationPremium;
     if (!liquidationPremium) {
         throw new Error("Collateral liquidation premium not found");
@@ -112,8 +107,8 @@ const worker = async (network: NetworkName) => {
     ];
 
     const priv = getContractOperatorPriv(contract.id)!;
-    const nonce = (await getAccountNonces(contract.operatorAddress, contract.network)).possible_next_nonce;
-    const fee = await estimateTxFeeOptimistic(contract.network);
+    const nonce = (await getAccountNonces(contract.operatorAddress, 'mainnet')).possible_next_nonce;
+    const fee = await estimateTxFeeOptimistic();
 
     const txOptions = {
         contractAddress: contract.address,
@@ -122,7 +117,7 @@ const worker = async (network: NetworkName) => {
         functionArgs,
         senderKey: priv,
         senderAddress: contract.operatorAddress,
-        network: contract.network,
+        network: 'mainnet' as StacksNetworkName,
         fee,
         validateWithAbi: true,
         postConditionMode: PostConditionMode.Allow,
@@ -137,7 +132,7 @@ const worker = async (network: NetworkName) => {
         return;
     }
 
-    const tx = await broadcastTransaction({ transaction: call, network: contract.network, client: { fetch: fetchFn } });
+    const tx = await broadcastTransaction({ transaction: call, network: 'mainnet', client: { fetch: fetchFn } });
 
     if ("reason" in tx) {
         if ("reason_data" in tx) {
@@ -157,7 +152,5 @@ const worker = async (network: NetworkName) => {
 }
 
 export const main = async () => {
-    // We'll drop testnet support soon
-    // await worker('testnet');
-    await worker('mainnet');
+    await worker();
 }

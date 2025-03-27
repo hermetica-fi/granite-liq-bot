@@ -21,14 +21,14 @@ const worker = async () => {
     switchBorrowerSyncFlagOff(borrower.address);
 
     // Sync user position
-    const userPosition = await getUserPosition(borrower.address, borrower.network);
-    syncBorrowerPosition({ address: borrower.address, network: borrower.network, ...userPosition });
+    const userPosition = await getUserPosition(borrower.address);
+    syncBorrowerPosition({ address: borrower.address, ...userPosition });
 
     // Sync user collaterals
     const collaterals = [];
     for (const col of userPosition.collaterals) {
-      const amount = await getUserCollateralAmount(borrower.address, col, borrower.network);
-      collaterals.push({ collateral: col, amount, network: borrower.network });
+      const amount = await getUserCollateralAmount(borrower.address, col);
+      collaterals.push({ collateral: col, amount});
     }
     syncBorrowerCollaterals(borrower.address, collaterals);
 

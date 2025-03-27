@@ -14,7 +14,7 @@ const handleContractLocks = async (contract: ContractEntity) => {
 
     // schedule contract unlock
     if (contract.lockTx && contract.unlocksAt === null) {
-        const tx = await getTransaction(contract.lockTx, contract.network);
+        const tx = await getTransaction(contract.lockTx, 'mainnet');
         if (tx.tx_status && tx.tx_status !== "pending") {
 
             const unlocksAt = epoch() + 60;
@@ -23,7 +23,7 @@ const handleContractLocks = async (contract: ContractEntity) => {
 
             const principals = getLiquidatedPrincipals(tx as Transaction);
             for (const principal of principals) {
-                if (upsertBorrower(contract.network, principal) === 2) {
+                if (upsertBorrower(principal) === 2) {
                     logger.info(`Borrower ${principal} check sync activated`);
                 }
             }
@@ -45,10 +45,10 @@ export const worker = async () => {
     for (const contract of contracts) {
         await handleContractLocks(contract);
 
-        const balance1 = await getAssetBalance(contract.marketAsset!.address, contract.id, contract.network);
+        const balance1 = await getAssetBalance(contract.marketAsset!.address, contract.id);
         dbCon.run("UPDATE contract SET market_asset_balance = $1 WHERE id = $2", [balance1, contract.id]);
 
-        const balance2 = await getAssetBalance(contract.collateralAsset!.address, contract.id, contract.network);
+        const balance2 = await getAssetBalance(contract.collateralAsset!.address, contract.id);
         dbCon.run("UPDATE contract SET collateral_asset_balance = $1 WHERE id = $2", [balance2, contract.id])
     }
     dbCon.run("COMMIT");
