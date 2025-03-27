@@ -50,3 +50,7 @@ export const getContractOperatorPriv = (contractId: string): string | undefined 
     const row = dbCon.prepare("SELECT operator_priv FROM contract WHERE id = ?", [contractId]).get() as any;
     return row?.operator_priv;
 }
+
+export const lockContract = (txid: string, contractId: string) => {
+    dbCon.run("UPDATE contract SET lock_tx = ? WHERE id = ?", [txid, contractId]);
+}

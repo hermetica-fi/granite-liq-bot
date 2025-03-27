@@ -1,5 +1,5 @@
 import { describe, expect, setSystemTime, test } from "bun:test";
-import { getContractList, getContractOperatorPriv, insertContract } from "./contract";
+import { getContractList, getContractOperatorPriv, insertContract, lockContract } from "./contract";
 
 describe("dba contracts", () => {
     test("insertContract", () => {
@@ -107,5 +107,12 @@ describe("dba contracts", () => {
     test("getContractOperatorPriv", () => {
         const priv = getContractOperatorPriv("ST1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.liquidator");
         expect(priv).toEqual("0x2.");
+    });
+
+    test("lockContract", () => {
+        lockContract("0x00", "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.liquidator");
+        const contracts = getContractList({ filters: { lock_tx: '0x00' } });
+        expect(contracts.length).toEqual(1);
+        expect(contracts[0].id).toEqual("SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.liquidator");
     });
 });

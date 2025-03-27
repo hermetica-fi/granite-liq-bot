@@ -4,9 +4,8 @@ import { estimateTxFeeOptimistic, fetchFn, formatUnits, getAccountNonces } from 
 import { getBestSwap } from "../../alex";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
 import { DRY_RUN, MIN_TO_LIQUIDATE, SKIP_PROFITABILITY_CHECK, TX_TIMEOUT } from "../../constants";
-import { dbCon } from "../../db/con";
 import { getBorrowerStatusList, getBorrowersToSync } from "../../dba/borrower";
-import { getContractList, getContractOperatorPriv } from "../../dba/contract";
+import { getContractList, getContractOperatorPriv, lockContract } from "../../dba/contract";
 import { getMarketState } from "../../dba/market";
 import { hexToUint8Array } from "../../helper";
 import { createLogger } from "../../logger";
@@ -144,7 +143,7 @@ const worker = async () => {
     }
 
     if (tx.txid) {
-        dbCon.run("UPDATE contract SET lock_tx = ? WHERE id = ?", [tx.txid, contract.id]);
+        lockContract(tx.txid, contract.id);
         logger.info(`Transaction broadcasted ${tx.txid}`);
         console.log('Batch', batch);
         return;
