@@ -8,7 +8,6 @@ import { getAssetInfo } from "../client/read-only-call";
 import { kvStoreGet } from "../db/helper";
 import { getBorrowerStatusList } from "../dba/borrower";
 import { getContractList, insertContract } from "../dba/contract";
-import { getNetworkNameFromAddress } from "../helper";
 
 export const errorResponse = (error: any) => {
     if (typeof error === 'string') {
@@ -37,18 +36,8 @@ export const routes = {
             return errorResponse('Enter a mnemonic');
         }
 
-        let network;
-
-        try {
-            network = getNetworkNameFromAddress(address);
-        } catch (error) {
-            return errorResponse(error);
-        }
-
-
-        if ((await getContractList({ filters: { network } })).length > 0) {
-
-            return errorResponse(`A contract for ${network} already exists`);
+        if (getContractList({ }).length > 0) {
+            return errorResponse(`A contract is already exists`);
         }
 
 
@@ -60,11 +49,11 @@ export const routes = {
         }
 
         const [operator] = wallet.accounts;
-        const operatorAddress = getAddressFromPrivateKey(operator.stxPrivateKey, network);
+        const operatorAddress = getAddressFromPrivateKey(operator.stxPrivateKey, 'mainnet');
 
         let contractInfo;
         try {
-            contractInfo = await getContractInfo(address, network);
+            contractInfo = await getContractInfo(address, 'mainnet');
         } catch (error) {
             return errorResponse('Could not fetch contract info');
         }
@@ -84,7 +73,7 @@ export const routes = {
                 functionName: 'get-info',
                 functionArgs: [],
                 senderAddress: operatorAddress,
-                network: network,
+                network: 'mainnet',
             }).then(r => cvToJSON(r));
 
             onChainOperatorAddress = info.value["operator"].value
@@ -100,29 +89,27 @@ export const routes = {
 
         let marketAssetInfo;
         try {
-            marketAssetInfo = await getAssetInfo(marketAsset, network);
+            marketAssetInfo = await getAssetInfo(marketAsset);
         } catch (error) {
             return errorResponse('Could not fetch market asset info');
         }
 
         let collateralAssetInfo;
         try {
-            collateralAssetInfo = await getAssetInfo(collateralAsset, network);
+            collateralAssetInfo = await getAssetInfo(collateralAsset);
         } catch (error) {
             return errorResponse('Could not fetch collateral asset info');
         }
 
-        insertContract(address, network, operatorAddress, operator.stxPrivateKey, marketAssetInfo, collateralAssetInfo);
+        insertContract(address, operatorAddress, operator.stxPrivateKey, marketAssetInfo, collateralAssetInfo);
         const contracts = getContractList({});
         return Response.json(contracts);
 
     },
-    getBorrowers: async (_: Request, url: URL) => {
-        const network = url.searchParams.get('network') || 'mainnet';
-
-        const borrowers = await getBorrowerStatusList({
+    getBorrowers: async (_: Request) => {
+        const borrowers = getBorrowerStatusList({
             filters: {
-                network: network
+            
             },
             orderBy: 'total_repay_amount DESC, risk DESC'
         });

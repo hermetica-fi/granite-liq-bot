@@ -1,5 +1,4 @@
 import assert from "assert";
-import type { NetworkName } from "granite-liq-bot-common";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
 import { dbCon } from "../../db/con";
 import { clearBorrowerStatuses, getBorrowerCollateralAmount, getBorrowersForHealthCheck, insertBorrowerStatus } from "../../dba/borrower";
@@ -7,34 +6,37 @@ import { getMarketState } from "../../dba/market";
 import { calcBorrowerStatus } from "./lib";
 
 export const worker = async () => {
-  dbCon.run("BEGIN");
-  clearBorrowerStatuses();
   const borrowers = getBorrowersForHealthCheck();
-  for (const borrower of borrowers) {
-    if (borrower.debtShares === 0) {
-      continue;
-    }
-
-    const network = borrower.network as NetworkName;
-    const marketState = getMarketState(borrower.network as NetworkName);
-
-    const collateralsDeposited: Record<string, number> = {}
-    for (const collateral of borrower.collaterals) {
-      const amount = getBorrowerCollateralAmount(borrower.address, collateral);
-      assert(amount !== undefined, "User collateral amount is undefined");
-      collateralsDeposited[collateral] = amount;
-    }
-
-    const priceFeed = await fetchAndProcessPriceFeed();
-
-    const status = calcBorrowerStatus({
-      debtShares: borrower.debtShares,
-      collateralsDeposited
-    }, marketState, priceFeed);
-
-    insertBorrowerStatus(borrower.address, network, status);
+  if (borrowers.length === 0) {
+    clearBorrowerStatuses();
+    return;
   }
-  dbCon.run("COMMIT");
+
+  const priceFeed = await fetchAndProcessPriceFeed();
+  const marketState = getMarketState();
+
+  dbCon.transaction(() => {
+    clearBorrowerStatuses();
+    for (const borrower of borrowers) {
+      if (borrower.debtShares === 0) {
+        continue;
+      }
+
+      const collateralsDeposited: Record<string, number> = {}
+      for (const collateral of borrower.collaterals) {
+        const amount = getBorrowerCollateralAmount(borrower.address, collateral);
+        assert(amount !== undefined, "User collateral amount is undefined");
+        collateralsDeposited[collateral] = amount;
+      }
+
+      const status = calcBorrowerStatus({
+        debtShares: borrower.debtShares,
+        collateralsDeposited
+      }, marketState, priceFeed);
+
+      insertBorrowerStatus(borrower.address, status);
+    }
+  })();
 };
 
 export const main = async () => {
