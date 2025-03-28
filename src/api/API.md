@@ -62,10 +62,10 @@
 {
     now: string, // current server date (ISO)
     lastSync: string, // last sync date (ISO)
-    lastLiquidation: LiquidationEntity,
+    lastLiquidation: LiquidationEntity | null,
     balances: {
-        operatorBalance: number,
-        marketAssetBalance: number,
+        operatorBalance: number | null,
+        marketAssetBalance: number | null,
     },
     isHealthy: boolean
 }
