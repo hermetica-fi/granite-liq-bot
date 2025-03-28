@@ -1,11 +1,12 @@
 import type { Transaction } from "@stacks/stacks-blockchain-api-types";
-import { getAccountBalances, getTransaction, type ContractEntity } from "granite-liq-bot-common";
+import { getAccountBalances, getTransaction } from "../../client/hiro";
 import { getAssetBalance } from "../../client/read-only-call";
 import { dbCon } from "../../db/con";
 import { upsertBorrower } from "../../dba/borrower";
 import { getContractList } from "../../dba/contract";
 import { finalizeLiquidation } from "../../dba/liquidation";
 import { createLogger } from "../../logger";
+import { type ContractEntity } from "../../types";
 import { epoch } from "../../util";
 import { getLiquidatedPrincipals } from "./lib";
 

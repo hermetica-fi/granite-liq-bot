@@ -1,6 +1,6 @@
 import { contractPrincipalCV, cvToJSON, deserializeCV, serializeCV, uintCV, type ClarityValue } from "@stacks/transactions";
-import { formatUnits, parseUnits } from "granite-liq-bot-common";
 import { batchContractRead, type ReadCall } from "./client/stxer";
+import { formatUnits, parseUnits } from "./units";
 
 const factor05 = uintCV(5000000);
 const factor1 = uintCV(100000000);

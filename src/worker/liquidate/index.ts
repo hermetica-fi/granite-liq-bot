@@ -1,15 +1,17 @@
 import type { StacksNetworkName } from "@stacks/network";
 import { broadcastTransaction, bufferCV, makeContractCall, PostConditionMode, someCV, uintCV } from "@stacks/transactions";
-import { estimateTxFeeOptimistic, fetchFn, formatUnits, getAccountNonces } from "granite-liq-bot-common";
 import { getBestSwap } from "../../alex";
+import { fetchFn, getAccountNonces } from "../../client/hiro";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
 import { DRY_RUN, MIN_TO_LIQUIDATE, SKIP_PROFITABILITY_CHECK, TX_TIMEOUT } from "../../constants";
 import { getBorrowerStatusList, getBorrowersToSync } from "../../dba/borrower";
 import { getContractList, getContractOperatorPriv, lockContract } from "../../dba/contract";
 import { insertLiquidation } from "../../dba/liquidation";
 import { getMarketState } from "../../dba/market";
+import { estimateTxFeeOptimistic } from "../../fee";
 import { hexToUint8Array } from "../../helper";
 import { createLogger } from "../../logger";
+import { formatUnits } from "../../units";
 import { epoch } from "../../util";
 import { liquidationBatchCv, makeLiquidationBatch, swapOutCv } from "./lib";
 

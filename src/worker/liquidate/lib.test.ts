@@ -1,9 +1,8 @@
 import { cvToJSON } from "@stacks/transactions";
 import { describe, expect, test } from "bun:test";
-import type { AssetInfoWithBalance, BorrowerStatusEntity } from "granite-liq-bot-common";
 import { options } from "../../alex";
 import type { PriceFeedResponse } from "../../client/pyth";
-import type { LiquidationBatch } from "../../types";
+import type { AssetInfoWithBalance, BorrowerStatusEntity, LiquidationBatch } from "../../types";
 import { liquidationBatchCv, makeLiquidationBatch, swapOutCv } from "./lib";
 
 

@@ -1,5 +1,5 @@
 
-import { getMempoolTransactions } from "./hiro";
+import { getMempoolTransactions } from "./client/hiro";
 
 const estimateTxFeeOptimistic = async (): Promise<number> => {
     const mempoolSize = (await getMempoolTransactions(1, 'mainnet')).total;

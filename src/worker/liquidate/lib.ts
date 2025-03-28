@@ -1,10 +1,11 @@
 import { listCV, noneCV, principalCV, someCV, tupleCV, uintCV, type ClarityValue } from "@stacks/transactions";
-import { parseUnits, toFixedDown, type AssetInfoWithBalance, type BorrowerStatusEntity } from "granite-liq-bot-common";
 import type { SwapResult } from "../../alex";
 import type { PriceFeedResponse } from "../../client/pyth";
 import { MIN_TO_LIQUIDATE_PER_USER } from "../../constants";
 import { toTicker } from "../../helper";
 import type { LiquidationBatch } from "../../types";
+import { type AssetInfoWithBalance, type BorrowerStatusEntity } from "../../types";
+import { parseUnits, toFixedDown } from "../../units";
 
 
 export const liquidationBatchCv = (batch: LiquidationBatch[]) => {

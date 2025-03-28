@@ -1,11 +1,10 @@
-import type { BorrowerStatus } from "granite-liq-bot-common";
-import { type BorrowerStatusEntity } from "granite-liq-bot-common";
 import { BORROWER_SYNC_DELAY } from "../constants";
 import { dbCon } from "../db/con";
 import type {
     BorrowerCollateralEntity, BorrowerEntity,
-    BorrowerPositionEntity
+    BorrowerPositionEntity, BorrowerStatus
 } from "../types";
+import { type BorrowerStatusEntity } from "../types";
 import { epoch } from "../util";
 
 export const upsertBorrower = (address: string): 0 | 1 | 2 => {
