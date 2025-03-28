@@ -25,3 +25,8 @@ docker-compose up --build -d
 - `USE_STAGING`: (optional) 1 to use staging contracts on mainnet
 - `DRY_RUN`: (optional) 1 to block liquidations
 - `SKIP_PROFITABILITY_CHECK`: (optional) 1 to skip profitability check. Note that transactions might fail.
+
+
+## API
+
+See api [docs](src/api/API.md)
