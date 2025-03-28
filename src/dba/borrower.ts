@@ -92,7 +92,7 @@ export const getBorrowerStatusList = (args: {
     const rows = sqlSelect({
         fields: '*',
         table: 'borrower_status',
-        filters: args?.filters || [],
+        filters: args?.filters,
         orderBy: args?.orderBy || 'total_repay_amount DESC, risk DESC'
     });
     

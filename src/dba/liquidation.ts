@@ -19,7 +19,7 @@ export const getLiquidationList = (args: {
     const rows = sqlSelect({
         fields: 'txid, contract, status, created_at, updated_at',
         table: 'liquidation',
-        filters: args?.filters || [],
+        filters: args?.filters,
         orderBy: args?.orderBy || 'created_at DESC',
         limit: args?.limit || 10
     });

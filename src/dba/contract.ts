@@ -21,7 +21,7 @@ export const getContractList = (args: {
     const rows = sqlSelect({
         fields: 'id, address, name, operator_address, operator_balance, market_asset, market_asset_balance, collateral_asset, collateral_asset_balance, lock_tx, unlocks_at',
         table: 'contract',
-        filters: args?.filters || [],
+        filters: args?.filters,
         orderBy: args?.orderBy || 'created_at DESC',
     });
     

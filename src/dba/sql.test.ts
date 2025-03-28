@@ -58,4 +58,10 @@ describe("dba sql", () => {
             makeBindings([])
         ).toEqual([]);
     });
+
+    test("makeBindings empty 2", () => {
+        expect(
+            makeBindings()
+        ).toEqual([]);
+    });
 });
