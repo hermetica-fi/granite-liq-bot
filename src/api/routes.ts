@@ -5,6 +5,7 @@ import {
 import { generateWallet } from "@stacks/wallet-sdk";
 import { getContractInfo } from "../client/hiro";
 import { getAssetInfo } from "../client/read-only-call";
+import { ALERT_BALANCE } from "../constants";
 import { kvStoreGet } from "../db/helper";
 import { getBorrowerStatusList } from "../dba/borrower";
 import { getContractList, insertContract } from "../dba/contract";
@@ -36,10 +37,9 @@ export const routes = {
             return errorResponse('Enter a mnemonic');
         }
 
-        if (getContractList({ }).length > 0) {
+        if (getContractList({}).length > 0) {
             return errorResponse(`A contract is already exists`);
         }
-
 
         let wallet;
         try {
@@ -109,7 +109,7 @@ export const routes = {
     getBorrowers: async (_: Request) => {
         const borrowers = getBorrowerStatusList({
             filters: {
-            
+
             },
             orderBy: 'total_repay_amount DESC, risk DESC'
         });
@@ -118,13 +118,21 @@ export const routes = {
     },
     health: async () => {
         const lastSync = kvStoreGet("last-sync");
-
         const now = Date.now();
-        const isHealthy = lastSync && Number(lastSync) > now - 120_000; // Healthy if last sync was less than 120 seconds ago
+
+        let operatorBalance: number | null = null;
+        const contract = getContractList({})[0];
+        if (contract) {
+            operatorBalance = contract.operatorBalance;
+        }
+
+        const isHealthy = lastSync && Number(lastSync) > now - 120_000 && // Healthy if last sync was less than 120 seconds ago
+            (operatorBalance === null || operatorBalance >= ALERT_BALANCE) // Operator balance can be null if there is no contract. Otherwise it should be bigger than ALERT_BALANCE
 
         return Response.json({
             now: new Date(now).toISOString(),
             lastSync: new Date(Number(lastSync)).toISOString(),
+            operatorBalance,
             isHealthy
         });
     }
