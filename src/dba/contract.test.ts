@@ -74,7 +74,7 @@ describe("dba contracts", () => {
     });
 
     test("getContractList with filters", () => {
-        const contracts = getContractList({ filters: { address: 'SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T' }, orderBy: 'created_at DESC' });
+        const contracts = getContractList({ filters: [['address', '=', 'SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T']], orderBy: 'created_at DESC' });
         expect(contracts).toEqual([
             {
                 id: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.liquidator",
@@ -114,7 +114,7 @@ describe("dba contracts", () => {
 
     test("lockContract", () => {
         lockContract("0x00", "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.liquidator");
-        const contracts = getContractList({ filters: { lock_tx: '0x00' } });
+        const contracts = getContractList({ filters: [['lock_tx', '=', '0x00']] });
         expect(contracts.length).toEqual(1);
         expect(contracts[0].id).toEqual("SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.liquidator");
     });

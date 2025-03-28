@@ -109,9 +109,6 @@ export const routes = {
     },
     getBorrowers: async (_: Request) => {
         const borrowers = getBorrowerStatusList({
-            filters: {
-
-            },
             orderBy: 'total_repay_amount DESC, risk DESC'
         });
 
@@ -137,5 +134,8 @@ export const routes = {
             lastLiquidation,
             isHealthy
         });
+    },
+    liquidations: async () => {
+        
     }
 }
