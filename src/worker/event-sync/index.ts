@@ -2,7 +2,6 @@ import type { TransactionEventSmartContractLog } from "@stacks/stacks-blockchain
 import { cvToJSON, hexToCV } from "@stacks/transactions";
 import { getContractEvents } from "../../client/hiro";
 import { CONTRACTS } from "../../constants";
-import { dbCon } from "../../db/con";
 import { kvStoreGet, kvStoreSet } from "../../db/helper";
 import { upsertBorrower } from "../../dba/borrower";
 import { createLogger } from "../../logger";
@@ -91,10 +90,7 @@ const worker = async (contract: string) => {
 }
 
 export const main = async () => {
-  dbCon.query("BEGIN");
   for (const contract of TRACKED_CONTRACTS) {
     await worker(contract);
   }
-  dbCon.query("COMMIT");
-
 };

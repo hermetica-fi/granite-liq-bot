@@ -6,6 +6,7 @@ import type {
 } from "../types";
 import { type BorrowerStatusEntity } from "../types";
 import { epoch } from "../util";
+import { sqlSelect, type Filter } from "./sql";
 
 export const upsertBorrower = (address: string): 0 | 1 | 2 => {
     const rec = dbCon.prepare("SELECT sync_flag FROM borrower WHERE address = ?", [address]).get() as any;
@@ -85,19 +86,16 @@ export const insertBorrowerStatus = (address: string, status: BorrowerStatus) =>
 }
 
 export const getBorrowerStatusList = (args: {
-    filters?: Record<string, string>,
+    filters?: Filter[],
     orderBy?: 'total_repay_amount DESC, risk DESC' | 'total_repay_amount DESC'
 }): BorrowerStatusEntity[] => {
-    const filters = args?.filters || {};
-    const orderBy = args?.orderBy || 'total_repay_amount DESC, risk DESC';
-
-    let sql = 'SELECT * FROM borrower_status';
-    if (Object.keys(filters).length > 0) {
-        sql += ' WHERE ' + Object.keys(filters).map((key) => `${key} = ?`).join(' AND ');
-    }
-    sql += ` ORDER BY ${orderBy}`;
-
-    const rows = dbCon.prepare(sql, Object.values(filters)).all() as any[];
+    const rows = sqlSelect({
+        fields: '*',
+        table: 'borrower_status',
+        filters: args?.filters,
+        orderBy: args?.orderBy || 'total_repay_amount DESC, risk DESC'
+    });
+    
     return rows.map(row => ({
         address: row.address,
         ltv: Number(row.ltv),

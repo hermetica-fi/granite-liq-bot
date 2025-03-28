@@ -13,10 +13,11 @@ export const createDb = () => {
         "name TEXT NOT NULL," +
         "operator_address TEXT NOT NULL," +
         "operator_priv TEXT NOT NULL," +
+        "operator_balance TEXT NOT NULL DEFAULT '0'," +
         "market_asset TEXT," +
-        "market_asset_balance REAL NOT NULL DEFAULT 0," +
+        "market_asset_balance TEXT NOT NULL DEFAULT '0'," +
         "collateral_asset TEXT," +
-        "collateral_asset_balance REAL NOT NULL DEFAULT 0," +
+        "collateral_asset_balance TEXT NOT NULL DEFAULT '0'," +
         "lock_tx TEXT," +
         "unlocks_at INTEGER," +
         "created_at INTEGER NOT NULL" +
@@ -33,7 +34,6 @@ export const createDb = () => {
         "debt_shares REAL NOT NULL," +
         "collaterals TEXT NOT NULL" +
         ");";
-
 
     CREATE += "CREATE TABLE IF NOT EXISTS borrower_collaterals(" +
         "address TEXT NOT NULL REFERENCES borrower(address) ON DELETE RESTRICT," +
@@ -52,6 +52,14 @@ export const createDb = () => {
         "risk REAL NOT NULL," +
         "max_repay TEXT NOT NULL," +
         "total_repay_amount REAL NOT NULL" +
+        ");";
+
+    CREATE += "CREATE TABLE IF NOT EXISTS liquidation(" +
+        "txid TEXT PRIMARY KEY NOT NULL," +
+        "contract TEXT NOT NULL," +
+        "status TEXT NOT NULL DEFAULT 'pending'," +
+        "created_at INTEGER NOT NULL," +
+        "updated_at INTEGER" +      
         ");";
 
     CREATE += "INSERT INTO kv_store VALUES ('db_ver', 1);";

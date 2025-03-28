@@ -1,6 +1,7 @@
 import { dbCon } from "../db/con";
 import { type AssetInfo, type ContractEntity } from "../types";
 import { epoch } from "../util";
+import { sqlSelect, type Filter } from "./sql";
 
 export const insertContract = (address: string, operator: string, operatorPriv: string, marketAsset: AssetInfo, collateralAsset: AssetInfo) => {
     const [contractAddress, contractName] = address.trim().split('.');
@@ -14,24 +15,22 @@ export const insertContract = (address: string, operator: string, operatorPriv: 
 }
 
 export const getContractList = (args: {
-    filters?: Record<string, string>,
-    orderBy?: 'created_at DESC' | 'market_asset_balance DESC'
+    filters?: Filter[],
+    orderBy?: 'created_at DESC' | 'CAST(market_asset_balance AS REAL) DESC'
 }): ContractEntity[] => {
-    const filters = args?.filters || {};
-    const orderBy = args?.orderBy || 'created_at DESC';
+    const rows = sqlSelect({
+        fields: 'id, address, name, operator_address, operator_balance, market_asset, market_asset_balance, collateral_asset, collateral_asset_balance, lock_tx, unlocks_at',
+        table: 'contract',
+        filters: args?.filters,
+        orderBy: args?.orderBy || 'created_at DESC',
+    });
 
-    let sql = 'SELECT id, address, name, operator_address, market_asset, market_asset_balance, collateral_asset, collateral_asset_balance, lock_tx, unlocks_at FROM contract';
-    if (Object.keys(filters).length > 0) {
-        sql += ' WHERE ' + Object.keys(filters).map((key, index) => `${key} = ?`).join(' AND ');
-    }
-    sql += ` ORDER BY ${orderBy}`;
-
-    const rows = dbCon.prepare(sql, Object.values(filters)).all() as any[];
     return rows.map(row => ({
         id: row.id,
         address: row.address,
         name: row.name,
         operatorAddress: row.operator_address,
+        operatorBalance: Number(row.operator_balance),
         marketAsset: row.market_asset ? {
             ...JSON.parse(row.market_asset),
             balance: Number(row.market_asset_balance)
@@ -49,4 +48,20 @@ export const getContractList = (args: {
 export const getContractOperatorPriv = (contractId: string): string | undefined => {
     const row = dbCon.prepare("SELECT operator_priv FROM contract WHERE id = ?", [contractId]).get() as any;
     return row?.operator_priv;
+}
+
+export const lockContract = (txid: string, contractId: string) => {
+    dbCon.run("UPDATE contract SET lock_tx = ? WHERE id = ?", [txid, contractId]);
+}
+
+export const unlockContractSchedule = (unlocksAt: number, contractId: string) => {
+    dbCon.run("UPDATE contract SET unlocks_at = ? WHERE id = ?", [unlocksAt, contractId]);
+}
+
+export const unlockContract = (contractId: string) => {
+    dbCon.run("UPDATE contract SET lock_tx = NULL, unlocks_at = NULL WHERE id = ?", [contractId]);
+}
+
+export const updateContractBalances = (operatorBalance: string | number, marketAssetBalance: string | number, collateralAssetBalance: string | number, contractId: string) => {
+    dbCon.run("UPDATE contract SET operator_balance = ?, market_asset_balance = ?, collateral_asset_balance = ? WHERE id = ?", [operatorBalance, marketAssetBalance, collateralAssetBalance, contractId]);
 }

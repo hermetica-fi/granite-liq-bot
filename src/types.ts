@@ -26,6 +26,7 @@ export type ContractEntity = {
     address: string,
     name: string,
     operatorAddress: string,
+    operatorBalance: number,
     marketAsset: AssetInfoWithBalance | null,
     collateralAsset: AssetInfoWithBalance | null,
     lockTx: string | null
@@ -50,6 +51,14 @@ export type BorrowerCollateralEntity = {
 }
 
 export type BorrowerStatusEntity = BorrowerStatus & { address: string }
+
+export type LiquidationEntity = {
+    txid: string,
+    contract: string,
+    status: string,
+    createdAt: number,
+    updatedAt: number | null,
+}
 
 export type InterestRateParams = InterestRateParams_;
 

@@ -166,7 +166,7 @@ describe("dba borrower", () => {
     });
 
     test("getBorrowerStatusList", () => {
-        const resp = getBorrowerStatusList({ });
+        const resp = getBorrowerStatusList({});
         expect(resp).toEqual([
             {
                 address: "SP70S68PQ3FZ5N8ERJVXQQXWBWNTSCMFZWWFZXNR",
@@ -180,7 +180,7 @@ describe("dba borrower", () => {
             }
         ]);
 
-        const resp2 = getBorrowerStatusList({ filters: { address: 'SP...' } });
+        const resp2 = getBorrowerStatusList({ filters: [['address', '=', 'SP...']] });
         expect(resp2).toEqual([]);
     });
 

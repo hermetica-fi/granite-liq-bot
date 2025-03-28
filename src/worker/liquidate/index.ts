@@ -4,9 +4,9 @@ import { getBestSwap } from "../../alex";
 import { fetchFn, getAccountNonces } from "../../client/hiro";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
 import { DRY_RUN, MIN_TO_LIQUIDATE, SKIP_PROFITABILITY_CHECK, TX_TIMEOUT } from "../../constants";
-import { dbCon } from "../../db/con";
 import { getBorrowerStatusList, getBorrowersToSync } from "../../dba/borrower";
-import { getContractList, getContractOperatorPriv } from "../../dba/contract";
+import { getContractList, getContractOperatorPriv, lockContract } from "../../dba/contract";
+import { insertLiquidation } from "../../dba/liquidation";
 import { getMarketState } from "../../dba/market";
 import { estimateTxFeeOptimistic } from "../../fee";
 import { hexToUint8Array } from "../../helper";
@@ -19,7 +19,7 @@ const logger = createLogger("liquidate");
 
 const worker = async () => {
     const contract = (getContractList({
-        orderBy: 'market_asset_balance DESC'
+        orderBy: 'CAST(market_asset_balance AS REAL) DESC'
     }))[0];
 
     if (!contract) {
@@ -146,7 +146,8 @@ const worker = async () => {
     }
 
     if (tx.txid) {
-        dbCon.run("UPDATE contract SET lock_tx = ? WHERE id = ?", [tx.txid, contract.id]);
+        lockContract(tx.txid, contract.id);
+        insertLiquidation(tx.txid, contract.id);
         logger.info(`Transaction broadcasted ${tx.txid}`);
         console.log('Batch', batch);
         return;
