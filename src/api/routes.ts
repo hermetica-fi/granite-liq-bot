@@ -9,6 +9,7 @@ import { ALERT_BALANCE } from "../constants";
 import { kvStoreGet } from "../db/helper";
 import { getBorrowerStatusList } from "../dba/borrower";
 import { getContractList, insertContract } from "../dba/contract";
+import { getLiquidationList } from "../dba/liquidation";
 
 export const errorResponse = (error: any) => {
     if (typeof error === 'string') {
@@ -122,9 +123,9 @@ export const routes = {
 
         let operatorBalance: number | null = null;
         const contract = getContractList({})[0];
-        if (contract) {
-            operatorBalance = contract.operatorBalance;
-        }
+        if (contract) operatorBalance = contract.operatorBalance;
+
+        const lastLiquidation = getLiquidationList({ limit: 1 })[0] || null;
 
         const isHealthy = lastSync && Number(lastSync) > now - 120_000 && // Healthy if last sync was less than 120 seconds ago
             (operatorBalance === null || operatorBalance >= ALERT_BALANCE) // Operator balance can be null if there is no contract. Otherwise it should be bigger than ALERT_BALANCE
@@ -133,6 +134,7 @@ export const routes = {
             now: new Date(now).toISOString(),
             lastSync: new Date(Number(lastSync)).toISOString(),
             operatorBalance,
+            lastLiquidation,
             isHealthy
         });
     }

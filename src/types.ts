@@ -52,6 +52,14 @@ export type BorrowerCollateralEntity = {
 
 export type BorrowerStatusEntity = BorrowerStatus & { address: string }
 
+export type LiquidationEntity = {
+    txid: string,
+    contract: string,
+    status: string,
+    createdAt: string,
+    updatedAt: string,
+}
+
 export type InterestRateParams = InterestRateParams_;
 
 export type LpParams = {
