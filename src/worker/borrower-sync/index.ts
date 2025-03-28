@@ -1,5 +1,4 @@
 import { getUserCollateralAmount, getUserPosition } from "../../client/read-only-call";
-import { dbCon } from "../../db/con";
 import { getBorrowersToSync, switchBorrowerSyncFlagOff, syncBorrowerCollaterals, syncBorrowerPosition } from "../../dba/borrower";
 import { createLogger } from "../../logger";
 import { epoch } from "../../util";
@@ -7,8 +6,6 @@ import { epoch } from "../../util";
 export const logger = createLogger("borrower-sync");
 
 const worker = async () => {
-  dbCon.run("BEGIN");
-
   const borrowers = getBorrowersToSync();
   for (const borrower of borrowers) {
 
@@ -34,8 +31,6 @@ const worker = async () => {
 
     logger.info(`Synced borrower ${borrower.address}`);
   }
-
-  dbCon.run("COMMIT");
 }
 
 export const main = async () => {
