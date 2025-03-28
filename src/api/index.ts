@@ -15,6 +15,8 @@ export const main = async () => {
                 res = await routes.getBorrowers(req);
             } else if (req.method === "GET" && url.pathname === "/health") {
                 res = await routes.health();
+            } else if (req.method === "GET" && url.pathname === "/liquidations") {
+                res = await routes.liquidations(url);
             } else {
                 res = new Response("Not found", { status: 404 });
             }

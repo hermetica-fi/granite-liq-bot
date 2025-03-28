@@ -10,6 +10,7 @@ import { kvStoreGet } from "../db/helper";
 import { getBorrowerStatusList } from "../dba/borrower";
 import { getContractList, insertContract } from "../dba/contract";
 import { getLiquidationList } from "../dba/liquidation";
+import type { Filter } from "../dba/sql";
 
 export const errorResponse = (error: any) => {
     if (typeof error === 'string') {
@@ -135,7 +136,17 @@ export const routes = {
             isHealthy
         });
     },
-    liquidations: async () => {
-        
+    liquidations: async (url: URL) => {
+        const fromTimestamp = url.searchParams.get('fromTimestamp');
+        const toTimestamp = url.searchParams.get('toTimestamp');
+        let filters: Filter[] = [];
+        if (fromTimestamp) {
+            filters.push(['created_at', '>=', fromTimestamp]);
+        }
+        if (toTimestamp) {
+            filters.push(['created_at', '<=', toTimestamp]);
+        }
+        const list = getLiquidationList({ filters });
+        return Response.json(list);
     }
 }
