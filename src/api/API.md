@@ -89,7 +89,7 @@ Returns: [Config](#Config)
 
 ```ts
 {
-    address: string
+    address: string,
     ltv: number,
     health: number,
     debt: number,
