@@ -120,8 +120,12 @@ export const routes = {
         const now = Date.now();
 
         let operatorBalance: number | null = null;
+        let marketAssetBalance: number | null = null;
         const contract = getContractList({})[0];
-        if (contract) operatorBalance = contract.operatorBalance;
+        if (contract) {
+            operatorBalance = contract.operatorBalance;
+            marketAssetBalance = contract.marketAsset?.balance || null;
+        }
 
         const lastLiquidation = getLiquidationList({ limit: 1 })[0] || null;
 
@@ -131,8 +135,11 @@ export const routes = {
         return Response.json({
             now: new Date(now).toISOString(),
             lastSync: new Date(Number(lastSync)).toISOString(),
-            operatorBalance,
             lastLiquidation,
+            balances: {
+                operatorBalance,
+                marketAssetBalance,
+            },
             isHealthy
         });
     },
