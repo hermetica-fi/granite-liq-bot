@@ -56,8 +56,8 @@ export type LiquidationEntity = {
     txid: string,
     contract: string,
     status: string,
-    createdAt: string,
-    updatedAt: string,
+    createdAt: number,
+    updatedAt: number | null,
 }
 
 export type InterestRateParams = InterestRateParams_;
