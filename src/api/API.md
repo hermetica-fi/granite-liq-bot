@@ -85,7 +85,15 @@ Post Params:
 - address: Full address of the contract (e.g: SP1NNSAHT51JS8MEDDBYC7WYD2A2EGB0EMVD35KMA.liquidator)
 - mnemonic: mnemonic of the operator (e.g: 'oval express iron distance ...')
 
-Returns [ContractEntity](#ContractEntity) list
+Returns: [ContractEntity](#ContractEntity) list
+
+Example: 
+```bash
+curl --header "Content-Type: application/json" \
+--request POST \
+--data '{"address":"SP1NNSAHT51JS8MEDDBYC7WYD2A2EGB0EMVD35KMA.liquidator","mnemonic":"oval express iron distance ..."}' \
+http://localhost:8081/add-contract  
+```
 
 ### /borrowers [GET]
 
