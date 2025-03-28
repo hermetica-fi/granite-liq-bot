@@ -30,6 +30,7 @@ describe("dba contracts", () => {
                 address: "ST1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T",
                 name: "liquidator",
                 operatorAddress: "ST1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T",
+                operatorBalance: 0,
                 marketAsset: {
                     address: "ST3Y2ZSH8P7D50B0VBTSX11S7XSG24M1VB9YFQA4K.mock-usdc",
                     decimals: 8,
@@ -51,6 +52,7 @@ describe("dba contracts", () => {
                 address: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T",
                 name: "liquidator",
                 operatorAddress: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T",
+                operatorBalance: 0,
                 marketAsset: {
                     address: "SP3Y2ZSH8P7D50B0VBTSX11S7XSG24M1VB9YFQA4K.token-aeusdc",
                     decimals: 6,
@@ -79,6 +81,7 @@ describe("dba contracts", () => {
                 address: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T",
                 name: "liquidator",
                 operatorAddress: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T",
+                operatorBalance: 0,
                 marketAsset: {
                     address: "SP3Y2ZSH8P7D50B0VBTSX11S7XSG24M1VB9YFQA4K.token-aeusdc",
                     decimals: 6,

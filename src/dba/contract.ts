@@ -20,7 +20,7 @@ export const getContractList = (args: {
     const filters = args?.filters || {};
     const orderBy = args?.orderBy || 'created_at DESC';
 
-    let sql = 'SELECT id, address, name, operator_address, market_asset, market_asset_balance, collateral_asset, collateral_asset_balance, lock_tx, unlocks_at FROM contract';
+    let sql = 'SELECT id, address, name, operator_address, operator_balance, market_asset, market_asset_balance, collateral_asset, collateral_asset_balance, lock_tx, unlocks_at FROM contract';
     if (Object.keys(filters).length > 0) {
         sql += ' WHERE ' + Object.keys(filters).map((key, index) => `${key} = ?`).join(' AND ');
     }
@@ -32,6 +32,7 @@ export const getContractList = (args: {
         address: row.address,
         name: row.name,
         operatorAddress: row.operator_address,
+        operatorBalance: Number(row.operator_balance),
         marketAsset: row.market_asset ? {
             ...JSON.parse(row.market_asset),
             balance: Number(row.market_asset_balance)

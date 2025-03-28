@@ -26,6 +26,7 @@ export type ContractEntity = {
     address: string,
     name: string,
     operatorAddress: string,
+    operatorBalance: number,
     marketAsset: AssetInfoWithBalance | null,
     collateralAsset: AssetInfoWithBalance | null,
     lockTx: string | null
