@@ -1,9 +1,0 @@
-FROM oven/bun:alpine
-WORKDIR /app
-COPY . .
-WORKDIR /app/common
-RUN bun install
-WORKDIR /app/frontend
-ARG VITE_API_BASE
-RUN bun install
-RUN bunx --bun vite build

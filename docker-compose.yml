@@ -4,26 +4,11 @@ x-common-variables: &common-variables
   NODE_ENV: production
 
 services:
-  frontend:
-    container_name: frontend
-    build:
-      context: .
-      dockerfile: .Dockerfile-front
-      args:
-        - VITE_API_BASE=${VITE_API_BASE:-http://localhost:8081}
-    entrypoint: bun preview
-    restart: always
-    environment:
-      - VITE_PORT=${VITE_PORT:-8080}
-    networks:
-      - internal
-    ports:
-      - "${VITE_PORT:-8080}:${VITE_PORT:-8080}"
   backend:
     container_name: backend
     build:
       context: .
-      dockerfile: .Dockerfile-back
+      dockerfile: .Dockerfile
     entrypoint: bun start
     restart: always
     environment:

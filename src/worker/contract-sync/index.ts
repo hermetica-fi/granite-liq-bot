@@ -1,5 +1,7 @@
 import type { Transaction } from "@stacks/stacks-blockchain-api-types";
-import { getTransaction, type ContractEntity } from "granite-liq-bot-common";
+import { getTransaction, } from "../../client/hiro";
+import { type ContractEntity } from "../../types";
+
 import { getAssetBalance } from "../../client/read-only-call";
 import { dbCon } from "../../db/con";
 import { upsertBorrower } from "../../dba/borrower";
