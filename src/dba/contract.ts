@@ -24,7 +24,7 @@ export const getContractList = (args: {
         filters: args?.filters,
         orderBy: args?.orderBy || 'created_at DESC',
     });
-    
+
     return rows.map(row => ({
         id: row.id,
         address: row.address,
@@ -52,4 +52,16 @@ export const getContractOperatorPriv = (contractId: string): string | undefined 
 
 export const lockContract = (txid: string, contractId: string) => {
     dbCon.run("UPDATE contract SET lock_tx = ? WHERE id = ?", [txid, contractId]);
+}
+
+export const unlockContractSchedule = (unlocksAt: number, contractId: string) => {
+    dbCon.run("UPDATE contract SET unlocks_at = ? WHERE id = ?", [unlocksAt, contractId]);
+}
+
+export const unlockContract = (contractId: string) => {
+    dbCon.run("UPDATE contract SET lock_tx = NULL, unlocks_at = NULL WHERE id = ?", [contractId]);
+}
+
+export const updateContractBalances = (operatorBalance: string | number, marketAssetBalance: string | number, collateralAssetBalance: string | number, contractId: string) => {
+    dbCon.run("UPDATE contract SET operator_balance = ?, market_asset_balance = ?, collateral_asset_balance = ? WHERE id = ?", [operatorBalance, marketAssetBalance, collateralAssetBalance, contractId]);
 }
