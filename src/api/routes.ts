@@ -5,7 +5,7 @@ import {
 import { generateWallet } from "@stacks/wallet-sdk";
 import { getContractInfo } from "../client/hiro";
 import { getAssetInfo } from "../client/read-only-call";
-import { ALERT_BALANCE } from "../constants";
+import * as constants from "../constants";
 import { kvStoreGet } from "../db/helper";
 import { getBorrowerStatusList } from "../dba/borrower";
 import { getContractList, insertContract } from "../dba/contract";
@@ -130,7 +130,7 @@ export const routes = {
         const lastLiquidation = getLiquidationList({ limit: 1 })[0] || null;
 
         const isHealthy = lastSync && Number(lastSync) > now - 120_000 && // Healthy if last sync was less than 120 seconds ago
-            (operatorBalance === null || operatorBalance >= ALERT_BALANCE) // Operator balance can be null if there is no contract. Otherwise it should be bigger than ALERT_BALANCE
+            (operatorBalance === null || operatorBalance >= constants.ALERT_BALANCE) // Operator balance can be null if there is no contract. Otherwise it should be bigger than ALERT_BALANCE
 
         return Response.json({
             now: new Date(now).toISOString(),
@@ -155,5 +155,8 @@ export const routes = {
         }
         const list = getLiquidationList({ filters });
         return Response.json(list);
+    },
+    config: async () => {
+        return Response.json(constants);
     }
 }
