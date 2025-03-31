@@ -62,7 +62,7 @@ jobs:
           VERSION_TAG: ${{ steps.version.outputs.new_version }}
         run: |
           # Build Docker image
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG -f .Dockerfile-back .
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG -f .Dockerfile .
           # Also tag as latest for convenience
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
           # Push both tags to ECR
