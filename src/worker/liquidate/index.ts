@@ -10,6 +10,7 @@ import { insertLiquidation } from "../../dba/liquidation";
 import { getMarketState } from "../../dba/market";
 import { estimateTxFeeOptimistic } from "../../fee";
 import { hexToUint8Array } from "../../helper";
+import { onLiqProfitError, onLiqTx, onLiqTxError } from "../../hooks";
 import { createLogger } from "../../logger";
 import { formatUnits } from "../../units";
 import { epoch } from "../../util";
@@ -87,6 +88,8 @@ const worker = async () => {
         logger.error(`Not profitable to liquidate. total spend: ${totalSpend}, total receive: ${totalReceive}, best swap: ${swapRoute.out}`);
         if (!SKIP_PROFITABILITY_CHECK) {
             return;
+        } else {
+            await onLiqProfitError(totalSpend, totalReceive, swapRoute.out);
         }
     }
 
@@ -142,6 +145,7 @@ const worker = async () => {
         } else {
             logger.error("Transaction failed", { reason: tx.reason });
         }
+        await onLiqTxError(tx.reason);
         return;
     }
 
@@ -150,6 +154,7 @@ const worker = async () => {
         insertLiquidation(tx.txid, contract.id);
         logger.info(`Transaction broadcasted ${tx.txid}`);
         console.log('Batch', batch);
+        await onLiqTx(tx.txid, totalSpend, totalReceive, batch);
         return;
     }
 }

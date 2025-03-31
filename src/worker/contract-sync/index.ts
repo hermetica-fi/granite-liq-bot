@@ -4,6 +4,7 @@ import { getAssetBalance } from "../../client/read-only-call";
 import { upsertBorrower } from "../../dba/borrower";
 import { getContractList, unlockContract, unlockContractSchedule, updateContractBalances } from "../../dba/contract";
 import { finalizeLiquidation } from "../../dba/liquidation";
+import { onLiqTxEnd } from "../../hooks";
 import { createLogger } from "../../logger";
 import { type ContractEntity } from "../../types";
 import { epoch } from "../../util";
@@ -30,6 +31,8 @@ const handleContractLocks = async (contract: ContractEntity) => {
                     logger.info(`Borrower ${principal} check sync activated`);
                 }
             }
+
+            await onLiqTxEnd(contract.lockTx, tx.tx_status);
         }
         return;
     }
