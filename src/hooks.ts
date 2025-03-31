@@ -27,7 +27,7 @@ export const onStart = async () => {
 }
 
 export const onLiqTx = async (txid: string, totalSpend: number, totalReceive: number, batch: LiquidationBatch[]) => {
-    await slackMessage(`New liquidation: ${txid} totalSpend: ${totalSpend} totalReceive: ${totalReceive} batch: ${JSON.stringify(batch, null, 2)}`);
+    await slackMessage(`New liquidation: ${txid} \ntotalSpend: ${totalSpend} \ntotalReceive: ${totalReceive} \nbatch: ${JSON.stringify(batch, null, 2)}`);
 }
 
 export const onLiqProfitError = async (spend: number, receive: number, best: number) => {
