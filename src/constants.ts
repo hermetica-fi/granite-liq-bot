@@ -1,14 +1,20 @@
 import type { Ticker } from "./client/pyth";
+import { GRANITE_MARKETS, config } from "./config/src";
+
+
+const USE_STAGING = process.env.USE_STAGING === "1";
 
 export const IR_PARAMS_SCALING_FACTOR = 12;
-
 export const MARKET_ASSET_DECIMAL = 6;
 
+const MARKET = USE_STAGING ? GRANITE_MARKETS.MAINNET_STAGING : GRANITE_MARKETS.MAINNET;
+const MARKET_CONTRACTS = config.markets[MARKET].contracts;
+
 const PRODUCTION_CONTRACTS = {
-    "borrower": "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.borrower-v1",
-    "state": "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.state-v1",
-    "ir": "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.linear-kinked-ir-v1",
-    "liquidator": "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.liquidator-v1"
+    "borrower": `${MARKET_CONTRACTS.BORROWER.principal}.${MARKET_CONTRACTS.BORROWER.name}`,
+    "state":`${MARKET_CONTRACTS.STATE.principal}.${MARKET_CONTRACTS.STATE.name}`,
+    "ir": `${MARKET_CONTRACTS.INTEREST_RATE.principal}.${MARKET_CONTRACTS.INTEREST_RATE.name}`,
+    "liquidator": `${MARKET_CONTRACTS.LIQUIDATOR.principal}.${MARKET_CONTRACTS.LIQUIDATOR.name}`
 };
 
 const STAGING_CONTRACTS = {
@@ -18,7 +24,7 @@ const STAGING_CONTRACTS = {
     "liquidator": "SP36P9SC1CKW9YN2DM0FC78Q6060BRGDWPQM96HR1.liquidator-v1"
 };
 
-const USE_STAGING = process.env.USE_STAGING === "1";
+
 
 export const CONTRACTS: {
     borrower: string;
