@@ -1,6 +1,6 @@
 import { main as apiMain } from './api';
 import { migrateDb } from './db/migrate';
-import { onStart } from './hooks';
+import { onExit, onStart } from './hooks';
 import { createLogger } from './logger';
 import { main as workerMain } from './worker';
 
@@ -10,3 +10,12 @@ migrateDb();
 apiMain();
 workerMain();
 onStart();
+
+const signalHandler = async () => {
+    await onExit();
+    process.exit();
+}
+
+process.on('SIGINT', signalHandler);
+process.on('SIGTERM', signalHandler);
+process.on('SIGQUIT', signalHandler);

@@ -26,6 +26,10 @@ export const onStart = async () => {
     await slackMessage('Liq-bot started');
 }
 
+export const onExit = async () => {
+    await slackMessage('Liq-bot stopped');
+}
+
 export const onLiqTx = async (txid: string, totalSpend: number, totalReceive: number, batch: LiquidationBatch[]) => {
     await slackMessage(`New liquidation: ${txid} \ntotalSpend: ${totalSpend} \ntotalReceive: ${totalReceive} \nbatch: ${JSON.stringify(batch, null, 2)}`);
 }
