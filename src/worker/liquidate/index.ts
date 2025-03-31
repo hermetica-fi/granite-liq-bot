@@ -154,7 +154,7 @@ const worker = async () => {
         insertLiquidation(tx.txid, contract.id);
         logger.info(`Transaction broadcasted ${tx.txid}`);
         console.log('Batch', batch);
-        await onLiqTx(tx.txid, batch);
+        await onLiqTx(tx.txid, totalSpend, totalReceive, batch);
         return;
     }
 }
