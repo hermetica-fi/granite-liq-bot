@@ -33,11 +33,7 @@ export const fetchFn = async (
 
             clearTimeout(timeoutId);
 
-            if (r.status === 403) {
-                throw new Error('Hiro api key is invalid');
-            }
-
-            if (r.status !== 429) {
+            if (r.status === 200) {
                 return r;
             }
 
@@ -46,7 +42,7 @@ export const fetchFn = async (
             // Only retry if we haven't reached max attempts
             if (attempt < MAX_RETRIES - 1) {
                 const delay = INITIAL_DELAY * Math.pow(2, attempt);
-                console.warn(`Hiro api rate limit exceeded, retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES})`);
+                console.warn(`Hiro api error: ${lastError}, retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES})`);
                 await new Promise(resolve => setTimeout(resolve, delay));
             }
         } catch (error) {
@@ -54,7 +50,7 @@ export const fetchFn = async (
 
             if (attempt < MAX_RETRIES - 1) {
                 const delay = INITIAL_DELAY * Math.pow(2, attempt);
-                console.warn(`Hiro api rate limit exceeded, retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES})`);
+                console.warn(`Hiro api error: ${lastError}, retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES})`);
                 await new Promise(resolve => setTimeout(resolve, delay));
             }
         }
