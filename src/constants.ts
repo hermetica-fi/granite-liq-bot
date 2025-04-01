@@ -29,8 +29,6 @@ export const PRICE_FEED_IDS: { ticker: Ticker, feed_id: string }[] = [
     { ticker: "usdc", feed_id: "0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a" },
 ]
 
-export const LIQUIDATION_PREMIUM = 0.1;
-
 export const MIN_TO_LIQUIDATE = 0.1; // usdc
 export const MIN_TO_LIQUIDATE_PER_USER = 0.1; // usdc
 export const TX_TIMEOUT = 60 * 10; // seconds

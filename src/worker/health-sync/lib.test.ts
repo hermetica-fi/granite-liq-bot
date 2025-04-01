@@ -96,10 +96,12 @@ describe("health-sync lib", () => {
                 "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": {
                     liquidationLTV: 80000000,
                     maxLTV: 70000000,
+                    liquidationPremium: 10000000,
                 },
                 "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth": {
                     liquidationLTV: 51000000,
                     maxLTV: 50000000,
+                    liquidationPremium: 10000000,
                 },
             },
             marketAssetParams: {
@@ -150,10 +152,12 @@ describe("health-sync lib", () => {
                 "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": {
                     liquidationLTV: 80000000,
                     maxLTV: 70000000,
+                    liquidationPremium: 10000000,
                 },
                 "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth": {
                     liquidationLTV: 51000000,
                     maxLTV: 50000000,
+                    liquidationPremium: 10000000,
                 },
             },
             marketAssetParams: {

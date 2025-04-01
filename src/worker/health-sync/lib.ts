@@ -4,7 +4,7 @@ import {
     calculateTotalCollateralValue, convertDebtSharesToAssets, liquidatorMaxRepayAmount
 } from "granite-math-sdk";
 import type { PriceFeedResponse } from "../../client/pyth";
-import { IR_PARAMS_SCALING_FACTOR, LIQUIDATION_PREMIUM } from "../../constants";
+import { IR_PARAMS_SCALING_FACTOR } from "../../constants";
 import { toTicker } from "../../helper";
 import type { BorrowerStatus, InterestRateParams, MarketState } from "../../types";
 
@@ -35,7 +35,7 @@ export const calcBorrowerStatus = (borrower: {
     );
 
     const collaterals = Object.keys(borrower.collateralsDeposited).map(key => {
-        const { liquidationLTV, maxLTV } = marketState.collateralParams[key];
+        const { liquidationLTV, maxLTV, liquidationPremium } = marketState.collateralParams[key];
         const feed = priceFeed.items[toTicker(key)];
 
         if (!feed) {
@@ -43,16 +43,17 @@ export const calcBorrowerStatus = (borrower: {
         }
 
         const price = Number(feed.price.price);
-        const decimals = -1 * feed.price.expo
-
+        const decimals = -1 * feed.price.expo;
+        
         return {
             id: key,
             amount: borrower.collateralsDeposited[key] / 10 ** decimals,
             price: price / 10 ** decimals,
             liquidationLTV: liquidationLTV / 10 ** decimals,
             maxLTV: maxLTV / 10 ** decimals,
-            liquidationPremium: LIQUIDATION_PREMIUM,
+            liquidationPremium: liquidationPremium / 10 ** decimals,
         }
+      
     });
 
     const health = calculateAccountHealth(collaterals, debtAssets);

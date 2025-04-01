@@ -76,7 +76,7 @@ export type AccrueInterestParams = {
     lastAccruedBlockTime: number;
 }
 
-export type CollateralParams = CollateralParams_ & { liquidationLTV: number, maxLTV: number };
+export type CollateralParams = CollateralParams_ & { liquidationLTV: number, maxLTV: number, liquidationPremium: number };
 
 export type Collateral = Collateral_;
 
