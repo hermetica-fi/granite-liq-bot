@@ -3,12 +3,10 @@ import { config } from "./config/dist";
 
 const USE_STAGING = process.env.USE_STAGING === "1";
 
-export const IR_PARAMS_SCALING_FACTOR = 12;
-
-
 const market = USE_STAGING ? config.markets.MAINNET_STAGING : config.markets.MAINNET;
 const { contracts } = market;
 
+export const IR_PARAMS_SCALING_FACTOR = market.scaling_factor.toString().match(/0/g)!.length;
 export const MARKET_ASSET_DECIMAL = market.market_asset.decimals;
 
 export const CONTRACTS: {
