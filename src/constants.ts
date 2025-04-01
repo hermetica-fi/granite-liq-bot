@@ -18,7 +18,7 @@ const STAGING_CONTRACTS = {
     "liquidator": "SP36P9SC1CKW9YN2DM0FC78Q6060BRGDWPQM96HR1.liquidator-v1"
 };
 
-const USE_STAGING = process.env.USE_STAGING === "1";
+export const USE_STAGING = process.env.USE_STAGING === "1";
 
 export const CONTRACTS: {
     borrower: string;
@@ -45,3 +45,5 @@ export const DRY_RUN = process.env.DRY_RUN === "1";
 export const SKIP_PROFITABILITY_CHECK = process.env.SKIP_PROFITABILITY_CHECK === "1";
 
 export const ALERT_BALANCE = 5_00000;
+
+export const HAS_HIRO_API_KEY = process.env.HIRO_API_KEY !== undefined;
