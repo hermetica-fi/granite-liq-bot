@@ -237,4 +237,19 @@ describe("dba contracts", () => {
             USE_STAGING: true,
         });
     })
+
+    test("/add-contract (A contract is already exists)", async () => {
+        const resp = await fetch(`${API_BASE}/add-contract`, {
+            method: 'post',
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ address: 'ST..', mnemonic: 'foo bar' })
+        });
+
+        expect(resp.status).toEqual(400);
+        expect(await resp.json()).toEqual({
+            error: "A contract is already exists",
+        });
+    });
 });
