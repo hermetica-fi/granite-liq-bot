@@ -32,4 +32,5 @@ export const main = async () => {
 
     console.log(`Server running on http://${server.hostname}:${server.port}`);
 
+    return server;
 }

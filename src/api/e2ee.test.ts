@@ -1,22 +1,24 @@
-import { describe, test } from "bun:test";
+import { describe, expect, setSystemTime, test } from "bun:test";
 import { dbCon } from "../db/con";
+import { kvStoreSet } from "../db/helper";
+import { main as apiMain } from "./index";
 
+const API_BASE = `http://localhost:${process.env.API_PORT}`;
 
-const insert = (r: string, table: string) => {
-    return `INSERT INTO ${table} VALUES (${r.split('|').map(x => `'${x.trim()}'`).join(',')})`;
-}
+const prepareTestDb = () => {
+    const insert = (r: string, table: string) => {
+        return `INSERT INTO ${table} VALUES (${r.split('|').map(x => `'${x.trim()}'`).join(',')})`;
+    }
 
-describe("dba contracts", () => {
-    test("prepare db", async () => {
-        dbCon.run('DELETE FROM kv_store');
-        dbCon.run('DELETE FROM contract');
-        dbCon.run('DELETE FROM borrower');
-        dbCon.run('DELETE FROM borrower_position');
-        dbCon.run('DELETE FROM borrower_collaterals');
-        dbCon.run('DELETE FROM borrower_status');
-        dbCon.run('DELETE FROM liquidation');
+    dbCon.run('DELETE FROM kv_store');
+    dbCon.run('DELETE FROM contract');
+    dbCon.run('DELETE FROM borrower');
+    dbCon.run('DELETE FROM borrower_position');
+    dbCon.run('DELETE FROM borrower_collaterals');
+    dbCon.run('DELETE FROM borrower_status');
+    dbCon.run('DELETE FROM liquidation');
 
-        `
+    `
         SP3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBPEKAEK7|0|0
         SP1GJSC4GG3MDA1KYZJYS9FEVCKHASR1N7089BEQK|0|0
         SP1RG3YP9C8SC82GVHT1E1WG22MYHTCJ4FT3T9R4G|0|0
@@ -24,39 +26,39 @@ describe("dba contracts", () => {
         SP2N7SK0W83NJSZHFH8HH31ZT3DXJG7NFE5VYT9SJ|0|0
         SP2DXHX9Q844EBT80DYJXFWXJKCJ5FFAX50CQQAWN|0|0
         `.split("\n").map(x => x.trim()).filter(x => x).forEach(r => {
-            dbCon.run(insert(r, 'borrower'));
-        });
+        dbCon.run(insert(r, 'borrower'));
+    });
 
-        `
+    `
         SP3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBPEKAEK7|0.2783|1.6167|11.9128|42.7993|0.6185|{}|0.0
         SP1RG3YP9C8SC82GVHT1E1WG22MYHTCJ4FT3T9R4G|0.4487|1.0029|15.678|34.9399|0.9971|{}|0.0
         SP2N7SK0W83NJSZHFH8HH31ZT3DXJG7NFE5VYT9SJ|0.4467|1.0074|6.9424|15.541|0.9927|{}|0.0
         `.split("\n").map(x => x.trim()).filter(x => x).forEach(r => {
-            dbCon.run(insert(r, 'borrower_status'));
-        });
+        dbCon.run(insert(r, 'borrower_status'));
+    });
 
-        `
+    `
         53bdce5437e1346b44eda525c8d4c98c7faf09abe37b8b85ee40778e9eed36c4|SP1NNSAHT51JS8MEDDBYC7WYD2A2EGB0EMVD35KMA.liquidator|success|1743168820|1743168837
         `.split("\n").map(x => x.trim()).filter(x => x).forEach(r => {
-            dbCon.run(insert(r, 'liquidation'));
-        });
+        dbCon.run(insert(r, 'liquidation'));
+    });
 
-        `
+    `
         SP3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBPEKAEK7|SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token|50100.0
         SP3666C2NYH5HVDZ8X323EQ327D6WNCZEVX4G3QCZ|SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token|20200.0
         SP1RG3YP9C8SC82GVHT1E1WG22MYHTCJ4FT3T9R4G|SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token|40900.0
         SP2N7SK0W83NJSZHFH8HH31ZT3DXJG7NFE5VYT9SJ|SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token|18192.0
         `.split("\n").map(x => x.trim()).filter(x => x).forEach(r => {
-            dbCon.run(insert(r, 'borrower_collaterals'));
-        });
+        dbCon.run(insert(r, 'borrower_collaterals'));
+    });
 
-        `
+    `
         SP1NNSAHT51JS8MEDDBYC7WYD2A2EGB0EMVD35KMA.liquidator|SP1NNSAHT51JS8MEDDBYC7WYD2A2EGB0EMVD35KMA|liquidator|SP1NNSAHT51JS8MEDDBYC7WYD2A2EGB0EMVD35KMA|7b62c15db7f5281f67968d567e478a9d2aeca7c68588d792e33f54624ed2e0e501|1998330|{"address":"SP3Y2ZSH8P7D50B0VBTSX11S7XSG24M1VB9YFQA4K.token-aeusdc","name":"Ethereum USDC via Allbridge","symbol":"aeUSDC","decimals":6}|12176373|{"address":"SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token","name":"sBTC","symbol":"sBTC","decimals":8}|0|||1743168773
         `.split("\n").map(x => x.trim()).filter(x => x).forEach(r => {
-            dbCon.run(insert(r, 'contract'));
-        });
+        dbCon.run(insert(r, 'contract'));
+    });
 
-        `
+    `
         SP3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBPEKAEK7|8706247.0|["SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token"]
         SP1GJSC4GG3MDA1KYZJYS9FEVCKHASR1N7089BEQK|0.0|[]
         SP3666C2NYH5HVDZ8X323EQ327D6WNCZEVX4G3QCZ|0.0|["SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token"]
@@ -64,10 +66,10 @@ describe("dba contracts", () => {
         SP1RG3YP9C8SC82GVHT1E1WG22MYHTCJ4FT3T9R4G|11457996.0|["SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token"]
         SP2N7SK0W83NJSZHFH8HH31ZT3DXJG7NFE5VYT9SJ|5073723.0|["SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token"]
         `.split("\n").map(x => x.trim()).filter(x => x).forEach(r => {
-            dbCon.run(insert(r, 'borrower_position'));
-        });
+        dbCon.run(insert(r, 'borrower_position'));
+    });
 
-        `
+    `
         db_ver|1
         contract_hash|15264183702619828235
         borrower-sync-last-tx-seen-SP1M6MHD4EJ70MPJSH1C0PXSHCQ3D9C881AB7CVAZ.borrower-v1|0x4f448430b516abb89b2aaada632f0792c48ed20319b8db68a25ba3cfb6fd3332
@@ -80,7 +82,159 @@ describe("dba contracts", () => {
         collateral-params|{"SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token":{"liquidationLTV":45000001,"maxLTV":45000000,"liquidationPremium":10000000}}
         last-sync|1743169049661
         `.split("\n").map(x => x.trim()).filter(x => x).forEach(r => {
-            dbCon.run(insert(r, 'kv_store'));
-        });
+        dbCon.run(insert(r, 'kv_store'));
     });
+
+    kvStoreSet("last-sync", Date.now() - 1000);
+}
+
+setSystemTime(1743515825000);
+
+describe("dba contracts", () => {
+    test("start api", async () => {
+        await apiMain();
+    });
+
+    test("prepareTestDb", () => {
+        prepareTestDb();
+    })
+
+    test("/health", async () => {
+        const resp = await fetch(`${API_BASE}/health`).then(r => r.json());
+        expect(resp).toEqual({
+            now: "2025-04-01T13:57:05.000Z",
+            lastSync: "2025-04-01T13:57:04.000Z",
+            lastLiquidation: {
+                txid: "53bdce5437e1346b44eda525c8d4c98c7faf09abe37b8b85ee40778e9eed36c4",
+                contract: "SP1NNSAHT51JS8MEDDBYC7WYD2A2EGB0EMVD35KMA.liquidator",
+                status: "success",
+                createdAt: 1743168820,
+                updatedAt: 1743168837,
+            },
+            balances: {
+                operatorBalance: 1998330,
+                marketAssetBalance: 12176373,
+            },
+            isHealthy: true,
+        });
+    })
+
+    test("/contracts", async () => {
+        const resp = await fetch(`${API_BASE}/contracts`).then(r => r.json());
+
+        expect(resp).toEqual([
+            {
+                id: "SP1NNSAHT51JS8MEDDBYC7WYD2A2EGB0EMVD35KMA.liquidator",
+                address: "SP1NNSAHT51JS8MEDDBYC7WYD2A2EGB0EMVD35KMA",
+                name: "liquidator",
+                operatorAddress: "SP1NNSAHT51JS8MEDDBYC7WYD2A2EGB0EMVD35KMA",
+                operatorBalance: 1998330,
+                marketAsset: {
+                    address: "SP3Y2ZSH8P7D50B0VBTSX11S7XSG24M1VB9YFQA4K.token-aeusdc",
+                    name: "Ethereum USDC via Allbridge",
+                    symbol: "aeUSDC",
+                    decimals: 6,
+                    balance: 12176373,
+                },
+                collateralAsset: {
+                    address: "SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token",
+                    name: "sBTC",
+                    symbol: "sBTC",
+                    decimals: 8,
+                    balance: 0,
+                },
+                lockTx: "",
+                unlocksAt: null,
+            }
+        ]);
+    })
+
+    test("/borrowers", async () => {
+        const resp = await fetch(`${API_BASE}/borrowers`).then(r => r.json());
+
+        expect(resp).toEqual([
+            {
+                address: "SP1RG3YP9C8SC82GVHT1E1WG22MYHTCJ4FT3T9R4G",
+                ltv: 0.4487,
+                health: 1.0029,
+                debt: 15.678,
+                collateral: 34.9399,
+                risk: 0.9971,
+                maxRepay: {},
+                totalRepayAmount: 0,
+            }, {
+                address: "SP2N7SK0W83NJSZHFH8HH31ZT3DXJG7NFE5VYT9SJ",
+                ltv: 0.4467,
+                health: 1.0074,
+                debt: 6.9424,
+                collateral: 15.541,
+                risk: 0.9927,
+                maxRepay: {},
+                totalRepayAmount: 0,
+            }, {
+                address: "SP3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBPEKAEK7",
+                ltv: 0.2783,
+                health: 1.6167,
+                debt: 11.9128,
+                collateral: 42.7993,
+                risk: 0.6185,
+                maxRepay: {},
+                totalRepayAmount: 0,
+            }
+        ]);
+    })
+
+    test("/liquidations", async () => {
+        const resp = await fetch(`${API_BASE}/liquidations`).then(r => r.json());
+
+        expect(resp).toEqual([
+            {
+                txid: "53bdce5437e1346b44eda525c8d4c98c7faf09abe37b8b85ee40778e9eed36c4",
+                contract: "SP1NNSAHT51JS8MEDDBYC7WYD2A2EGB0EMVD35KMA.liquidator",
+                status: "success",
+                createdAt: 1743168820,
+                updatedAt: 1743168837,
+            }
+        ]);
+    })
+
+    test("/config", async () => {
+        const resp = await fetch(`${API_BASE}/config`).then(r => r.json());
+
+        expect(resp).toEqual({
+            ALERT_BALANCE: 500000,
+            BORROWER_SYNC_DELAY: 10,
+            CONTRACTS: {
+                borrower: "SP1M6MHD4EJ70MPJSH1C0PXSHCQ3D9C881AB7CVAZ.borrower-v1",
+                state: "SP1M6MHD4EJ70MPJSH1C0PXSHCQ3D9C881AB7CVAZ.state-v1",
+                ir: "SP1M6MHD4EJ70MPJSH1C0PXSHCQ3D9C881AB7CVAZ.linear-kinked-ir-v1",
+                liquidator: "SP36P9SC1CKW9YN2DM0FC78Q6060BRGDWPQM96HR1.liquidator-v1",
+                collaterals: ["SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token"],
+            },
+            DRY_RUN: true,
+            HAS_HIRO_API_KEY: true,
+            IR_PARAMS_SCALING_FACTOR: 12,
+            LIQUIDATION_PREMIUM: 0.1,
+            MARKET_ASSET_DECIMAL: 6,
+            MIN_TO_LIQUIDATE: 0.1,
+            MIN_TO_LIQUIDATE_PER_USER: 0.1,
+            PRICE_FEED_IDS: [
+                {
+                    ticker: "btc",
+                    feed_id: "0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43",
+                },
+                {
+                    ticker: "eth",
+                    feed_id: "0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace",
+                },
+                {
+                    ticker: "usdc",
+                    feed_id: "0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a",
+                }
+            ],
+            SKIP_PROFITABILITY_CHECK: false,
+            TX_TIMEOUT: 600,
+            USE_STAGING: true,
+        });
+    })
 });
