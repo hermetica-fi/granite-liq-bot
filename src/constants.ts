@@ -1,5 +1,5 @@
 import type { Ticker } from "./client/pyth";
-import { config } from "./config/src";
+import { config } from "./config/dist";
 
 const USE_STAGING = process.env.USE_STAGING === "1";
 

@@ -5,7 +5,7 @@
   "scripts": {
     "start": "bun run src/index.ts",
     "typecheck": "tsc --noEmit",
-    "postinstall": "git submodule update --init"
+    "postinstall": "git submodule update --init && cd src/config && bun install && bun run build"
   },
   "devDependencies": {
     "@types/bun": "latest"
