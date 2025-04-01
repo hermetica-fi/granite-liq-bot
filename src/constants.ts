@@ -1,30 +1,13 @@
 import type { Ticker } from "./client/pyth";
-import { GRANITE_MARKETS, config } from "./config/src";
-
+import { config } from "./config/src";
 
 const USE_STAGING = process.env.USE_STAGING === "1";
 
 export const IR_PARAMS_SCALING_FACTOR = 12;
 export const MARKET_ASSET_DECIMAL = 6;
 
-const MARKET = USE_STAGING ? GRANITE_MARKETS.MAINNET_STAGING : GRANITE_MARKETS.MAINNET;
-const MARKET_CONTRACTS = config.markets[MARKET].contracts;
-
-const PRODUCTION_CONTRACTS = {
-    "borrower": `${MARKET_CONTRACTS.BORROWER.principal}.${MARKET_CONTRACTS.BORROWER.name}`,
-    "state":`${MARKET_CONTRACTS.STATE.principal}.${MARKET_CONTRACTS.STATE.name}`,
-    "ir": `${MARKET_CONTRACTS.INTEREST_RATE.principal}.${MARKET_CONTRACTS.INTEREST_RATE.name}`,
-    "liquidator": `${MARKET_CONTRACTS.LIQUIDATOR.principal}.${MARKET_CONTRACTS.LIQUIDATOR.name}`
-};
-
-const STAGING_CONTRACTS = {
-    "borrower": "SP1M6MHD4EJ70MPJSH1C0PXSHCQ3D9C881AB7CVAZ.borrower-v1",
-    "state": "SP1M6MHD4EJ70MPJSH1C0PXSHCQ3D9C881AB7CVAZ.state-v1",
-    "ir": "SP1M6MHD4EJ70MPJSH1C0PXSHCQ3D9C881AB7CVAZ.linear-kinked-ir-v1",
-    "liquidator": "SP36P9SC1CKW9YN2DM0FC78Q6060BRGDWPQM96HR1.liquidator-v1"
-};
-
-
+const market = USE_STAGING ? config.markets.MAINNET_STAGING : config.markets.MAINNET;
+const { contracts } = market;
 
 export const CONTRACTS: {
     borrower: string;
@@ -32,7 +15,13 @@ export const CONTRACTS: {
     ir: string;
     liquidator: string;
     collaterals: string[];
-} = { ...(USE_STAGING ? STAGING_CONTRACTS : PRODUCTION_CONTRACTS), collaterals: ["SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token"] }
+} = {
+    borrower: `${contracts.BORROWER.principal}.${contracts.BORROWER.name}`,
+    state: `${contracts.STATE.principal}.${contracts.STATE.name}`,
+    ir: `${contracts.INTEREST_RATE.principal}.${contracts.INTEREST_RATE.name}`,
+    liquidator: `${contracts.LIQUIDATOR.principal}.${contracts.LIQUIDATOR.name}`,
+    collaterals: market.collaterals.map(x => `${x.contract.principal}.${x.contract.name}`)
+};
 
 export const PRICE_FEED_IDS: { ticker: Ticker, feed_id: string }[] = [
     { ticker: "btc", feed_id: "0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43" },
