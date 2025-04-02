@@ -19,3 +19,15 @@ const signalHandler = async () => {
 process.on('SIGINT', signalHandler);
 process.on('SIGTERM', signalHandler);
 process.on('SIGQUIT', signalHandler);
+
+process.on('uncaughtException', async (err) => {
+    console.error('Uncaught Exception:', err);
+    await onExit();
+    process.exit(1);
+});
+
+process.on('unhandledRejection', async (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+    await onExit();
+    process.exit(1);
+});
