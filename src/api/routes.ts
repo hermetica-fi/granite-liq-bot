@@ -1,10 +1,9 @@
 import {
-    cvToJSON, fetchCallReadOnlyFunction,
     getAddressFromPrivateKey
 } from "@stacks/transactions";
 import { generateWallet } from "@stacks/wallet-sdk";
 import { getContractInfo } from "../client/hiro";
-import { getAssetInfo } from "../client/read-only-call";
+import { getAssetInfo, getLiquidatorContractInfo } from "../client/read-only-call";
 import * as constants from "../constants";
 import { kvStoreGet } from "../db/helper";
 import { getBorrowerStatusList } from "../dba/borrower";
@@ -67,20 +66,12 @@ export const routes = {
         let onChainOperatorAddress;
         let marketAsset;
         let collateralAsset;
-        const [contractAddress, contractName] = address.trim().split('.');
         try {
-            const info = await fetchCallReadOnlyFunction({
-                contractAddress,
-                contractName,
-                functionName: 'get-info',
-                functionArgs: [],
-                senderAddress: operatorAddress,
-                network: 'mainnet',
-            }).then(r => cvToJSON(r));
+            const info = await getLiquidatorContractInfo(address);
 
-            onChainOperatorAddress = info.value["operator"].value
-            marketAsset = info.value["market-asset"].value;
-            collateralAsset = info.value["collateral-asset"].value;
+            onChainOperatorAddress = info.operator;
+            marketAsset = info.marketAsset;
+            collateralAsset = info.collateralAsset;
         } catch (error) {
             return errorResponse('Could not fetch contract info');
         }

@@ -228,3 +228,25 @@ export const getAssetBalance = async (assetAddress: string, contractId: string) 
     }
   }).then(r => Number(cvToJSON(r).value.value));
 }
+
+export const getLiquidatorContractInfo = async (address: string) => {
+  const [contractAddress, contractName] = address.trim().split('.');
+  const info = await fetchCallReadOnlyFunction({
+    contractAddress,
+    contractName,
+    functionName: 'get-info',
+    functionArgs: [],
+    senderAddress: contractAddress,
+    network: 'mainnet',
+  }).then(r => cvToJSON(r));
+
+  const operator = info.value["operator"].value
+  const marketAsset = info.value["market-asset"].value;
+  const collateralAsset = info.value["collateral-asset"].value;
+
+  return {
+    operator,
+    marketAsset,
+    collateralAsset
+  }
+}

@@ -71,10 +71,12 @@ describe("dba market", () => {
             'SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth': {
                 liquidationLTV: 100,
                 maxLTV: 200,
+                liquidationPremium: 10000000,
             },
             'SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc': {
                 liquidationLTV: 120,
                 maxLTV: 209,
+                liquidationPremium: 10000000,
             },
         });
         const resp = getCollateralParamsLocal();
@@ -82,10 +84,12 @@ describe("dba market", () => {
             'SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth': {
                 liquidationLTV: 100,
                 maxLTV: 200,
+                liquidationPremium: 10000000,
             },
             'SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc': {
                 liquidationLTV: 120,
                 maxLTV: 209,
+                liquidationPremium: 10000000,
             },
         });
     });
@@ -127,10 +131,12 @@ describe("dba market", () => {
             'SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth': {
                 liquidationLTV: 100,
                 maxLTV: 200,
+                liquidationPremium: 10000000,
             },
             'SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc': {
                 liquidationLTV: 120,
                 maxLTV: 209,
+                liquidationPremium: 10000000,
             },
         });
 
@@ -157,10 +163,12 @@ describe("dba market", () => {
                 "SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth": {
                     liquidationLTV: 100,
                     maxLTV: 200,
+                    liquidationPremium: 10000000,
                 },
                 "SP20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": {
                     liquidationLTV: 120,
                     maxLTV: 209,
+                    liquidationPremium: 10000000,
                 },
             },
             marketAssetParams: {
