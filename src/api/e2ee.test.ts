@@ -1,4 +1,6 @@
-import { describe, expect, setSystemTime, test } from "bun:test";
+import { getAddressFromPrivateKey } from "@stacks/transactions";
+import { generateWallet, randomSeedPhrase } from "@stacks/wallet-sdk";
+import { describe, expect, mock, setSystemTime, test } from "bun:test";
 import { dbCon } from "../db/con";
 import { kvStoreSet } from "../db/helper";
 import { main as apiMain } from "./index";
@@ -89,6 +91,39 @@ const prepareTestDb = () => {
 }
 
 setSystemTime(1743515825000);
+
+const MNEMONIC = randomSeedPhrase();
+const wallet = await generateWallet({ secretKey: MNEMONIC, password: "", });
+const ADDRESS = getAddressFromPrivateKey(wallet.accounts[0].stxPrivateKey, 'mainnet');
+
+mock.module("../client/hiro", () => {
+    return {
+        getContractInfo: () => {
+            return {}
+        }
+    }
+});
+
+mock.module("../client/read-only-call", () => {
+    return {
+        getLiquidatorContractInfo: () => {
+            return {
+                operator: ADDRESS,
+                marketAsset: '',
+                collateralAsset: ''
+            }
+        },
+        getAssetInfo: () => {
+            return {
+                address: 'SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token',
+                name: 'sBTC',
+                symbol: 'sBTC',
+                decimals: 8
+            }
+        }
+    }
+});
+
 
 describe("dba contracts", () => {
     test("start api", async () => {
@@ -258,13 +293,27 @@ describe("dba contracts", () => {
         });
     })
 
+    test("/add-contract", async () => {
+        dbCon.run('DELETE FROM contract');
+
+        const resp = await fetch(`${API_BASE}/add-contract`, {
+            method: 'post',
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ address: `${ADDRESS}.liquidator`, mnemonic: MNEMONIC })
+        });
+
+        expect(resp.status).toEqual(200);
+    })
+
     test("/add-contract (A contract is already exists)", async () => {
         const resp = await fetch(`${API_BASE}/add-contract`, {
             method: 'post',
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ address: 'ST..', mnemonic: 'foo bar' })
+            body: JSON.stringify({ address: `${ADDRESS}.liquidator`, mnemonic: MNEMONIC })
         });
 
         expect(resp.status).toEqual(400);
