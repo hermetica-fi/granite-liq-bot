@@ -198,6 +198,26 @@ describe("dba contracts", () => {
         ]);
     })
 
+    test("/liquidations wtih timestamp filter", async () => {
+        const resp = await fetch(`${API_BASE}/liquidations?fromTimestamp=1743168810&toTimestamp=1743168831`).then(r => r.json());
+
+        expect(resp).toEqual([
+            {
+                txid: "53bdce5437e1346b44eda525c8d4c98c7faf09abe37b8b85ee40778e9eed36c4",
+                contract: "SP1NNSAHT51JS8MEDDBYC7WYD2A2EGB0EMVD35KMA.liquidator",
+                status: "success",
+                createdAt: 1743168820,
+                updatedAt: 1743168837,
+            }
+        ]);
+    })
+
+    test("/liquidations wtih timestamp filter (empty)", async () => {
+        const resp = await fetch(`${API_BASE}/liquidations?fromTimestamp=1743168840&toTimestamp=1743168850`).then(r => r.json());
+
+        expect(resp).toEqual([]);
+    })
+
     test("/config", async () => {
         const resp = await fetch(`${API_BASE}/config`).then(r => r.json());
 
