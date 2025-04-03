@@ -86,8 +86,6 @@ const prepareTestDb = () => {
         `.split("\n").map(x => x.trim()).filter(x => x).forEach(r => {
         dbCon.run(insert(r, 'kv_store'));
     });
-
-    kvStoreSet("last-sync", Date.now() - 1000);
 }
 
 setSystemTime(1743515825000);
@@ -125,7 +123,7 @@ mock.module("../client/read-only-call", () => {
 });
 
 
-describe("dba contracts", () => {
+describe("api e2e", () => {
     test("start api", async () => {
         await apiMain();
     });
@@ -134,7 +132,15 @@ describe("dba contracts", () => {
         prepareTestDb();
     })
 
+    test("/health (not healthy - last sync)", async () => {
+        kvStoreSet("last-sync", Date.now() - 121_000);
+        const resp = await fetch(`${API_BASE}/health`).then(r => r.json());
+        expect(resp.lastSync).toEqual("2025-04-01T13:55:04.000Z");
+        expect(resp.isHealthy).toEqual(false);
+    })
+
     test("/health", async () => {
+        kvStoreSet("last-sync", Date.now() - 1000);
         const resp = await fetch(`${API_BASE}/health`).then(r => r.json());
         expect(resp).toEqual({
             now: "2025-04-01T13:57:05.000Z",
@@ -320,5 +326,11 @@ describe("dba contracts", () => {
         expect(await resp.json()).toEqual({
             error: "A contract is already exists",
         });
+    });
+
+    test("/health (not healthy - low balance)", async () => {
+        const resp = await fetch(`${API_BASE}/health`).then(r => r.json());
+        expect(resp.isHealthy).toEqual(false);
+        expect(resp.balances.operatorBalance).toEqual(0);
     });
 });
