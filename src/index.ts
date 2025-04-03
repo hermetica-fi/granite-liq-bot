@@ -22,12 +22,12 @@ process.on('SIGQUIT', signalHandler);
 
 process.on('uncaughtException', async (err) => {
     console.error('Uncaught Exception:', err);
-    await onExit();
+    await onExit(String(err));
     process.exit(1);
 });
 
 process.on('unhandledRejection', async (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-    await onExit();
+    await onExit(String(reason));
     process.exit(1);
 });
