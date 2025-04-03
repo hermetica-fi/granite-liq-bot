@@ -131,7 +131,6 @@ Returns: [Config](#Config)
   DRY_RUN: boolean,
   HAS_HIRO_API_KEY: boolean,
   IR_PARAMS_SCALING_FACTOR: number,
-  LIQUIDATION_PREMIUM: number,
   MARKET_ASSET_DECIMAL: number,
   MIN_TO_LIQUIDATE: number,
   MIN_TO_LIQUIDATE_PER_USER: number,
