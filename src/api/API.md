@@ -129,6 +129,7 @@ Returns: [Config](#Config)
     collaterals: string[]
   },
   DRY_RUN: boolean,
+  HAS_HIRO_API_KEY: boolean,
   IR_PARAMS_SCALING_FACTOR: number,
   LIQUIDATION_PREMIUM: number,
   MARKET_ASSET_DECIMAL: number,
@@ -138,7 +139,8 @@ Returns: [Config](#Config)
       ticker: string,
       feed_id: string
     }[],
-  SKIP_PROFITABILITY_CHECK: false,
-  TX_TIMEOUT: 600
+  SKIP_PROFITABILITY_CHECK: boolean,
+  TX_TIMEOUT: 600,
+  USE_STAGING: boolean
 }
 ```
