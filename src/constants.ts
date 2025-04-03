@@ -1,24 +1,14 @@
 import type { Ticker } from "./client/pyth";
-
-export const IR_PARAMS_SCALING_FACTOR = 12;
-
-export const MARKET_ASSET_DECIMAL = 6;
-
-const PRODUCTION_CONTRACTS = {
-    "borrower": "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.borrower-v1",
-    "state": "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.state-v1",
-    "ir": "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.linear-kinked-ir-v1",
-    "liquidator": "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.liquidator-v1"
-};
-
-const STAGING_CONTRACTS = {
-    "borrower": "SP1M6MHD4EJ70MPJSH1C0PXSHCQ3D9C881AB7CVAZ.borrower-v1",
-    "state": "SP1M6MHD4EJ70MPJSH1C0PXSHCQ3D9C881AB7CVAZ.state-v1",
-    "ir": "SP1M6MHD4EJ70MPJSH1C0PXSHCQ3D9C881AB7CVAZ.linear-kinked-ir-v1",
-    "liquidator": "SP36P9SC1CKW9YN2DM0FC78Q6060BRGDWPQM96HR1.liquidator-v1"
-};
+import { config } from "./config/dist";
+import { toTicker } from "./helper";
 
 export const USE_STAGING = process.env.USE_STAGING === "1";
+
+const market = USE_STAGING ? config.markets.MAINNET_STAGING : config.markets.MAINNET;
+const { contracts } = market;
+
+export const IR_PARAMS_SCALING_FACTOR = market.scaling_factor.toString().match(/0/g)!.length;
+export const MARKET_ASSET_DECIMAL = market.market_asset.decimals;
 
 export const CONTRACTS: {
     borrower: string;
@@ -26,15 +16,16 @@ export const CONTRACTS: {
     ir: string;
     liquidator: string;
     collaterals: string[];
-} = { ...(USE_STAGING ? STAGING_CONTRACTS : PRODUCTION_CONTRACTS), collaterals: ["SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token"] }
+} = {
+    borrower: `${contracts.BORROWER.principal}.${contracts.BORROWER.name}`,
+    state: `${contracts.STATE.principal}.${contracts.STATE.name}`,
+    ir: `${contracts.INTEREST_RATE.principal}.${contracts.INTEREST_RATE.name}`,
+    liquidator: `${contracts.LIQUIDATOR.principal}.${contracts.LIQUIDATOR.name}`,
+    collaterals: market.collaterals.map(x => `${x.contract.principal}.${x.contract.name}`)
+};
 
-export const PRICE_FEED_IDS: { ticker: Ticker, feed_id: string }[] = [
-    { ticker: "btc", feed_id: "0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43" },
-    { ticker: "eth", feed_id: "0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace" },
-    { ticker: "usdc", feed_id: "0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a" },
-]
-
-export const LIQUIDATION_PREMIUM = 0.1;
+export const PRICE_FEED_IDS: { ticker: Ticker, feed_id: string }[] = [market.market_asset, ...market.collaterals]
+    .map(a => ({ ticker: toTicker(a.display_name), feed_id: `0x${a.price_feed!}` }));
 
 export const MIN_TO_LIQUIDATE = 0.1; // usdc
 export const MIN_TO_LIQUIDATE_PER_USER = 0.1; // usdc
