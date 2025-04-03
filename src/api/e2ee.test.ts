@@ -261,15 +261,14 @@ describe("api e2e", () => {
 
     test("/config", async () => {
         const resp = await fetch(`${API_BASE}/config`).then(r => r.json());
-
         expect(resp).toEqual({
             ALERT_BALANCE: 500000,
             BORROWER_SYNC_DELAY: 10,
             CONTRACTS: {
-                borrower: "SP1M6MHD4EJ70MPJSH1C0PXSHCQ3D9C881AB7CVAZ.borrower-v1",
-                state: "SP1M6MHD4EJ70MPJSH1C0PXSHCQ3D9C881AB7CVAZ.state-v1",
-                ir: "SP1M6MHD4EJ70MPJSH1C0PXSHCQ3D9C881AB7CVAZ.linear-kinked-ir-v1",
-                liquidator: "SP36P9SC1CKW9YN2DM0FC78Q6060BRGDWPQM96HR1.liquidator-v1",
+                borrower: "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.borrower-v1",
+                state: "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.state-v1",
+                ir: "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.linear-kinked-ir-v1",
+                liquidator: "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.liquidator-v1",
                 collaterals: ["SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token"],
             },
             DRY_RUN: true,
@@ -295,9 +294,9 @@ describe("api e2e", () => {
             ],
             SKIP_PROFITABILITY_CHECK: false,
             TX_TIMEOUT: 600,
-            USE_STAGING: true,
-        });
-    })
+            USE_STAGING: false,
+        })
+    });
 
     test("/add-contract", async () => {
         dbCon.run('DELETE FROM contract');
