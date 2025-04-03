@@ -274,22 +274,17 @@ describe("api e2e", () => {
             DRY_RUN: true,
             HAS_HIRO_API_KEY: true,
             IR_PARAMS_SCALING_FACTOR: 12,
-            LIQUIDATION_PREMIUM: 0.1,
             MARKET_ASSET_DECIMAL: 6,
             MIN_TO_LIQUIDATE: 0.1,
             MIN_TO_LIQUIDATE_PER_USER: 0.1,
             PRICE_FEED_IDS: [
                 {
-                    ticker: "btc",
-                    feed_id: "0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43",
-                },
-                {
-                    ticker: "eth",
-                    feed_id: "0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace",
-                },
-                {
                     ticker: "usdc",
                     feed_id: "0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a",
+                },
+                {
+                    ticker: "btc",
+                    feed_id: "0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43",
                 }
             ],
             SKIP_PROFITABILITY_CHECK: false,
