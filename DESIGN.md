@@ -141,7 +141,7 @@ Reads borrower health data from the `borrower_status` table and triggers liquida
 
 - The bot ensures that the market asset balance **received** at the end of the operation is greater than or equal to what will be **spent**.
 - If the check fails, the worker **skips** liquidation.
-- When the `SKIP_PROFITABILITY_CHECK` environment variable is set to `"1"`, the bot skips the profitability check.
+- When the `SKIP_PROFITABILITY_CHECK` environment variable is set to `1`, the bot skips the profitability check.
 - The `onLiqProfitError` alert is triggered when the profitability check fails.
 
 ℹ️ The check is based on the integrated DEX's current prices. It may fail once or twice and succeed on a subsequent attempt.
@@ -177,8 +177,7 @@ The worker skips liquidation in the following cases:
 Uses an optimistically determined transaction fee depending on the blockchain's mempool size.
 
 **Nonce determination:**  
-Uses the Hiro API:  
-`/extended/v1/address/${principal}/nonces → possible_next_nonce`
+Uses the Hiro API:  `/extended/v1/address/${principal}/nonces → possible_next_nonce`
 
 ---
 
@@ -205,7 +204,7 @@ Uses the Hiro API:
 
 
 
-## Batch liqudations
+
 
 
 ## Operator 
@@ -219,9 +218,7 @@ Uses the Hiro API:
 
 ## Alert system
 
-## Fee estimation
 
-Calculated based on the mempool size
 
 
 ## Hosting and stack
