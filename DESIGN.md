@@ -200,6 +200,18 @@ Uses the Hiro API:  `/extended/v1/address/${principal}/nonces → possible_next_
 ℹ️ Regardless of success, failure, or skip, the bot continues operating in the next **Worker Cycle**.
 
 
+### Liquidator Contract Lock & Unlock
+
+The liquidator contract uses a lock to prevent multiple liquidation transactions from being processed at the same time.
+
+- When a liquidation transaction is broadcast, the contract is locked.
+- The lock prevents any new liquidation attempts until the current one is finalized.
+
+- The `contract-sync` worker checks the transaction status.
+  - If the transaction is finalized (not `pending`), it schedules an unlock after 1 minute.
+
+This ensures only one liquidation is processed at a time and prevents race conditions.
+
 -------------
 
 
