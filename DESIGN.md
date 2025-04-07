@@ -24,7 +24,7 @@ If the workers take longer than 7 seconds, the next cycle starts immediately wit
 
 Responsible for contract lock/unlock handling, liquidation record finalization, check sync activation, and balance updates.
 
-If there is an ongoing transaction:
+If there is an ongoing liquidation transaction:
 
 - Checks the transaction's status. If the status is not `pending` (i.e., the transaction is finalized), it schedules an unlock to be executed in 1 minute.
 - Marks the corresponding liquidation record with the transaction's status code.
@@ -109,27 +109,19 @@ The calculated data is stored in the `borrower_status` table to be shared with o
 
 Reads borrower health data from the `borrower_status` table and triggers liquidation transactions if there are any applicable user positions.
 
----
-
 #### 🧮 Liquidation Batch
 
 - Batches are sorted by `total_repay_amount DESC` to prioritize the largest liquidable positions.
 - The batch size is limited by the contract’s market asset balance.
 - If the balance is insufficient to cover all liquidations, the last item in the batch (or the only one) will be a **partial liquidation**.
 
----
-
 #### 🔒 Minimum to Liquidate per user
 
 - Borrowers with a liquidation amount below `MIN_TO_LIQUIDATE_PER_USER` (defined in constants) are excluded from the batch.
 
----
-
 #### 📉 Minimum Total to Liquidate
 
 - If the **sum** of the liquidation batch is below `MIN_TO_LIQUIDATE` (defined in constants), the bot skips the liquidation.
-
----
 
 #### 💰 Profitability Check
 
@@ -140,13 +132,9 @@ Reads borrower health data from the `borrower_status` table and triggers liquida
 
 ℹ️ The check is based on the integrated DEX's current prices. It may fail once or twice and succeed on a subsequent attempt.
 
----
-
 #### 🧪 Dry Run Mode
 
 - When the `DRY_RUN` environment variable is set to `1`, the bot will **not broadcast** liquidation transactions.
-
----
 
 #### ⛔ Skipped If
 
@@ -161,8 +149,6 @@ The worker skips liquidation in the following cases:
 - Profitability check fails  
 - Dry run mode is activated
 
----
-
 #### ✅ If All Checks Pass
 
 - The bot broadcasts the liquidation transaction to the blockchain.
@@ -173,23 +159,17 @@ Uses an optimistically determined transaction fee depending on the blockchain's 
 **Nonce determination:**  
 Uses the Hiro API:  `/extended/v1/address/${principal}/nonces → possible_next_nonce`
 
----
-
 #### ❌ If Transaction Broadcasting Fails
 
 *The most likely reason is insufficient operator balance in the liquidator contract.*
 
 - The `onLiqTxError` alert is triggered with the on-chain rejection message.
 
----
-
 #### ✅ If Transaction Broadcasting Succeeds
 
 - Locks the liquidator contract. 
 - Inserts a liquidation record into the `liquidation` table.
 - Triggers the `onLiqTx` alert.
-
----
 
 ℹ️ Regardless of success, failure, or skip, the bot continues operating in the next **Worker Cycle**.
 
