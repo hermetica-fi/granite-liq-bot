@@ -1,6 +1,5 @@
 # Liquidation Bot (DEX)
 
-
 ## Introduction
 
 The liquidation bot is responsible for liquidating user positions that are at risk.
@@ -69,6 +68,19 @@ Responsible for fetching and building the borrower state by:
 - Updating collateral data into the `borrower_collaterals` table  
 
 This process runs **only** for users with check sync activated.
+
+
+#### Check Sync
+
+Check sync is a flag-based mechanism that marks specific users (borrowers) for a full borrower state refresh.
+
+When a user is marked for check sync:
+
+- The `borrower-sync` worker fetches their latest position and collateral data from the chain.
+- The `health-sync` worker recalculates their health metrics (ltv, risk, max repay, etc.).
+
+This mechanism ensures that users affected by a recent liquidation attempt or on-chain event are re-synced before the next liquidation decision is made.
+
 
 ### ⚙️ market-sync worker
 
@@ -139,7 +151,7 @@ Reads borrower health data from the `borrower_status` table and triggers liquida
 
 - When the `DRY_RUN` environment variable is set to `1`, the bot will **not broadcast** liquidation transactions.
 
-#### ⛔ Skipped If
+#### ⛔ Execution Skipped If
 
 The worker skips liquidation in the following cases:
 
