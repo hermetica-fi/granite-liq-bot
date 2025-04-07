@@ -16,8 +16,8 @@ Each worker performs its task (fetch, calculate, update, or act) and hands off c
 
 This repeating execution pattern is referred to as the **Worker Cycle**.
 
-There’s no magic in choosing 7 seconds — it’s simply enough time to run all tasks and include a small delay.  
-If the workers take longer than 7 seconds, the next cycle starts immediately without delay.
+*There’s no magic in choosing 7 seconds — it’s simply enough time to run all tasks and include a small delay.  
+If the workers take longer than 7 seconds, the next cycle starts immediately without delay.*
 
 
 ### ⚙️ contract-sync worker
