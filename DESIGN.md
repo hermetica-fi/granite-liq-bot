@@ -130,11 +130,11 @@ Reads borrower health data from the `borrower_status` table and triggers liquida
 - The batch size is limited by the contract’s market asset balance.
 - If the balance is insufficient to cover all liquidations, the last item in the batch (or the only one) will be a **partial liquidation**.
 
-#### 🔒 Minimum to Liquidate per user
+#### 🔹 Minimum to Liquidate per user
 
 - Borrowers with a liquidation amount below `MIN_TO_LIQUIDATE_PER_USER` (defined in constants) are excluded from the batch.
 
-#### 📉 Minimum Total to Liquidate
+#### 🔹 Minimum Total to Liquidate
 
 - If the **sum** of the liquidation batch is below `MIN_TO_LIQUIDATE` (defined in constants), the bot skips the liquidation.
 
