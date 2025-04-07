@@ -1,11 +1,14 @@
 # Liquidation Bot (DEX)
 
+
 ## Introduction
 
 The liquidation bot is responsible for liquidating user positions that are at risk.
 
 It consists of multiple workers that operate together to build, calculate, and execute liquidation transactions.  
 The bot also includes an API to expose internal data, and an alerting system to notify external systems or developers of key events.
+
+![Diagram](diagram.png)
 
 ### 🛠️ Workers
 
