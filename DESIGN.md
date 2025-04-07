@@ -2,16 +2,12 @@
 
 ## Introduction
 
-Liquidation bot is responsible for liquidating user positions that are at risk.
+The liquidation bot is responsible for liquidating user positions that are at risk.
 
-## Main Components
-
-Liquidation bot consist of two main components:
+It consists of multiple workers that operate together to build, calculate, and execute liquidation transactions.  
+The bot also includes an API to expose internal data, and an alerting system to notify external systems or developers of key events.
 
 ### 🛠️ Workers
-
-Multiple workers operate together to build, calculate, and execute liquidation transactions.
-
 
 #### 🔁 Worker Cycle
 
@@ -265,9 +261,9 @@ The following hooks trigger alerts. Currently, only Slack is supported as the al
 
 -------------
 
-## Operator 
+## Future Considerations
 
-## Contract entity
+- The bot can be extended to support multiple liquidator contracts, each dedicated to a different liquidation method — e.g., one for DEX-based liquidations and another for USDH-based liquidations.
 
 
 ## Hosting and stack
@@ -275,5 +271,3 @@ The following hooks trigger alerts. Currently, only Slack is supported as the al
 - Bunjs
 - Sqlite
 - Amazon ECS
-
-## Future considerations
