@@ -13,7 +13,7 @@ Liquidation bot consist of two main components:
 Multiple workers operate together to build, calculate, and execute liquidation transactions.
 
 
-### 🔁 Worker Cycle
+#### 🔁 Worker Cycle
 
 Every 7 seconds, the system executes all 6 workers described below sequentially in a fixed loop.  
 Each worker performs its task (fetch, calculate, update, or act) and hands off control to the next one.
@@ -71,8 +71,6 @@ Responsible for fetching and building the borrower state by:
 
 This process runs **only** for users with check sync activated.
 
-
-
 ### ⚙️ market-sync worker
 
 Collects, builds, and caches the necessary market state variables required to calculate liquidations.
@@ -125,7 +123,7 @@ Reads borrower health data from the `borrower_status` table and triggers liquida
 
 ---
 
-#### 🔒 Minimum to Liquidate per User
+#### 🔒 Minimum to Liquidate per user
 
 - Borrowers with a liquidation amount below `MIN_TO_LIQUIDATE_PER_USER` (defined in constants) are excluded from the batch.
 
@@ -191,16 +189,16 @@ Uses the Hiro API:  `/extended/v1/address/${principal}/nonces → possible_next_
 
 #### ✅ If Transaction Broadcasting Succeeds
 
-- Locks the liquidator contract  
-- Inserts a liquidation record into the `liquidation` table  
-- Triggers the `onLiqTx` alert
+- Locks the liquidator contract. 
+- Inserts a liquidation record into the `liquidation` table.
+- Triggers the `onLiqTx` alert.
 
 ---
 
 ℹ️ Regardless of success, failure, or skip, the bot continues operating in the next **Worker Cycle**.
 
 
-### Liquidator Contract Lock & Unlock
+#### 🔓 Liquidator Contract Lock & Unlock
 
 The liquidator contract uses a lock to prevent multiple liquidation transactions from being processed at the same time.
 
@@ -214,23 +212,62 @@ This ensures only one liquidation is processed at a time and prevents race condi
 
 -------------
 
+### API
 
+The API provides access to data stored in the liquidation bot's database.  
+A more comprehensive API documentation can be found [here](/src/api/API.md).
 
+ℹ️ Currently, only one contract can be added to the system.
 
+**Endpoints:**
 
+- `/contracts`  
+  Returns a list of liquidator contracts integrated into the system.
+
+- `/add-contract`  
+  Adds a new liquidator contract to the system.
+
+- `/borrowers`  
+  Returns a list of borrowers, sorted by `total_repay_amount DESC, risk DESC`.
+
+- `/health`  
+  Returns basic **monitoring and observability** info such as operator balance, last sync time, and last liquidation.
+
+- `/liquidations`  
+  Returns a list of previously executed liquidations.
+
+- `/config`  
+  Returns all configuration values currently used by the bot.
+
+-------------
+
+### Alert System
+
+The following hooks trigger alerts. Currently, only Slack is supported as the alerting channel.
+
+- `onStart`  
+  Triggered when the bot starts.
+
+- `onExit(msg?: string)`  
+  Triggered when the bot stops. An optional message can be included, especially in case of unexpected failures.
+
+- `onLiqTx(txid: string, totalSpend: number, totalReceive: number, batch: LiquidationBatch[])`  
+  Triggered when a liquidation transaction is broadcast.
+
+- `onLiqProfitError(spend: number, receive: number, best: number)`  
+  Triggered when the profitability check fails.
+
+- `onLiqTxError(reason: string)`  
+  Triggered when the bot fails to broadcast a transaction.
+
+- `onLiqTxEnd(txid: string, status: string)`  
+  Triggered when a transaction is finalized.
+
+-------------
 
 ## Operator 
 
 ## Contract entity
-
-### Contract lock & unclock
-
-### Api
-
-
-## Alert system
-
-
 
 
 ## Hosting and stack
