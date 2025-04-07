@@ -168,10 +168,10 @@ The worker skips liquidation in the following cases:
 
 - The bot broadcasts the liquidation transaction to the blockchain.
 
-**Fee estimation:**  
+#### 🪙 Fee estimation
 Uses an optimistically determined transaction fee depending on the blockchain's mempool size.
 
-**Nonce determination:**  
+#### 🔢 Nonce determination
 Uses the Hiro API:  `/extended/v1/address/${principal}/nonces → possible_next_nonce`
 
 #### ❌ If Transaction Broadcasting Fails
