@@ -1,12 +1,14 @@
 import type { Transaction } from "@stacks/stacks-blockchain-api-types";
 import { getAccountBalances, getTransaction } from "../../client/hiro";
 import { getAssetBalance } from "../../client/read-only-call";
+import { ALERT_BALANCE } from "../../constants";
 import { upsertBorrower } from "../../dba/borrower";
 import { getContractList, unlockContract, unlockContractSchedule, updateContractBalances } from "../../dba/contract";
 import { finalizeLiquidation } from "../../dba/liquidation";
-import { onLiqTxEnd } from "../../hooks";
+import { onLiqTxEnd, onLowFunds } from "../../hooks";
 import { createLogger } from "../../logger";
 import { type ContractEntity } from "../../types";
+import { formatUnits } from "../../units";
 import { epoch } from "../../util";
 import { getLiquidatedPrincipals } from "./lib";
 
@@ -55,6 +57,12 @@ export const worker = async () => {
         const cBalance = await getAssetBalance(contract.collateralAsset!.address, contract.id);
 
         updateContractBalances(oBalance, mBalance, cBalance, contract.id);
+
+        if (Number(oBalance) <= ALERT_BALANCE) {
+            const strObalance = formatUnits(Number(oBalance), 6);
+            logger.error(`Operator balance is low: ${strObalance} STX`)
+            await onLowFunds(`${strObalance} STX`);
+        }
     }
 };
 
