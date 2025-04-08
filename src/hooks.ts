@@ -9,7 +9,7 @@ const SLACK_CHANNEL_ID = process.env.SLACK_CHANNEL_ID?.trim();
 
 const slackClient = SLACK_TOKEN && SLACK_CHANNEL_ID ? new WebClient(process.env.SLACK_TOKEN, {}) : null;
 
-
+export const MESSAGE_EXPIRES = 60_000;
 
 export const MESSAGE_CACHE: Record<string, number> = {};
 
@@ -21,7 +21,7 @@ export const clearMessageCache = () => {
     }
 }
 
-setInterval(clearMessageCache, 61000);
+setInterval(clearMessageCache, MESSAGE_EXPIRES);
 
 const slackMessage = async (message: string, key?: string) => {
     const cacheKey = Bun.hash(key || message).toString();
@@ -30,7 +30,7 @@ const slackMessage = async (message: string, key?: string) => {
         return;
     }
 
-    MESSAGE_CACHE[cacheKey] = Date.now() + 60_000;
+    MESSAGE_CACHE[cacheKey] = Date.now() + MESSAGE_EXPIRES;
 
     if (slackClient) {
         try {
@@ -66,4 +66,8 @@ export const onLiqTxError = async (reason: string) => {
 
 export const onLiqTxEnd = async (txid: string, status: string) => {
     await slackMessage(`Liquidation tx ${txid} finalized with status ${status}`);
+}
+
+export const onLowFunds = async (balance: string) => {
+    await slackMessage(`Operator balance is low: ${balance}`, balance);
 }

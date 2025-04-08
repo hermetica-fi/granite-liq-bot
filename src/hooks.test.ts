@@ -1,5 +1,5 @@
 import { describe, expect, setSystemTime, test } from "bun:test";
-import { clearMessageCache, MESSAGE_CACHE, onExit, onStart } from "./hooks";
+import { clearMessageCache, MESSAGE_CACHE, MESSAGE_EXPIRES, onExit, onStart } from "./hooks";
 
 describe("hooks", () => {
     test("message cache", () => {
@@ -14,7 +14,7 @@ describe("hooks", () => {
             "9021218387891534663": 1744112900587,
         });
 
-        setSystemTime(NOW + 30_000)
+        setSystemTime(NOW + (MESSAGE_EXPIRES / 2))
         onExit();
         clearMessageCache();
         expect(cache).toEqual({
@@ -22,7 +22,7 @@ describe("hooks", () => {
             "7628909569708515819": 1744112930587,
         });
 
-        setSystemTime(NOW + 60_000);
+        setSystemTime(NOW + MESSAGE_EXPIRES);
         clearMessageCache();
 
         expect(cache).toEqual({
