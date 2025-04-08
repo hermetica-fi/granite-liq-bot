@@ -33,7 +33,7 @@ export const fetchFn = async (
 
             clearTimeout(timeoutId);
 
-            if ([200, 404].includes(r.status)) {
+            if ([200, 404, 400].includes(r.status)) {
                 return r;
             }
 
