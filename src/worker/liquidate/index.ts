@@ -86,11 +86,10 @@ const worker = async () => {
 
     if (swapRoute.out < totalSpend) {
         logger.error(`Not profitable to liquidate. total spend: ${totalSpend}, total receive: ${totalReceive}, best swap: ${swapRoute.out}`);
+        await onLiqProfitError(totalSpend, totalReceive, swapRoute.out);
         if (!SKIP_PROFITABILITY_CHECK) {
             return;
-        } else {
-            await onLiqProfitError(totalSpend, totalReceive, swapRoute.out);
-        }
+        } 
     }
 
     if (DRY_RUN) {
