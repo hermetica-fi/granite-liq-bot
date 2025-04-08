@@ -271,7 +271,7 @@ describe("api e2e", () => {
                 liquidator: "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.liquidator-v1",
                 collaterals: ["SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token"],
             },
-            DRY_RUN: true,
+            DRY_RUN: false,
             HAS_HIRO_API_KEY: true,
             IR_PARAMS_SCALING_FACTOR: 12,
             MARKET_ASSET_DECIMAL: 6,
