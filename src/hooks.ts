@@ -9,7 +9,29 @@ const SLACK_CHANNEL_ID = process.env.SLACK_CHANNEL_ID?.trim();
 
 const slackClient = SLACK_TOKEN && SLACK_CHANNEL_ID ? new WebClient(process.env.SLACK_TOKEN, {}) : null;
 
-const slackMessage = async (message: string) => {
+
+
+export const MESSAGE_CACHE: Record<string, number> = {};
+
+export const clearMessageCache = () => {
+    for (const c of Object.keys(MESSAGE_CACHE)) {
+        if (MESSAGE_CACHE[c] <= Date.now()) {
+            MESSAGE_CACHE[c] = 0;
+        }
+    }
+}
+
+setInterval(clearMessageCache, 61000);
+
+const slackMessage = async (message: string, key?: string) => {
+    const cacheKey = Bun.hash(key || message).toString();
+
+    if (MESSAGE_CACHE[cacheKey]) {
+        return;
+    }
+
+    MESSAGE_CACHE[cacheKey] = Date.now() + 60_000;
+
     if (slackClient) {
         try {
             await slackClient.chat.postMessage({
@@ -35,7 +57,7 @@ export const onLiqTx = async (txid: string, totalSpend: number, totalReceive: nu
 }
 
 export const onLiqProfitError = async (spend: number, receive: number, best: number) => {
-    await slackMessage(`Not profitable to liquidate. total spend: ${spend}, total receive: ${receive}, best swap: ${best}`);
+    await slackMessage(`Not profitable to liquidate. total spend: ${spend}, total receive: ${receive}, best swap: ${best}`, best.toString());
 }
 
 export const onLiqTxError = async (reason: string) => {
