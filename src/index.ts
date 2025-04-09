@@ -3,8 +3,8 @@ import { migrateDb } from './db/migrate';
 import { onExit, onStart } from './hooks';
 import { main as workerMain } from './worker';
 
-const server = await apiMain();
 migrateDb();
+const server = await apiMain();
 workerMain();
 onStart();
 
