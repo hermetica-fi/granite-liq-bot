@@ -52,8 +52,8 @@ export const onExit = async (msg?: string) => {
     await slackMessage(msg ? `Liq-bot stopped: ${msg}` : 'Liq-bot stopped');
 }
 
-export const onLiqTx = async (txid: string, totalSpend: number, totalReceive: number, batch: LiquidationBatch[]) => {
-    await slackMessage(`New liquidation: ${txid} \ntotalSpend: ${totalSpend} \ntotalReceive: ${totalReceive} \nbatch: ${JSON.stringify(batch, null, 2)}`);
+export const onLiqTx = async (txid: string, totalSpend: number, totalReceive: number, collateralPrice: number, batch: LiquidationBatch[]) => {
+    await slackMessage(`New liquidation: ${txid} \ntotalSpend: ${totalSpend} \ntotalReceive: ${totalReceive} \ncollateralPrice:${collateralPrice} \nbatch: ${JSON.stringify(batch, null, 2)}`);
 }
 
 export const onLiqProfitError = async (spend: number, receive: number, best: number) => {

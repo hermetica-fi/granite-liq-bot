@@ -1,8 +1,6 @@
 import { listCV, noneCV, principalCV, someCV, tupleCV, uintCV, type ClarityValue } from "@stacks/transactions";
 import type { SwapResult } from "../../alex";
-import type { PriceFeedResponse } from "../../client/pyth";
 import { MIN_TO_LIQUIDATE_PER_USER } from "../../constants";
-import { toTicker } from "../../helper";
 import type { LiquidationBatch } from "../../types";
 import { type AssetInfoWithBalance, type BorrowerStatusEntity } from "../../types";
 import { parseUnits, toFixedDown } from "../../units";
@@ -46,16 +44,7 @@ export const calcCollateralToGive = (repayAmount: bigint, liquidationDiscount: b
     return decimalCorrectedCollateral;
 }
 
-export const makeLiquidationBatch = (marketAssetInfo: AssetInfoWithBalance, collateralAssetInfo: AssetInfoWithBalance, borrowers: BorrowerStatusEntity[], priceFeed: PriceFeedResponse, liquidationPremium: number): LiquidationBatch[] => {
-    const cTicker = toTicker(collateralAssetInfo.symbol);
-    const cFeed = priceFeed.items[cTicker];
-
-    if (!cFeed) {
-        throw new Error("Collateral asset price feed not found");
-    }
-
-    const collateralPrice = Number(cFeed.price.price)
-
+export const makeLiquidationBatch = (marketAssetInfo: AssetInfoWithBalance, collateralAssetInfo: AssetInfoWithBalance, borrowers: BorrowerStatusEntity[], collateralPrice: number, liquidationPremium: number): LiquidationBatch[] => {
     const batch: LiquidationBatch[] = [];
 
     let availableBn = marketAssetInfo.balance;

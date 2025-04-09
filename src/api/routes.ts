@@ -125,7 +125,7 @@ export const routes = {
 
         return Response.json({
             now: new Date(now).toISOString(),
-            lastSync: new Date(Number(lastSync)).toISOString(),
+            lastSync: lastSync ? new Date(Number(lastSync)).toISOString() : null,
             lastLiquidation,
             balances: {
                 operatorBalance,

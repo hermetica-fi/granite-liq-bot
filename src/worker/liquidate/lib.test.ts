@@ -1,7 +1,6 @@
 import { cvToJSON } from "@stacks/transactions";
 import { describe, expect, test } from "bun:test";
 import { options } from "../../alex";
-import type { PriceFeedResponse } from "../../client/pyth";
 import type { AssetInfoWithBalance, BorrowerStatusEntity, LiquidationBatch } from "../../types";
 import { liquidationBatchCv, makeLiquidationBatch, swapOutCv } from "./lib";
 
@@ -315,71 +314,8 @@ describe("swapOutCv", () => {
 
 
 describe("makeLiquidationBatch", () => {
-    const priceFeed: PriceFeedResponse = {
-        "attestation": "0",
-        "items": {
-            "btc": {
-                "id": "e62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43",
-                "price": {
-                    "price": "9765295458695",
-                    "conf": "5047541305",
-                    "expo": -8,
-                    "publish_time": 1738927845
-                },
-                "ema_price": {
-                    "price": "9743841500000",
-                    "conf": "4409028900",
-                    "expo": -8,
-                    "publish_time": 1738927845
-                },
-                "metadata": {
-                    "slot": 196479356,
-                    "proof_available_time": 1738927846,
-                    "prev_publish_time": 1738927845
-                }
-            },
-            "eth": {
-                "id": "ff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace",
-                "price": {
-                    "price": "275485757702",
-                    "conf": "164804380",
-                    "expo": -8,
-                    "publish_time": 1738927845
-                },
-                "ema_price": {
-                    "price": "274507820000",
-                    "conf": "135476227",
-                    "expo": -8,
-                    "publish_time": 1738927845
-                },
-                "metadata": {
-                    "slot": 196479356,
-                    "proof_available_time": 1738927846,
-                    "prev_publish_time": 1738927845
-                }
-            },
-            "usdc": {
-                "id": "eaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a",
-                "price": {
-                    "price": "99995023",
-                    "conf": "112805",
-                    "expo": -8,
-                    "publish_time": 1738927845
-                },
-                "ema_price": {
-                    "price": "99996136",
-                    "conf": "111950",
-                    "expo": -8,
-                    "publish_time": 1738927845
-                },
-                "metadata": {
-                    "slot": 196479356,
-                    "proof_available_time": 1738927846,
-                    "prev_publish_time": 1738927845
-                }
-            }
-        }
-    };
+
+    const collateralPrice = 9765295458695;
 
     let marketAsset: AssetInfoWithBalance = {
         "address": "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-usdc",
@@ -414,7 +350,7 @@ describe("makeLiquidationBatch", () => {
             }
         ];
 
-        const batch = makeLiquidationBatch(marketAsset, collateralAsset, borrowers, priceFeed, 10000000);
+        const batch = makeLiquidationBatch(marketAsset, collateralAsset, borrowers, collateralPrice, 10000000);
         expect(batch).toEqual([
             {
                 user: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
@@ -452,7 +388,7 @@ describe("makeLiquidationBatch", () => {
             }
         ];
 
-        const batch = makeLiquidationBatch(marketAsset, collateralAsset, borrowers, priceFeed, 10000000);
+        const batch = makeLiquidationBatch(marketAsset, collateralAsset, borrowers, collateralPrice, 10000000);
 
         expect(batch).toEqual([
             {
@@ -507,7 +443,7 @@ describe("makeLiquidationBatch", () => {
             }
         ];
 
-        const batch = makeLiquidationBatch(marketAsset, collateralAsset, borrowers, priceFeed, 10000000);
+        const batch = makeLiquidationBatch(marketAsset, collateralAsset, borrowers, collateralPrice, 10000000);
         expect(batch).toEqual([
             {
                 user: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
@@ -565,7 +501,7 @@ describe("makeLiquidationBatch", () => {
             }
         ];
 
-        const batch = makeLiquidationBatch(marketAsset, collateralAsset, borrowers, priceFeed, 10000000);
+        const batch = makeLiquidationBatch(marketAsset, collateralAsset, borrowers, collateralPrice, 10000000);
         expect(batch).toEqual([
             {
                 user: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
