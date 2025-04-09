@@ -137,6 +137,8 @@ export const routes = {
     liquidations: async (url: URL) => {
         const fromTimestamp = url.searchParams.get('fromTimestamp');
         const toTimestamp = url.searchParams.get('toTimestamp');
+        const limit = Number(url.searchParams.get('limit'));
+
         let filters: Filter[] = [];
         if (fromTimestamp) {
             filters.push(['created_at', '>=', fromTimestamp]);
@@ -144,7 +146,11 @@ export const routes = {
         if (toTimestamp) {
             filters.push(['created_at', '<=', toTimestamp]);
         }
-        const list = getLiquidationList({ filters });
+
+        const list = getLiquidationList({
+            filters,
+            limit: (Number.isInteger(limit) && limit > 0) ? Math.min(100, limit) : 50
+        });
         return Response.json(list);
     },
     config: async () => {
