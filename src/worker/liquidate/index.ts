@@ -56,9 +56,6 @@ const worker = async () => {
 
     const marketState = getMarketState();
     const liquidationPremium = marketState.collateralParams[collateralAsset.address].liquidationPremium;
-    if (!liquidationPremium) {
-        throw new Error("Collateral liquidation premium not found");
-    }
 
     const priceFeed = await fetchAndProcessPriceFeed();
     const priceAttestationBuff = hexToUint8Array(priceFeed.attestation);
