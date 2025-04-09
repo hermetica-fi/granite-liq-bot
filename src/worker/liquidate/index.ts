@@ -9,7 +9,7 @@ import { getContractList, getContractOperatorPriv, lockContract } from "../../db
 import { insertLiquidation } from "../../dba/liquidation";
 import { getMarketState } from "../../dba/market";
 import { estimateTxFeeOptimistic } from "../../fee";
-import { hexToUint8Array } from "../../helper";
+import { hexToUint8Array, toTicker } from "../../helper";
 import { onLiqProfitError, onLiqTx, onLiqTxError } from "../../hooks";
 import { createLogger } from "../../logger";
 import { formatUnits } from "../../units";
@@ -58,8 +58,14 @@ const worker = async () => {
     const liquidationPremium = marketState.collateralParams[collateralAsset.address].liquidationPremium;
 
     const priceFeed = await fetchAndProcessPriceFeed();
+    const cFeed = priceFeed.items[toTicker(collateralAsset.symbol)];
+    if (!cFeed) {
+        throw new Error("Collateral asset price feed not found");
+    }
+    const collateralPrice = Number(cFeed.price.price);
     const priceAttestationBuff = hexToUint8Array(priceFeed.attestation);
-    const batch = makeLiquidationBatch(marketAsset, collateralAsset, borrowers, priceFeed, liquidationPremium);
+
+    const batch = makeLiquidationBatch(marketAsset, collateralAsset, borrowers, collateralPrice, liquidationPremium);
 
     if (batch.length === 0) {
         // logger.info("Nothing to liquidate");
@@ -86,7 +92,7 @@ const worker = async () => {
         await onLiqProfitError(totalSpend, totalReceive, swapRoute.out);
         if (!SKIP_PROFITABILITY_CHECK) {
             return;
-        } 
+        }
     }
 
     if (DRY_RUN) {
@@ -149,8 +155,9 @@ const worker = async () => {
         lockContract(tx.txid, contract.id);
         insertLiquidation(tx.txid, contract.id);
         logger.info(`Transaction broadcasted ${tx.txid}`);
-        console.log('Batch', batch);
-        await onLiqTx(tx.txid, totalSpend, totalReceive, batch);
+        logger.info('Collateral Price', collateralPrice);
+        logger.info('Batch', batch);
+        await onLiqTx(tx.txid, totalSpend, totalReceive, collateralPrice, batch);
         return;
     }
 }
