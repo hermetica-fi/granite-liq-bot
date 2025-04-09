@@ -1,7 +1,6 @@
 import { CONTRACTS } from "../constants";
 
 import { kvStoreSet } from "../db/helper";
-import { createLogger } from "../logger";
 import { main as borrowerSync } from "./borrower-sync";
 import { main as contractSync } from "./contract-sync";
 import { main as eventSync } from "./event-sync";
@@ -10,8 +9,6 @@ import { main as liquidate } from "./liquidate";
 import { main as marketSync } from "./market-sync";
 
 const BASE_DELAY = 7_000;
-
-const logger = createLogger('worker');
 
 const workerInner = async () => {
     await contractSync();
@@ -28,10 +25,7 @@ const workerInner = async () => {
 const worker = async () => {
     const start = Date.now();
 
-    await workerInner().catch((e) => {
-        logger.error(e.toString());
-        process.exit(1);
-    });
+    await workerInner();
 
     const end = Date.now();
     const delay = Math.max(1000, BASE_DELAY - (end - start));
