@@ -35,6 +35,7 @@ Returns: [Health](#Health)
 SearchParams: 
 - fromTimestamp: unix timestamp in seconds
 - toTimestamp: unix timestamp in seconds
+- limit: Maximum number of results to return. Valid range: 1–100.
 
 Returns: [LiquidationEntity](#LiquidationEntity) list
 

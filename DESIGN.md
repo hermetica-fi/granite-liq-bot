@@ -254,6 +254,9 @@ The following hooks trigger alerts. Currently, only Slack is supported as the al
 - `onLiqTxEnd(txid: string, status: string)`  
   Triggered when a transaction is finalized.
 
+- `onLowFunds(balance: string)` 
+  Triggered when the operator STX balance is low. 
+
 -------------
 
 ## Future Considerations
