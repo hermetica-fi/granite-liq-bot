@@ -154,6 +154,9 @@ export const routes = {
         return Response.json(list);
     },
     config: async () => {
-        return Response.json(constants);
+        return Response.json({
+            ENV: process.env.NODE_ENV || "",
+            ...constants
+        });
     }
 }

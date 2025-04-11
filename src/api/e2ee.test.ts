@@ -272,6 +272,7 @@ describe("api e2e", () => {
                 collaterals: ["SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token"],
             },
             DRY_RUN: false,
+            ENV: "test",
             HAS_HIRO_API_KEY: true,
             IR_PARAMS_SCALING_FACTOR: 12,
             MARKET_ASSET_DECIMAL: 6,
