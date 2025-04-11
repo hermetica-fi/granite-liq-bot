@@ -66,12 +66,14 @@ export const routes = {
         let onChainOperatorAddress;
         let marketAsset;
         let collateralAsset;
+        let unprofitabilityThreshold;
         try {
             const info = await getLiquidatorContractInfo(address);
 
             onChainOperatorAddress = info.operator;
             marketAsset = info.marketAsset;
             collateralAsset = info.collateralAsset;
+            unprofitabilityThreshold = info.unprofitabilityThreshold;
         } catch (error) {
             return errorResponse('Could not fetch contract info');
         }
@@ -94,7 +96,7 @@ export const routes = {
             return errorResponse('Could not fetch collateral asset info');
         }
 
-        insertContract(address, operatorAddress, operator.stxPrivateKey, marketAssetInfo, collateralAssetInfo);
+        insertContract(address, operatorAddress, operator.stxPrivateKey, marketAssetInfo, collateralAssetInfo, unprofitabilityThreshold);
         const contracts = getContractList({});
         return Response.json(contracts);
 
