@@ -3,7 +3,7 @@ import { type AssetInfo, type ContractEntity } from "../types";
 import { epoch } from "../util";
 import { sqlSelect, type Filter } from "./sql";
 
-export const insertContract = (address: string, operator: string, operatorPriv: string, marketAsset: AssetInfo, collateralAsset: AssetInfo, unprofitabilityThreshold:number) => {
+export const insertContract = (address: string, operator: string, operatorPriv: string, marketAsset: AssetInfo, collateralAsset: AssetInfo, unprofitabilityThreshold: number) => {
     const [contractAddress, contractName] = address.trim().split('.');
 
     dbCon.run(`INSERT INTO contract (id, address, name, operator_address, operator_priv, market_asset, collateral_asset, unprofitability_threshold, created_at) 
@@ -65,4 +65,8 @@ export const unlockContract = (contractId: string) => {
 
 export const updateContractBalances = (operatorBalance: string | number, marketAssetBalance: string | number, collateralAssetBalance: string | number, contractId: string) => {
     dbCon.run("UPDATE contract SET operator_balance = ?, market_asset_balance = ?, collateral_asset_balance = ? WHERE id = ?", [operatorBalance, marketAssetBalance, collateralAssetBalance, contractId]);
+}
+
+export const updateContractUnprofitabilityThreshold = (threshold: string | number, contractId: string) => {
+    dbCon.run("UPDATE contract SET unprofitability_threshold = ? WHERE id = ?", [threshold, contractId]);
 }
