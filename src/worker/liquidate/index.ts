@@ -1,6 +1,6 @@
 import type { StacksNetworkName } from "@stacks/network";
 import { broadcastTransaction, bufferCV, contractPrincipalCV, makeContractCall, PostConditionMode, someCV, uintCV } from "@stacks/transactions";
-import { getBestSwap } from "../../alex";
+import { estimateSbtcToAeusdc } from "../../bitflow";
 import { fetchFn, getAccountNonces } from "../../client/hiro";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
 import { DRY_RUN, MIN_TO_LIQUIDATE, SKIP_PROFITABILITY_CHECK, TX_TIMEOUT } from "../../constants";
@@ -85,11 +85,11 @@ const worker = async () => {
     }
 
     // Profitability check
-    const swapRoute = await getBestSwap(totalReceive);
+    const swapOut = await estimateSbtcToAeusdc(totalReceive);
 
-    if (swapRoute.out < totalSpend) {
-        logger.error(`Not profitable to liquidate. total spend: ${totalSpend}, total receive: ${totalReceive}, best swap: ${swapRoute.out}`);
-        await onLiqProfitError(totalSpend, totalReceive, swapRoute.out);
+    if (swapOut < totalSpend) {
+        logger.error(`Not profitable to liquidate. total spend: ${totalSpend}, total receive: ${totalReceive}, swap out: ${swapOut}`);
+        await onLiqProfitError(totalSpend, totalReceive, swapOut);
         if (!SKIP_PROFITABILITY_CHECK) {
             return;
         }
