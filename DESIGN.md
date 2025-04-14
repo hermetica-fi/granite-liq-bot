@@ -138,12 +138,13 @@ Reads borrower health data from the `borrower_status` table and triggers liquida
 
 - If the **sum** of the liquidation batch is below `MIN_TO_LIQUIDATE` (defined in constants), the bot skips the liquidation.
 
-#### 💰 Profitability Check
+#### 💰 Minimum expected market asset amount check
 
-- The bot ensures that the market asset balance **received** at the end of the operation is greater than or equal to what will be **spent**.
+- The bot calculates *minimum expected* market asset amount to be **received** at the end of the operation using the contract's `unprofitability-threshold` variable.
+- The calculated *minimum expected* amount gets compared with the DEX's current output.
 - If the check fails, the worker **skips** liquidation.
 - When the `SKIP_SWAP_CHECK` environment variable is set to `1`, the bot skips the swap output check.
-- The `onLiqProfitError` alert is triggered when the profitability check fails.
+- The `onLiqSwapOutError` alert is triggered when this minimum expected market asset amount check fails.
 
 ℹ️ The check is based on the integrated DEX's current prices. It may fail once or twice and succeed on a subsequent attempt.
 
@@ -161,7 +162,7 @@ The worker skips liquidation in the following cases:
 - No liquidable positions available  
 - The liquidation contract has **no market asset balance**  
 - The liquidation amount is smaller than `MIN_TO_LIQUIDATE`  
-- Profitability check fails  
+- Minimum expected market asset amount check fails  
 - Dry run mode is activated
 
 #### ✅ If All Checks Pass
@@ -246,7 +247,7 @@ The following hooks trigger alerts. Currently, only Slack is supported as the al
   Triggered when a liquidation transaction is broadcast.
 
 - `onLiqSwapOutError(spend: number, receive: number, best: number)`  
-  Triggered when the profitability check fails.
+  Triggered when the minimum expected market asset amount check fails.
 
 - `onLiqTxError(reason: string)`  
   Triggered when the bot fails to broadcast a transaction.

@@ -86,7 +86,6 @@ const worker = async () => {
 
     // Swap check
     const swapRoute = await getBestSwap(totalReceive);
-
     const minExpected = calcMinOut(totalSpendBn, contract.unprofitabilityThreshold);
 
     if (swapRoute.out < minExpected) {
