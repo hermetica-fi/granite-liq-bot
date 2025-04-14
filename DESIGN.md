@@ -138,13 +138,13 @@ Reads borrower health data from the `borrower_status` table and triggers liquida
 
 - If the **sum** of the liquidation batch is below `MIN_TO_LIQUIDATE` (defined in constants), the bot skips the liquidation.
 
-#### 💰 Minimum expected market asset amount check
+#### 💰 Minimum Expected Market Asset Amount Check
 
-- The bot calculates *minimum expected* market asset amount to be **received** at the end of the operation using the contract's `unprofitability-threshold` variable.
-- The calculated *minimum expected* amount gets compared with the DEX's current output.
-- If the check fails, the worker **skips** liquidation.
-- When the `SKIP_SWAP_CHECK` environment variable is set to `1`, the bot skips the swap output check.
-- The `onLiqSwapOutError` alert is triggered when this minimum expected market asset amount check fails.
+- The bot calculates the *minimum expected* amount of market asset to be **received** at the end of the operation, based on the contract's `unprofitability-threshold` variable.
+- This expected amount is then compared with the current output from the DEX.
+- If the DEX output is below the expected threshold, the worker **skips** the liquidation.
+- If the `SKIP_SWAP_CHECK` environment variable is set to `1`, this check is bypassed.
+- The `onLiqSwapOutError` alert is triggered when the check fails.
 
 ℹ️ The check is based on the integrated DEX's current prices. It may fail once or twice and succeed on a subsequent attempt.
 
@@ -162,7 +162,7 @@ The worker skips liquidation in the following cases:
 - No liquidable positions available  
 - The liquidation contract has **no market asset balance**  
 - The liquidation amount is smaller than `MIN_TO_LIQUIDATE`  
-- Minimum expected market asset amount check fails  
+- The minimum expected market asset amount check fails  
 - Dry run mode is activated
 
 #### ✅ If All Checks Pass
