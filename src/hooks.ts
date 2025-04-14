@@ -52,12 +52,12 @@ export const onExit = async (msg?: string) => {
     await slackMessage(msg ? `Liq-bot stopped: ${msg}` : 'Liq-bot stopped');
 }
 
-export const onLiqTx = async (txid: string, totalSpend: number, totalReceive: number, collateralPrice: number, batch: LiquidationBatch[]) => {
-    await slackMessage(`New liquidation: ${txid} \ntotalSpend: ${totalSpend} \ntotalReceive: ${totalReceive} \ncollateralPrice:${collateralPrice} \nbatch: ${JSON.stringify(batch, null, 2)}`);
+export const onLiqTx = async (txid: string, totalSpend: number, totalReceive: number, minExpected: number, collateralPrice: number, batch: LiquidationBatch[]) => {
+    await slackMessage(`New liquidation: ${txid} \ntotal spend: ${totalSpend} \ntotal receive: ${totalReceive} \nmin expected: ${minExpected} \ncollateralPrice:${collateralPrice} \nbatch: ${JSON.stringify(batch, null, 2)}`);
 }
 
-export const onLiqProfitError = async (spend: number, receive: number, best: number) => {
-    await slackMessage(`Not profitable to liquidate. total spend: ${spend}, total receive: ${receive}, best swap: ${best}`, best.toString());
+export const onLiqSwapOutError = async (spend: number, receive: number, minExpected: number, best: number) => {
+    await slackMessage(`Swap out is lower than min expected. total spend: ${spend}, total receive: ${receive}, min expected: ${minExpected}, best swap: ${best}`, best.toString());
 }
 
 export const onLiqTxError = async (reason: string) => {

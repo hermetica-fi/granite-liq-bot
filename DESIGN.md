@@ -242,10 +242,10 @@ The following hooks trigger alerts. Currently, only Slack is supported as the al
 - `onExit(msg?: string)`  
   Triggered when the bot stops. An optional message can be included, especially in case of unexpected failures.
 
-- `onLiqTx(txid: string, totalSpend: number, totalReceive: number, batch: LiquidationBatch[])`  
+- `onLiqTx(txid: string, totalSpend: number, totalReceive: number, minOutExpected: number, collateralPrice: number, batch: LiquidationBatch[])`  
   Triggered when a liquidation transaction is broadcast.
 
-- `onLiqProfitError(spend: number, receive: number, best: number)`  
+- `onLiqSwapOutError(spend: number, receive: number, best: number)`  
   Triggered when the profitability check fails.
 
 - `onLiqTxError(reason: string)`  

@@ -10,11 +10,11 @@ import { insertLiquidation } from "../../dba/liquidation";
 import { getMarketState } from "../../dba/market";
 import { estimateTxFeeOptimistic } from "../../fee";
 import { hexToUint8Array, toTicker } from "../../helper";
-import { onLiqProfitError, onLiqTx, onLiqTxError } from "../../hooks";
+import { onLiqSwapOutError, onLiqTx, onLiqTxError } from "../../hooks";
 import { createLogger } from "../../logger";
 import { formatUnits } from "../../units";
 import { epoch } from "../../util";
-import { liquidationBatchCv, makeLiquidationBatch, swapOutCv } from "./lib";
+import { calcMinOut, liquidationBatchCv, makeLiquidationBatch, swapOutCv } from "./lib";
 
 const logger = createLogger("liquidate");
 
@@ -84,12 +84,14 @@ const worker = async () => {
         return;
     }
 
-    // Profitability check
+    // Swap check
     const swapRoute = await getBestSwap(totalReceive);
 
-    if (swapRoute.out < totalSpend) {
-        logger.error(`Not profitable to liquidate. total spend: ${totalSpend}, total receive: ${totalReceive}, best swap: ${swapRoute.out}`);
-        await onLiqProfitError(totalSpend, totalReceive, swapRoute.out);
+    const minExpected = calcMinOut(totalSpendBn, contract.unprofitabilityThreshold);
+
+    if (swapRoute.out < minExpected) {
+        logger.error(`Swap out is lower than min expected. total spend: ${totalSpend}, total receive: ${totalReceive}, min expected: ${minExpected}, best swap: ${swapRoute.out}`);
+        await onLiqSwapOutError(totalSpend, totalReceive, minExpected, swapRoute.out);
         if (!SKIP_PROFITABILITY_CHECK) {
             return;
         }
@@ -157,7 +159,7 @@ const worker = async () => {
         logger.info(`Transaction broadcasted ${tx.txid}`);
         logger.info('Collateral Price', collateralPrice);
         logger.info('Batch', batch);
-        await onLiqTx(tx.txid, totalSpend, totalReceive, collateralPrice, batch);
+        await onLiqTx(tx.txid, totalSpend, totalReceive, minExpected, collateralPrice, batch);
         return;
     }
 }
