@@ -1,5 +1,5 @@
 import type { StacksNetworkName } from "@stacks/network";
-import { broadcastTransaction, bufferCV, makeContractCall, PostConditionMode, someCV, uintCV } from "@stacks/transactions";
+import { broadcastTransaction, bufferCV, contractPrincipalCV, makeContractCall, PostConditionMode, someCV, uintCV } from "@stacks/transactions";
 import { getBestSwap } from "../../alex";
 import { fetchFn, getAccountNonces } from "../../client/hiro";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
@@ -14,7 +14,7 @@ import { onLiqProfitError, onLiqTx, onLiqTxError } from "../../hooks";
 import { createLogger } from "../../logger";
 import { formatUnits } from "../../units";
 import { epoch } from "../../util";
-import { liquidationBatchCv, makeLiquidationBatch, swapOutCv } from "./lib";
+import { liquidationBatchCv, makeLiquidationBatch } from "./lib";
 
 const logger = createLogger("liquidate");
 
@@ -104,13 +104,11 @@ const worker = async () => {
         return;
     }
 
-    const swapDataCv = swapOutCv(swapRoute);
-
     const functionArgs = [
         someCV(bufferCV(priceAttestationBuff)),
         batchCV,
         uintCV(epoch() + TX_TIMEOUT),
-        swapDataCv,
+        contractPrincipalCV(contract.address, contract.name),
     ];
 
     const priv = getContractOperatorPriv(contract.id)!;

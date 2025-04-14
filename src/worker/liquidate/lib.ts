@@ -1,5 +1,4 @@
-import { listCV, noneCV, principalCV, someCV, tupleCV, uintCV, type ClarityValue } from "@stacks/transactions";
-import type { SwapResult } from "../../alex";
+import { listCV, principalCV, someCV, tupleCV, uintCV } from "@stacks/transactions";
 import { MIN_TO_LIQUIDATE_PER_USER } from "../../constants";
 import type { LiquidationBatch } from "../../types";
 import { type AssetInfoWithBalance, type BorrowerStatusEntity } from "../../types";
@@ -80,31 +79,3 @@ export const makeLiquidationBatch = (marketAssetInfo: AssetInfoWithBalance, coll
 
     return batch;
 }
-
-export const swapOutCv = (swap: SwapResult) => {
-    const swapData: Record<string, ClarityValue> = {};
-
-    const lettersP = ['x', 'y', 'z', 'w', 'v'];
-    for (let i = 0; i < lettersP.length; i++) {
-        const l = lettersP[i];
-        if (swap.option.path[i]) {
-            swapData[`token-${l}`] = i > 1 ? someCV(swap.option.path[i]) : swap.option.path[i];
-        } else {
-            swapData[`token-${l}`] = noneCV();
-        }
-    }
-
-    const lettersF = ['x', 'y', 'z', 'w'];
-    for (let i = 0; i < lettersF.length; i++) {
-        const l = lettersF[i];
-        if (swap.option.factors[i]) {
-            swapData[`factor-${l}`] = i > 0 ? someCV(swap.option.factors[i]) : swap.option.factors[i];
-        } else {
-            swapData[`factor-${l}`] = noneCV();
-        }
-    }
-
-    return tupleCV(swapData);
-}
-
-
