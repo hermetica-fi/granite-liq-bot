@@ -3,7 +3,7 @@ import { broadcastTransaction, bufferCV, makeContractCall, PostConditionMode, so
 import { getBestSwap } from "../../alex";
 import { fetchFn, getAccountNonces } from "../../client/hiro";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
-import { DRY_RUN, MIN_TO_LIQUIDATE, SKIP_PROFITABILITY_CHECK, TX_TIMEOUT } from "../../constants";
+import { DRY_RUN, MIN_TO_LIQUIDATE, SKIP_SWAP_CHECK, TX_TIMEOUT } from "../../constants";
 import { getBorrowerStatusList, getBorrowersToSync } from "../../dba/borrower";
 import { getContractList, getContractOperatorPriv, lockContract } from "../../dba/contract";
 import { insertLiquidation } from "../../dba/liquidation";
@@ -92,7 +92,7 @@ const worker = async () => {
     if (swapRoute.out < minExpected) {
         logger.error(`Swap out is lower than min expected. total spend: ${totalSpend}, total receive: ${totalReceive}, min expected: ${minExpected}, best swap: ${swapRoute.out}`);
         await onLiqSwapOutError(totalSpend, totalReceive, minExpected, swapRoute.out);
-        if (!SKIP_PROFITABILITY_CHECK) {
+        if (!SKIP_SWAP_CHECK) {
             return;
         }
     }

@@ -289,7 +289,7 @@ describe("api e2e", () => {
                     feed_id: "0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43",
                 }
             ],
-            SKIP_PROFITABILITY_CHECK: false,
+            SKIP_SWAP_CHECK: false,
             TX_TIMEOUT: 600,
             USE_STAGING: false,
         })

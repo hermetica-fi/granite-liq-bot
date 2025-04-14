@@ -142,7 +142,7 @@ Reads borrower health data from the `borrower_status` table and triggers liquida
 
 - The bot ensures that the market asset balance **received** at the end of the operation is greater than or equal to what will be **spent**.
 - If the check fails, the worker **skips** liquidation.
-- When the `SKIP_PROFITABILITY_CHECK` environment variable is set to `1`, the bot skips the profitability check.
+- When the `SKIP_SWAP_CHECK` environment variable is set to `1`, the bot skips the swap output check.
 - The `onLiqProfitError` alert is triggered when the profitability check fails.
 
 ℹ️ The check is based on the integrated DEX's current prices. It may fail once or twice and succeed on a subsequent attempt.
