@@ -63,6 +63,8 @@ const worker = async () => {
         throw new Error("Collateral asset price feed not found");
     }
     const collateralPrice = Number(cFeed.price.price);
+    const collateralPriceFormatted = formatUnits(collateralPrice, Math.abs(cFeed.price.expo)).toFixed(2);
+
     const priceAttestationBuff = hexToUint8Array(priceFeed.attestation);
 
     const batch = makeLiquidationBatch(marketAsset, collateralAsset, borrowers, collateralPrice, liquidationPremium);
@@ -151,14 +153,14 @@ const worker = async () => {
         insertLiquidation(tx.txid, contract.id);
         logger.info('Transaction broadcasted', {
             txid: tx.txid,
-            collateralPrice: `${formatUnits(collateralPrice, cFeed.price.expo)} usd`,
+            collateralPrice: `${collateralPriceFormatted} usd (${collateralPrice})`,
             spend: `${spend} usd`,
             receive: `${receive} btc`,
             minExpected: `${minExpected} usd`,
             swapOut: `${swapOut} usd`,
             batch,
         });
-        await onLiqTx(tx.txid, spend, receive, minExpected, collateralPrice, batch);
+        await onLiqTx(tx.txid, spend, receive, minExpected, collateralPriceFormatted, batch);
         return;
     }
 }
