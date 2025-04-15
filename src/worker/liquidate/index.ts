@@ -133,14 +133,7 @@ const worker = async () => {
         nonce
     }
 
-    let call;
-    try {
-        call = await makeContractCall({ ...txOptions, fee });
-    } catch (e) {
-        logger.error(`Could not make contract call due to: ${e}`);
-        return;
-    }
-
+    const call = await makeContractCall({ ...txOptions, network: 'mainnet', client: { fetch: fetchFn } });
     const tx = await broadcastTransaction({ transaction: call, network: 'mainnet', client: { fetch: fetchFn } });
 
     if ("reason" in tx) {
