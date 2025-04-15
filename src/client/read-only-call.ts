@@ -238,6 +238,9 @@ export const getLiquidatorContractInfo = async (address: string) => {
     functionArgs: [],
     senderAddress: contractAddress,
     network: 'mainnet',
+    client: {
+      fetch: fetchFn,
+    }
   }).then(r => cvToJSON(r));
 
   const operator = info.value["operator"].value
