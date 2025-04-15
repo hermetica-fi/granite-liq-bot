@@ -2,7 +2,7 @@ import { cvToJSON } from "@stacks/transactions";
 import { describe, expect, test } from "bun:test";
 import { options } from "../../alex";
 import type { AssetInfoWithBalance, BorrowerStatusEntity, LiquidationBatch } from "../../types";
-import { liquidationBatchCv, makeLiquidationBatch, swapOutCv } from "./lib";
+import { calcMinOut, liquidationBatchCv, makeLiquidationBatch, swapOutCv } from "./lib";
 
 
 test("liquidationBatchCv", () => {
@@ -510,4 +510,13 @@ describe("makeLiquidationBatch", () => {
             }
         ])
     });
+});
+
+test("calcMinOut", () => {
+    expect(calcMinOut(155000, 0)).toEqual(155000);
+    expect(calcMinOut(155000, 10)).toEqual(154845); // %0,1
+    expect(calcMinOut(155000, 100)).toEqual(153450); // %1
+    expect(calcMinOut(155000, 1500)).toEqual(131750); // %15
+    expect(calcMinOut(155000, 9000)).toEqual(15500); // %90
+    expect(calcMinOut(155000, 10000)).toEqual(0); // %100
 });

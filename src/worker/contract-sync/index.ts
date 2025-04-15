@@ -1,9 +1,9 @@
 import type { Transaction } from "@stacks/stacks-blockchain-api-types";
 import { getAccountBalances, getTransaction } from "../../client/hiro";
-import { getAssetBalance } from "../../client/read-only-call";
+import { getAssetBalance, getLiquidatorContractInfo } from "../../client/read-only-call";
 import { ALERT_BALANCE } from "../../constants";
 import { upsertBorrower } from "../../dba/borrower";
-import { getContractList, unlockContract, unlockContractSchedule, updateContractBalances } from "../../dba/contract";
+import { getContractList, unlockContract, unlockContractSchedule, updateContractBalances, updateContractUnprofitabilityThreshold } from "../../dba/contract";
 import { finalizeLiquidation } from "../../dba/liquidation";
 import { onLiqTxEnd, onLowFunds } from "../../hooks";
 import { createLogger } from "../../logger";
@@ -63,6 +63,9 @@ export const worker = async () => {
             logger.error(`Operator balance is low: ${strObalance} STX`)
             await onLowFunds(`${strObalance} STX`);
         }
+
+        const info = await getLiquidatorContractInfo(contract.id);
+        updateContractUnprofitabilityThreshold(info.unprofitabilityThreshold, contract.id);
     }
 };
 

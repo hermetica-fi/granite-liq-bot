@@ -14,10 +14,11 @@ export const createDb = () => {
         "operator_address TEXT NOT NULL," +
         "operator_priv TEXT NOT NULL," +
         "operator_balance TEXT NOT NULL DEFAULT '0'," +
-        "market_asset TEXT," +
+        "market_asset TEXT NOT NULL," +
         "market_asset_balance TEXT NOT NULL DEFAULT '0'," +
-        "collateral_asset TEXT," +
+        "collateral_asset TEXT NOT NULL," +
         "collateral_asset_balance TEXT NOT NULL DEFAULT '0'," +
+        "unprofitability_threshold TEXT," +
         "lock_tx TEXT," +
         "unlocks_at INTEGER," +
         "created_at INTEGER NOT NULL" +
