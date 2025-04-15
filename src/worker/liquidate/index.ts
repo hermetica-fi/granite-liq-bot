@@ -74,23 +74,23 @@ const worker = async () => {
 
     const batchCV = liquidationBatchCv(batch);
 
-    const totalSpendBn = batch.reduce((acc, b) => acc + b.liquidatorRepayAmount, 0);
-    const totalSpend = formatUnits(totalSpendBn, marketAsset.decimals);
-    const totalReceiveBn = batch.reduce((acc, b) => acc + b.minCollateralExpected, 0);
-    const totalReceive = formatUnits(totalReceiveBn, collateralAsset.decimals);
+    const spendBn = batch.reduce((acc, b) => acc + b.liquidatorRepayAmount, 0);
+    const spend = formatUnits(spendBn, marketAsset.decimals);
+    const receiveBn = batch.reduce((acc, b) => acc + b.minCollateralExpected, 0);
+    const receive = formatUnits(receiveBn, collateralAsset.decimals);
 
-    if (totalSpend < MIN_TO_LIQUIDATE) {
-        // logger.info(`Too small to liquidate. total spend: ${totalSpend}, total receive: ${totalReceive}`);
+    if (spend < MIN_TO_LIQUIDATE) {
+        // logger.info(`Too small to liquidate. spend: ${spend}, receive: ${receive}`);
         return;
     }
 
     // Swap check
-    const minExpected = formatUnits(calcMinOut(totalSpendBn, contract.unprofitabilityThreshold), marketAsset.decimals);
-    const swapOut = await estimateSbtcToAeusdc(totalReceive);
+    const minExpected = formatUnits(calcMinOut(spendBn, contract.unprofitabilityThreshold), marketAsset.decimals);
+    const swapOut = await estimateSbtcToAeusdc(receive);
 
     if (swapOut < minExpected) {
-        logger.error(`Swap out is lower than min expected. total spend: ${totalSpend} usd, total receive: ${totalReceive} btc, min expected: ${minExpected} usd, swap out: ${swapOut} usd`);
-        await onLiqSwapOutError(totalSpend, totalReceive, minExpected, swapOut);
+        logger.error(`Swap out is lower than min expected. spend: ${spend} usd, receive: ${receive} btc, min expected: ${minExpected} usd, swap out: ${swapOut} usd`);
+        await onLiqSwapOutError(spend, receive, minExpected, swapOut);
 
         if (!SKIP_SWAP_CHECK) {
             return;
@@ -99,8 +99,8 @@ const worker = async () => {
 
     if (DRY_RUN) {
         logger.info('Dry run mode on, skipping.', {
-            totalSpend: `${totalSpend} usd`,
-            totalReceive: `${totalReceive} btc`,
+            spend: `${spend} usd`,
+            receive: `${receive} btc`,
             minExpected: `${minExpected} usd`,
             swapOut: `${swapOut} usd`,
             batch,
@@ -152,13 +152,13 @@ const worker = async () => {
         logger.info('Transaction broadcasted', {
             txid: tx.txid,
             collateralPrice: `${collateralPrice} usd`,
-            totalSpend: `${totalSpend} usd`,
-            totalReceive: `${totalReceive} btc`,
+            spend: `${spend} usd`,
+            receive: `${receive} btc`,
             minExpected: `${minExpected} usd`,
             swapOut: `${swapOut} usd`,
             batch,
         });
-        await onLiqTx(tx.txid, totalSpend, totalReceive, minExpected, collateralPrice, batch);
+        await onLiqTx(tx.txid, spend, receive, minExpected, collateralPrice, batch);
         return;
     }
 }

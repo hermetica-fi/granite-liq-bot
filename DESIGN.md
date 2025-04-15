@@ -134,7 +134,7 @@ Reads borrower health data from the `borrower_status` table and triggers liquida
 
 - Borrowers with a liquidation amount below `MIN_TO_LIQUIDATE_PER_USER` (defined in constants) are excluded from the batch.
 
-#### 🔹 Minimum Total to Liquidate
+#### 🔹 Minimum to Liquidate
 
 - If the **sum** of the liquidation batch is below `MIN_TO_LIQUIDATE` (defined in constants), the bot skips the liquidation.
 
@@ -243,7 +243,7 @@ The following hooks trigger alerts. Currently, only Slack is supported as the al
 - `onExit(msg?: string)`  
   Triggered when the bot stops. An optional message can be included, especially in case of unexpected failures.
 
-- `onLiqTx(txid: string, totalSpend: number, totalReceive: number, minOutExpected: number, collateralPrice: number, batch: LiquidationBatch[])`  
+- `onLiqTx(txid: string, spend: number, receive: number, minOutExpected: number, collateralPrice: number, batch: LiquidationBatch[])`  
   Triggered when a liquidation transaction is broadcast.
 
 - `onLiqSwapOutError(spend: number, receive: number, best: number)`  
