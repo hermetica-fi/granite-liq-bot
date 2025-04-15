@@ -1,6 +1,6 @@
 import type { StacksNetworkName } from "@stacks/network";
-import { broadcastTransaction, bufferCV, makeContractCall, PostConditionMode, someCV, uintCV } from "@stacks/transactions";
-import { getBestSwap } from "../../alex";
+import { broadcastTransaction, bufferCV, contractPrincipalCV, makeContractCall, PostConditionMode, someCV, uintCV } from "@stacks/transactions";
+import { estimateSbtcToAeusdc } from "../../bitflow";
 import { fetchFn, getAccountNonces } from "../../client/hiro";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
 import { DRY_RUN, MIN_TO_LIQUIDATE, SKIP_SWAP_CHECK, TX_TIMEOUT } from "../../constants";
@@ -14,7 +14,7 @@ import { onLiqSwapOutError, onLiqTx, onLiqTxError } from "../../hooks";
 import { createLogger } from "../../logger";
 import { formatUnits } from "../../units";
 import { epoch } from "../../util";
-import { calcMinOut, liquidationBatchCv, makeLiquidationBatch, swapOutCv } from "./lib";
+import { calcMinOut, liquidationBatchCv, makeLiquidationBatch } from "./lib";
 
 const logger = createLogger("liquidate");
 
@@ -85,12 +85,13 @@ const worker = async () => {
     }
 
     // Swap check
-    const swapRoute = await getBestSwap(totalReceive);
-    const minExpected = calcMinOut(totalSpendBn, contract.unprofitabilityThreshold);
+    const swapOut = await estimateSbtcToAeusdc(totalReceive);
+    const minExpected = formatUnits(calcMinOut(totalSpendBn, contract.unprofitabilityThreshold), marketAsset.decimals);
 
-    if (swapRoute.out < minExpected) {
-        logger.error(`Swap out is lower than min expected. total spend: ${totalSpend}, total receive: ${totalReceive}, min expected: ${minExpected}, best swap: ${swapRoute.out}`);
-        await onLiqSwapOutError(totalSpend, totalReceive, minExpected, swapRoute.out);
+    if (swapOut < minExpected) {
+        logger.error(`Swap out is lower than min expected. total spend: ${totalSpend}, total receive: ${totalReceive}, min expected: ${minExpected}, best swap: ${swapOut}`);
+        await onLiqSwapOutError(totalSpend, totalReceive, minExpected, swapOut);
+
         if (!SKIP_SWAP_CHECK) {
             return;
         }
@@ -100,18 +101,17 @@ const worker = async () => {
         logger.info('Dry run mode on, skipping.', {
             totalSpend,
             totalReceive,
-            batch
+            batch,
+            minExpected
         });
         return;
     }
-
-    const swapDataCv = swapOutCv(swapRoute);
 
     const functionArgs = [
         someCV(bufferCV(priceAttestationBuff)),
         batchCV,
         uintCV(epoch() + TX_TIMEOUT),
-        swapDataCv,
+        contractPrincipalCV(contract.address, contract.name),
     ];
 
     const priv = getContractOperatorPriv(contract.id)!;
