@@ -85,11 +85,11 @@ const worker = async () => {
     }
 
     // Swap check
-    const swapOut = await estimateSbtcToAeusdc(totalReceive);
     const minExpected = formatUnits(calcMinOut(totalSpendBn, contract.unprofitabilityThreshold), marketAsset.decimals);
+    const swapOut = await estimateSbtcToAeusdc(totalReceive);
 
     if (swapOut < minExpected) {
-        logger.error(`Swap out is lower than min expected. total spend: ${totalSpend}, total receive: ${totalReceive}, min expected: ${minExpected}, best swap: ${swapOut}`);
+        logger.error(`Swap out is lower than min expected. total spend: ${totalSpend} usd, total receive: ${totalReceive} btc, min expected: ${minExpected} usd, swap out: ${swapOut} usd`);
         await onLiqSwapOutError(totalSpend, totalReceive, minExpected, swapOut);
 
         if (!SKIP_SWAP_CHECK) {
@@ -99,10 +99,11 @@ const worker = async () => {
 
     if (DRY_RUN) {
         logger.info('Dry run mode on, skipping.', {
-            totalSpend,
-            totalReceive,
+            totalSpend: `${totalSpend} usd`,
+            totalReceive: `${totalReceive} btc`,
+            minExpected: `${minExpected} usd`,
+            swapOut: `${swapOut} usd`,
             batch,
-            minExpected
         });
         return;
     }
@@ -136,7 +137,7 @@ const worker = async () => {
     try {
         call = await makeContractCall({ ...txOptions, fee });
     } catch (e) {
-        logger.error(`Could not make contract call2 due to: ${e}`);
+        logger.error(`Could not make contract call due to: ${e}`);
         return;
     }
 
@@ -155,9 +156,15 @@ const worker = async () => {
     if (tx.txid) {
         lockContract(tx.txid, contract.id);
         insertLiquidation(tx.txid, contract.id);
-        logger.info(`Transaction broadcasted ${tx.txid}`);
-        logger.info('Collateral Price', collateralPrice);
-        logger.info('Batch', batch);
+        logger.info('Transaction broadcasted', {
+            txid: tx.txid,
+            collateralPrice: `${collateralPrice} usd`,
+            totalSpend: `${totalSpend} usd`,
+            totalReceive: `${totalReceive} btc`,
+            minExpected: `${minExpected} usd`,
+            swapOut: `${swapOut} usd`,
+            batch,
+        });
         await onLiqTx(tx.txid, totalSpend, totalReceive, minExpected, collateralPrice, batch);
         return;
     }
