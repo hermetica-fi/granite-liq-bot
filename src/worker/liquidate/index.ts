@@ -86,7 +86,7 @@ const worker = async () => {
 
     // Swap check
     const swapOut = await estimateSbtcToAeusdc(totalReceive);
-    const minExpected = calcMinOut(totalSpendBn, contract.unprofitabilityThreshold);
+    const minExpected = formatUnits(calcMinOut(totalSpendBn, contract.unprofitabilityThreshold), marketAsset.decimals);
 
     if (swapOut < minExpected) {
         logger.error(`Swap out is lower than min expected. total spend: ${totalSpend}, total receive: ${totalReceive}, min expected: ${minExpected}, best swap: ${swapOut}`);
@@ -101,7 +101,8 @@ const worker = async () => {
         logger.info('Dry run mode on, skipping.', {
             totalSpend,
             totalReceive,
-            batch
+            batch,
+            minExpected
         });
         return;
     }

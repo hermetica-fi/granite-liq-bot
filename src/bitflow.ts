@@ -1,7 +1,7 @@
 
 import { contractPrincipalCV, cvToJSON, fetchCallReadOnlyFunction, uintCV } from "@stacks/transactions";
 import { fetchFn, } from "./client/hiro";
-import { formatUnits } from "./units";
+import { formatUnits, parseUnits } from "./units";
 
 export const estimateSbtcToAeusdc = async (sBtcAmount: number) => {
     const stxAmount = await fetchCallReadOnlyFunction({
@@ -12,8 +12,7 @@ export const estimateSbtcToAeusdc = async (sBtcAmount: number) => {
             contractPrincipalCV('SM1793C4R5PZ4NS4VQ4WMP7SKKYVH8JZEWSZ9HCCR', 'xyk-pool-sbtc-stx-v-1-1'),
             contractPrincipalCV('SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4', 'sbtc-token'),
             contractPrincipalCV('SM1793C4R5PZ4NS4VQ4WMP7SKKYVH8JZEWSZ9HCCR', 'token-stx-v-1-2'),
-            uintCV(sBtcAmount)
-
+            uintCV(parseUnits(sBtcAmount, 8))
         ],
         senderAddress: 'SM1793C4R5PZ4NS4VQ4WMP7SKKYVH8JZEWSZ9HCCR',
         network: 'mainnet',
