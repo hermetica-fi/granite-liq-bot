@@ -29,6 +29,7 @@ export type ContractEntity = {
     operatorBalance: number,
     marketAsset: AssetInfoWithBalance | null,
     collateralAsset: AssetInfoWithBalance | null,
+    unprofitabilityThreshold: number,
     lockTx: string | null
     unlocksAt: number | null,
 }

@@ -138,13 +138,12 @@ Reads borrower health data from the `borrower_status` table and triggers liquida
 
 - If the **sum** of the liquidation batch is below `MIN_TO_LIQUIDATE` (defined in constants), the bot skips the liquidation.
 
-#### 💰 Minimum Expected Market Asset Amount Check
+#### 💰 Profitability Check
 
-- The bot calculates the *minimum expected* amount of market asset to be **received** at the end of the operation, based on the contract's `unprofitability-threshold` variable.
-- This expected amount is then compared with the current output from the DEX.
-- If the DEX output is below the expected threshold, the worker **skips** the liquidation.
-- If the `SKIP_SWAP_CHECK` environment variable is set to `1`, this check is bypassed.
-- The `onLiqSwapOutError` alert is triggered when the check fails.
+- The bot ensures that the market asset balance **received** at the end of the operation is greater than or equal to what will be **spent**.
+- If the check fails, the worker **skips** liquidation.
+- When the `SKIP_PROFITABILITY_CHECK` environment variable is set to `1`, the bot skips the profitability check.
+- The `onLiqProfitError` alert is triggered when the profitability check fails.
 
 ℹ️ The check is based on the integrated DEX's current prices. It may fail once or twice and succeed on a subsequent attempt.
 
@@ -162,7 +161,7 @@ The worker skips liquidation in the following cases:
 - No liquidable positions available  
 - The liquidation contract has **no market asset balance**  
 - The liquidation amount is smaller than `MIN_TO_LIQUIDATE`  
-- The minimum expected market asset amount check fails  
+- Profitability check fails  
 - Dry run mode is activated
 
 #### ✅ If All Checks Pass
@@ -243,20 +242,17 @@ The following hooks trigger alerts. Currently, only Slack is supported as the al
 - `onExit(msg?: string)`  
   Triggered when the bot stops. An optional message can be included, especially in case of unexpected failures.
 
-- `onLiqTx(txid: string, totalSpend: number, totalReceive: number, minOutExpected: number, collateralPrice: number, batch: LiquidationBatch[])`  
+- `onLiqTx(txid: string, totalSpend: number, totalReceive: number, batch: LiquidationBatch[])`  
   Triggered when a liquidation transaction is broadcast.
 
-- `onLiqSwapOutError(spend: number, receive: number, best: number)`  
-  Triggered when the minimum expected market asset amount check fails.
+- `onLiqProfitError(spend: number, receive: number, best: number)`  
+  Triggered when the profitability check fails.
 
 - `onLiqTxError(reason: string)`  
   Triggered when the bot fails to broadcast a transaction.
 
 - `onLiqTxEnd(txid: string, status: string)`  
   Triggered when a transaction is finalized.
-
-- `onLowFunds(balance: string)` 
-  Triggered when the operator STX balance is low. 
 
 -------------
 

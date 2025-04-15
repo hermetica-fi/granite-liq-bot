@@ -139,7 +139,7 @@ Returns: [Config](#Config)
       ticker: string,
       feed_id: string
     }[],
-  SKIP_PROFITABILITY_CHECK: boolean,
+  SKIP_SWAP_CHECK: boolean,
   TX_TIMEOUT: 600,
   USE_STAGING: boolean
 }

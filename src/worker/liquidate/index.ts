@@ -3,18 +3,18 @@ import { broadcastTransaction, bufferCV, contractPrincipalCV, makeContractCall, 
 import { estimateSbtcToAeusdc } from "../../bitflow";
 import { fetchFn, getAccountNonces } from "../../client/hiro";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
-import { DRY_RUN, MIN_TO_LIQUIDATE, SKIP_PROFITABILITY_CHECK, TX_TIMEOUT } from "../../constants";
+import { DRY_RUN, MIN_TO_LIQUIDATE, SKIP_SWAP_CHECK, TX_TIMEOUT } from "../../constants";
 import { getBorrowerStatusList, getBorrowersToSync } from "../../dba/borrower";
 import { getContractList, getContractOperatorPriv, lockContract } from "../../dba/contract";
 import { insertLiquidation } from "../../dba/liquidation";
 import { getMarketState } from "../../dba/market";
 import { estimateTxFeeOptimistic } from "../../fee";
 import { hexToUint8Array, toTicker } from "../../helper";
-import { onLiqProfitError, onLiqTx, onLiqTxError } from "../../hooks";
+import { onLiqSwapOutError, onLiqTx, onLiqTxError } from "../../hooks";
 import { createLogger } from "../../logger";
 import { formatUnits } from "../../units";
 import { epoch } from "../../util";
-import { liquidationBatchCv, makeLiquidationBatch } from "./lib";
+import { calcMinOut, liquidationBatchCv, makeLiquidationBatch } from "./lib";
 
 const logger = createLogger("liquidate");
 
@@ -84,13 +84,15 @@ const worker = async () => {
         return;
     }
 
-    // Profitability check
+    // Swap check
     const swapOut = await estimateSbtcToAeusdc(totalReceive);
+    const minExpected = calcMinOut(totalSpendBn, contract.unprofitabilityThreshold);
 
-    if (swapOut < totalSpend) {
-        logger.error(`Not profitable to liquidate. total spend: ${totalSpend}, total receive: ${totalReceive}, swap out: ${swapOut}`);
-        await onLiqProfitError(totalSpend, totalReceive, swapOut);
-        if (!SKIP_PROFITABILITY_CHECK) {
+    if (swapOut < minExpected) {
+        logger.error(`Swap out is lower than min expected. total spend: ${totalSpend}, total receive: ${totalReceive}, min expected: ${minExpected}, best swap: ${swapOut}`);
+        await onLiqSwapOutError(totalSpend, totalReceive, minExpected, swapOut);
+
+        if (!SKIP_SWAP_CHECK) {
             return;
         }
     }
@@ -155,7 +157,7 @@ const worker = async () => {
         logger.info(`Transaction broadcasted ${tx.txid}`);
         logger.info('Collateral Price', collateralPrice);
         logger.info('Batch', batch);
-        await onLiqTx(tx.txid, totalSpend, totalReceive, collateralPrice, batch);
+        await onLiqTx(tx.txid, totalSpend, totalReceive, minExpected, collateralPrice, batch);
         return;
     }
 }

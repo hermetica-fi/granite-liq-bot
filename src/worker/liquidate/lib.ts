@@ -62,7 +62,7 @@ export const makeLiquidationBatch = (marketAssetInfo: AssetInfoWithBalance, coll
             continue;
         }
 
-        const repayAmountAdjusted = toFixedDown(repayAmount, 3); 
+        const repayAmountAdjusted = toFixedDown(repayAmount, 3);
         const repayAmountAdjustedBn = parseUnits(repayAmountAdjusted, marketAssetInfo.decimals);
         const repayAmountFinalBn = Math.min(availableBn, repayAmountAdjustedBn);
 
@@ -79,3 +79,10 @@ export const makeLiquidationBatch = (marketAssetInfo: AssetInfoWithBalance, coll
 
     return batch;
 }
+
+export const calcMinOut = (paid: number, unprofitabilityThreshold: number) => {
+    const SCALING_FACTOR = 10000n;
+
+    return Number(BigInt(paid) - ((BigInt(paid) * BigInt(unprofitabilityThreshold)) / SCALING_FACTOR));
+}
+
