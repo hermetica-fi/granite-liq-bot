@@ -151,7 +151,7 @@ const worker = async () => {
         insertLiquidation(tx.txid, contract.id);
         logger.info('Transaction broadcasted', {
             txid: tx.txid,
-            collateralPrice: `${collateralPrice} usd`,
+            collateralPrice: `${formatUnits(collateralPrice, cFeed.price.expo)} usd`,
             spend: `${spend} usd`,
             receive: `${receive} btc`,
             minExpected: `${minExpected} usd`,
