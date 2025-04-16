@@ -45,29 +45,29 @@ const slackMessage = async (message: string, key?: string) => {
 }
 
 export const onStart = async () => {
-    await slackMessage('Liq-bot started');
+    await slackMessage('Info: Liq-bot started');
 }
 
 export const onExit = async (msg?: string) => {
-    await slackMessage(msg ? `Liq-bot stopped: ${msg}` : 'Liq-bot stopped');
+    await slackMessage(msg ? `Error: Liq-bot stopped: ${'`'}${msg}${'`'}` : 'Info: Liq-bot stopped');
 }
 
-export const onLiqTx = async (txid: string, totalSpend: number, totalReceive: number, minExpected: number, collateralPrice: number, batch: LiquidationBatch[]) => {
-    await slackMessage(`New liquidation: ${txid} \ntotal spend: ${totalSpend} \ntotal receive: ${totalReceive} \nmin expected: ${minExpected} \ncollateralPrice:${collateralPrice} \nbatch: ${JSON.stringify(batch, null, 2)}`);
+export const onLiqTx = async (txid: string, spend: number, receive: number, minExpected: number, collateralPrice: string, batch: LiquidationBatch[]) => {
+    await slackMessage(`Info: New liquidation: ${'`'}${txid}${'`'} ${'```'}spend: ${spend} usd \nreceive: ${receive} btc \nmin expected: ${minExpected} usd \ncollateralPrice:${collateralPrice} usd \nbatch: ${JSON.stringify(batch, null, 2)}${'```'}`);
 }
 
-export const onLiqSwapOutError = async (spend: number, receive: number, minExpected: number, best: number) => {
-    await slackMessage(`Swap out is lower than min expected. total spend: ${spend}, total receive: ${receive}, min expected: ${minExpected}, best swap: ${best}`, best.toString());
+export const onLiqSwapOutError = async (spend: number, receive: number, minExpected: number, swapOut: number) => {
+    await slackMessage(`Warning: Swap out is lower than min expected.${'```'}spend: ${spend} usd, \nreceive: ${receive} btc, \nmin expected: ${minExpected} usd, \nswap out: ${swapOut} usd${'```'}`, swapOut.toString());
 }
 
 export const onLiqTxError = async (reason: string) => {
-    await slackMessage(`Transaction failed due to: ${reason}`);
+    await slackMessage(`Error: Transaction broadcast failed due to: ${'`'}${reason}${'`'}`);
 }
 
 export const onLiqTxEnd = async (txid: string, status: string) => {
-    await slackMessage(`Liquidation tx ${txid} finalized with status ${status}`);
+    await slackMessage(`Info: Liquidation tx ${'`'}${txid}${'`'} finalized with status ${'`'}${status}${'`'}`);
 }
 
 export const onLowFunds = async (balance: string) => {
-    await slackMessage(`Operator balance is low: ${balance}`, balance);
+    await slackMessage(`Warning: Operator balance is low: ${'`'}${balance}${'`'}`, balance);
 }

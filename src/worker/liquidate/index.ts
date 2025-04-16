@@ -63,6 +63,8 @@ const worker = async () => {
         throw new Error("Collateral asset price feed not found");
     }
     const collateralPrice = Number(cFeed.price.price);
+    const collateralPriceFormatted = formatUnits(collateralPrice, Math.abs(cFeed.price.expo)).toFixed(2);
+
     const priceAttestationBuff = hexToUint8Array(priceFeed.attestation);
 
     const batch = makeLiquidationBatch(marketAsset, collateralAsset, borrowers, collateralPrice, liquidationPremium);
@@ -74,23 +76,23 @@ const worker = async () => {
 
     const batchCV = liquidationBatchCv(batch);
 
-    const totalSpendBn = batch.reduce((acc, b) => acc + b.liquidatorRepayAmount, 0);
-    const totalSpend = formatUnits(totalSpendBn, marketAsset.decimals);
-    const totalReceiveBn = batch.reduce((acc, b) => acc + b.minCollateralExpected, 0);
-    const totalReceive = formatUnits(totalReceiveBn, collateralAsset.decimals);
+    const spendBn = batch.reduce((acc, b) => acc + b.liquidatorRepayAmount, 0);
+    const spend = formatUnits(spendBn, marketAsset.decimals);
+    const receiveBn = batch.reduce((acc, b) => acc + b.minCollateralExpected, 0);
+    const receive = formatUnits(receiveBn, collateralAsset.decimals);
 
-    if (totalSpend < MIN_TO_LIQUIDATE) {
-        // logger.info(`Too small to liquidate. total spend: ${totalSpend}, total receive: ${totalReceive}`);
+    if (spend < MIN_TO_LIQUIDATE) {
+        // logger.info(`Too small to liquidate. spend: ${spend}, receive: ${receive}`);
         return;
     }
 
     // Swap check
-    const swapOut = await estimateSbtcToAeusdc(totalReceive);
-    const minExpected = formatUnits(calcMinOut(totalSpendBn, contract.unprofitabilityThreshold), marketAsset.decimals);
+    const minExpected = formatUnits(calcMinOut(spendBn, contract.unprofitabilityThreshold), marketAsset.decimals);
+    const swapOut = await estimateSbtcToAeusdc(receive);
 
     if (swapOut < minExpected) {
-        logger.error(`Swap out is lower than min expected. total spend: ${totalSpend}, total receive: ${totalReceive}, min expected: ${minExpected}, best swap: ${swapOut}`);
-        await onLiqSwapOutError(totalSpend, totalReceive, minExpected, swapOut);
+        logger.error(`Swap out is lower than min expected. spend: ${spend} usd, receive: ${receive} btc, min expected: ${minExpected} usd, swap out: ${swapOut} usd`);
+        await onLiqSwapOutError(spend, receive, minExpected, swapOut);
 
         if (!SKIP_SWAP_CHECK) {
             return;
@@ -99,10 +101,11 @@ const worker = async () => {
 
     if (DRY_RUN) {
         logger.info('Dry run mode on, skipping.', {
-            totalSpend,
-            totalReceive,
+            spend: `${spend} usd`,
+            receive: `${receive} btc`,
+            minExpected: `${minExpected} usd`,
+            swapOut: `${swapOut} usd`,
             batch,
-            minExpected
         });
         return;
     }
@@ -132,14 +135,7 @@ const worker = async () => {
         nonce
     }
 
-    let call;
-    try {
-        call = await makeContractCall({ ...txOptions, fee });
-    } catch (e) {
-        logger.error(`Could not make contract call2 due to: ${e}`);
-        return;
-    }
-
+    const call = await makeContractCall({ ...txOptions, network: 'mainnet', client: { fetch: fetchFn } });
     const tx = await broadcastTransaction({ transaction: call, network: 'mainnet', client: { fetch: fetchFn } });
 
     if ("reason" in tx) {
@@ -155,10 +151,16 @@ const worker = async () => {
     if (tx.txid) {
         lockContract(tx.txid, contract.id);
         insertLiquidation(tx.txid, contract.id);
-        logger.info(`Transaction broadcasted ${tx.txid}`);
-        logger.info('Collateral Price', collateralPrice);
-        logger.info('Batch', batch);
-        await onLiqTx(tx.txid, totalSpend, totalReceive, minExpected, collateralPrice, batch);
+        logger.info('Transaction broadcasted', {
+            txid: tx.txid,
+            collateralPrice: `${collateralPriceFormatted} usd (${collateralPrice})`,
+            spend: `${spend} usd`,
+            receive: `${receive} btc`,
+            minExpected: `${minExpected} usd`,
+            swapOut: `${swapOut} usd`,
+            batch,
+        });
+        await onLiqTx(tx.txid, spend, receive, minExpected, collateralPriceFormatted, batch);
         return;
     }
 }
