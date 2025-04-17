@@ -42,7 +42,9 @@ export const fetchFn = async (
             // Only retry if we haven't reached max attempts
             if (attempt < MAX_RETRIES - 1) {
                 const delay = INITIAL_DELAY * Math.pow(2, attempt);
-                // console.warn(`Hiro api error: ${lastError}, retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES})`);
+                if (process.env.NODE_ENV !== 'production') {
+                    console.warn(`Hiro api error: ${lastError}, retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES})`);
+                }
                 await new Promise(resolve => setTimeout(resolve, delay));
             }
         } catch (error) {
@@ -50,7 +52,9 @@ export const fetchFn = async (
 
             if (attempt < MAX_RETRIES - 1) {
                 const delay = INITIAL_DELAY * Math.pow(2, attempt);
-                // console.warn(`Hiro api error: ${lastError}, retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES})`);
+                if (process.env.NODE_ENV !== 'production') {
+                    console.warn(`Hiro api error: ${lastError}, retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES})`);
+                }
                 await new Promise(resolve => setTimeout(resolve, delay));
             }
         }
