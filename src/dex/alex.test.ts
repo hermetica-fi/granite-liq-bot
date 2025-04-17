@@ -1,7 +1,7 @@
 import { describe, expect, mock, test } from "bun:test";
 import { estimateSbtcToAeusdc } from "./alex";
 
-describe("alex", () => {
+describe("dex alex", () => {
     test("estimateSbtcToAeusdc", async () => {
         mock.module("../client/stxer", () => {
             return {
