@@ -1,6 +1,5 @@
 import type { StacksNetworkName } from "@stacks/network";
 import { broadcastTransaction, bufferCV, contractPrincipalCV, makeContractCall, PostConditionMode, someCV, uintCV } from "@stacks/transactions";
-import { estimateSbtcToAeusdc } from "../../bitflow";
 import { fetchFn, getAccountNonces } from "../../client/hiro";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
 import { DRY_RUN, MIN_TO_LIQUIDATE, SKIP_SWAP_CHECK, TX_TIMEOUT } from "../../constants";
@@ -8,6 +7,7 @@ import { getBorrowerStatusList, getBorrowersToSync } from "../../dba/borrower";
 import { getContractList, getContractOperatorPriv, lockContract } from "../../dba/contract";
 import { insertLiquidation } from "../../dba/liquidation";
 import { getMarketState } from "../../dba/market";
+import { estimateSbtcToAeusdc } from "../../dex/bitflow";
 import { estimateTxFeeOptimistic } from "../../fee";
 import { hexToUint8Array, toTicker } from "../../helper";
 import { onLiqSwapOutError, onLiqTx, onLiqTxError } from "../../hooks";
