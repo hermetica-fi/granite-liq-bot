@@ -246,7 +246,7 @@ The following hooks trigger alerts. Currently, only Slack is supported as the al
 - `onLiqTx(txid: string, spend: number, receive: number, minExpected: number, dex: string, collateralPrice: string, batch: LiquidationBatch[])`  
   Triggered when a liquidation transaction is broadcast.
 
-- `onLiqSwapOutError(spend: number, receive: number, minExpected: number, dex: string, swapOut: number)`  
+- `onLiqSwapOutError(spend: number, receive: number, minExpected: number, dex: string, dy: number)`  
   Triggered when the minimum expected market asset amount check fails.
 
 - `onLiqTxError(reason: string)`  

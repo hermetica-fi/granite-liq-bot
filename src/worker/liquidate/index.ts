@@ -91,9 +91,9 @@ const worker = async () => {
     const swap = await estimateSbtcToAeusdc(receive);
     const dex = getDexNameById(swap.dex);
 
-    if (swap.out < minExpected) {
-        logger.error(`Swap out is lower than min expected. spend: ${spend} usd, receive: ${receive} btc, min expected: ${minExpected} usd, dex: ${dex}, swap out: ${swap.out} usd`);
-        await onLiqSwapOutError(spend, receive, minExpected, dex, swap.out);
+    if (swap.dy < minExpected) {
+        logger.error(`Swap out is lower than min expected. spend: ${spend} usd, receive: ${receive} btc, min expected: ${minExpected} usd, dex: ${dex}, swap out: ${swap.dy} usd`);
+        await onLiqSwapOutError(spend, receive, minExpected, dex, swap.dy);
 
         if (!SKIP_SWAP_CHECK) {
             return;
@@ -105,7 +105,7 @@ const worker = async () => {
             spend: `${spend} usd`,
             receive: `${receive} btc`,
             minExpected: `${minExpected} usd`,
-            swapOut: `${swap.out} usd`,
+            dy: `${swap.dy} usd`,
             dex,
             batch,
         });
@@ -160,7 +160,7 @@ const worker = async () => {
             spend: `${spend} usd`,
             receive: `${receive} btc`,
             minExpected: `${minExpected} usd`,
-            swapOut: `${swap.out} usd`,
+            dy: `${swap.dy} usd`,
             dex,
             batch,
         });

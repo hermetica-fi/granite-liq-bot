@@ -14,11 +14,11 @@ export const getDexNameById = (id: number) => {
     throw new Error("unknown dex");
 }
 
-export const estimateSbtcToAeusdc = async (sBtcAmount: number): Promise<{ dex: number, out: number }> => {
+export const estimateSbtcToAeusdc = async (sBtcAmount: number): Promise<{ dex: number, dy: number }> => {
     const results = await Promise.all([
-        estimateSbtcToAeusdcAlex(sBtcAmount).then(r => ({ dex: DEX_ALEX, out: r })),
-        estimateSbtcToAeusdcBitflow(sBtcAmount).then(r => ({ dex: DEX_BITFLOW, out: r }))
+        estimateSbtcToAeusdcAlex(sBtcAmount).then(r => ({ dex: DEX_ALEX, dy: r })),
+        estimateSbtcToAeusdcBitflow(sBtcAmount).then(r => ({ dex: DEX_BITFLOW, dy: r }))
     ]);
 
-    return results.sort((a, b) => b.out - a.out)[0];
+    return results.sort((a, b) => b.dy - a.dy)[0];
 }

@@ -56,8 +56,8 @@ export const onLiqTx = async (txid: string, spend: number, receive: number, minE
     await slackMessage(`Info: New liquidation: ${'`'}${txid}${'`'} ${'```'}spend: ${spend} usd \nreceive: ${receive} btc \nmin expected: ${minExpected} \ndex: ${dex} \ncollateralPrice:${collateralPrice} usd \nbatch: ${JSON.stringify(batch, null, 2)}${'```'}`);
 }
 
-export const onLiqSwapOutError = async (spend: number, receive: number, minExpected: number, dex: string, swapOut: number) => {
-    await slackMessage(`Warning: Swap out is lower than min expected.${'```'}spend: ${spend} usd, \nreceive: ${receive} btc, \nmin expected: ${minExpected} usd, \ndex: ${dex} \nswap out: ${swapOut} usd${'```'}`, swapOut.toString());
+export const onLiqSwapOutError = async (spend: number, receive: number, minExpected: number, dex: string, dy: number) => {
+    await slackMessage(`Warning: Swap out is lower than min expected.${'```'}spend: ${spend} usd, \nreceive: ${receive} btc, \nmin expected: ${minExpected} usd, \ndex: ${dex} \nswap out: ${dy} usd${'```'}`, dy.toString());
 }
 
 export const onLiqTxError = async (reason: string) => {
