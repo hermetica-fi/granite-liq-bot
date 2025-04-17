@@ -26,7 +26,7 @@ describe("dex", () => {
         });
 
         const result = await estimateSbtcToAeusdc(0.01);
-        expect(result).toEqual({swapper: 2, out: 13});
+        expect(result).toEqual({dex: 2, out: 13});
     });
 
     test("estimateSbtcToAeusdc 2", async () => {
@@ -53,6 +53,6 @@ describe("dex", () => {
         });
 
         const result = await estimateSbtcToAeusdc(0.01);
-        expect(result).toEqual({swapper: 1, out: 16.1});
+        expect(result).toEqual({dex: 1, out: 16.1});
     });
 });
