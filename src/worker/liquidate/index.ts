@@ -1,6 +1,5 @@
 import type { StacksNetworkName } from "@stacks/network";
 import { broadcastTransaction, bufferCV, contractPrincipalCV, makeContractCall, PostConditionMode, someCV, uintCV } from "@stacks/transactions";
-import { estimateSbtcToAeusdc } from "../../bitflow";
 import { fetchFn, getAccountNonces } from "../../client/hiro";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
 import { DRY_RUN, MIN_TO_LIQUIDATE, SKIP_SWAP_CHECK, TX_TIMEOUT } from "../../constants";
@@ -8,6 +7,7 @@ import { getBorrowerStatusList, getBorrowersToSync } from "../../dba/borrower";
 import { getContractList, getContractOperatorPriv, lockContract } from "../../dba/contract";
 import { insertLiquidation } from "../../dba/liquidation";
 import { getMarketState } from "../../dba/market";
+import { estimateSbtcToAeusdc, getDexNameById } from "../../dex";
 import { estimateTxFeeOptimistic } from "../../fee";
 import { hexToUint8Array, toTicker } from "../../helper";
 import { onLiqSwapOutError, onLiqTx, onLiqTxError } from "../../hooks";
@@ -88,11 +88,12 @@ const worker = async () => {
 
     // Swap check
     const minExpected = formatUnits(calcMinOut(spendBn, contract.unprofitabilityThreshold), marketAsset.decimals);
-    const swapOut = await estimateSbtcToAeusdc(receive);
+    const swap = await estimateSbtcToAeusdc(receive);
+    const dex = getDexNameById(swap.dex);
 
-    if (swapOut < minExpected) {
-        logger.error(`Swap out is lower than min expected. spend: ${spend} usd, receive: ${receive} btc, min expected: ${minExpected} usd, swap out: ${swapOut} usd`);
-        await onLiqSwapOutError(spend, receive, minExpected, swapOut);
+    if (swap.dy < minExpected) {
+        logger.error(`Swap out is lower than min expected. spend: ${spend} usd, receive: ${receive} btc, min expected: ${minExpected} usd, dex: ${dex}, swap out: ${swap.dy} usd`);
+        await onLiqSwapOutError(spend, receive, minExpected, dex, swap.dy);
 
         if (!SKIP_SWAP_CHECK) {
             return;
@@ -104,7 +105,8 @@ const worker = async () => {
             spend: `${spend} usd`,
             receive: `${receive} btc`,
             minExpected: `${minExpected} usd`,
-            swapOut: `${swapOut} usd`,
+            dy: `${swap.dy} usd`,
+            dex,
             batch,
         });
         return;
@@ -115,6 +117,7 @@ const worker = async () => {
         batchCV,
         uintCV(epoch() + TX_TIMEOUT),
         contractPrincipalCV(contract.address, contract.name),
+        uintCV(swap.dex)
     ];
 
     const priv = getContractOperatorPriv(contract.id)!;
@@ -157,10 +160,11 @@ const worker = async () => {
             spend: `${spend} usd`,
             receive: `${receive} btc`,
             minExpected: `${minExpected} usd`,
-            swapOut: `${swapOut} usd`,
+            dy: `${swap.dy} usd`,
+            dex,
             batch,
         });
-        await onLiqTx(tx.txid, spend, receive, minExpected, collateralPriceFormatted, batch);
+        await onLiqTx(tx.txid, spend, receive, minExpected, dex, collateralPriceFormatted, batch);
         return;
     }
 }

@@ -1,7 +1,7 @@
 
 import { contractPrincipalCV, cvToJSON, fetchCallReadOnlyFunction, uintCV } from "@stacks/transactions";
-import { fetchFn, } from "./client/hiro";
-import { formatUnits, parseUnits } from "./units";
+import { fetchFn, } from "../client/hiro";
+import { formatUnits, parseUnits } from "../units";
 
 export const estimateSbtcToAeusdc = async (sBtcAmount: number) => {
     const stxAmount = await fetchCallReadOnlyFunction({
