@@ -2,7 +2,7 @@ import type { StacksNetworkName } from "@stacks/network";
 import { broadcastTransaction, bufferCV, contractPrincipalCV, makeContractCall, PostConditionMode, someCV, uintCV } from "@stacks/transactions";
 import { fetchFn, getAccountNonces } from "../../client/hiro";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
-import { DRY_RUN, MIN_TO_LIQUIDATE, SKIP_SWAP_CHECK, TX_TIMEOUT } from "../../constants";
+import { DRY_RUN, MIN_TO_LIQUIDATE, SKIP_SWAP_CHECK, TX_TIMEOUT, USE_FLASH_LOAN } from "../../constants";
 import { getBorrowerStatusList, getBorrowersToSync } from "../../dba/borrower";
 import { getContractList, getContractOperatorPriv, lockContract } from "../../dba/contract";
 import { insertLiquidation } from "../../dba/liquidation";
@@ -67,7 +67,9 @@ const worker = async () => {
 
     const priceAttestationBuff = hexToUint8Array(priceFeed.attestation);
 
-    const batch = makeLiquidationBatch(marketAsset, collateralAsset, borrowers, collateralPrice, liquidationPremium);
+    const flashLoanCapacity = USE_FLASH_LOAN ? (marketState.flashLoanCapacity[marketAsset.address] || 0) : 0;
+
+    const batch = makeLiquidationBatch(marketAsset, collateralAsset, flashLoanCapacity, borrowers, collateralPrice, liquidationPremium);
 
     if (batch.length === 0) {
         // logger.info("Nothing to liquidate");

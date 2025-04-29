@@ -103,7 +103,7 @@ describe("makeLiquidationBatch", () => {
             }
         ];
 
-        const batch = makeLiquidationBatch(marketAsset, collateralAsset, borrowers, collateralPrice, 10000000);
+        const batch = makeLiquidationBatch(marketAsset, collateralAsset, 0, borrowers, collateralPrice, 10000000);
         expect(batch).toEqual([
             {
                 user: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
@@ -141,7 +141,7 @@ describe("makeLiquidationBatch", () => {
             }
         ];
 
-        const batch = makeLiquidationBatch(marketAsset, collateralAsset, borrowers, collateralPrice, 10000000);
+        const batch = makeLiquidationBatch(marketAsset, collateralAsset, 0, borrowers, collateralPrice, 10000000);
 
         expect(batch).toEqual([
             {
@@ -196,7 +196,7 @@ describe("makeLiquidationBatch", () => {
             }
         ];
 
-        const batch = makeLiquidationBatch(marketAsset, collateralAsset, borrowers, collateralPrice, 10000000);
+        const batch = makeLiquidationBatch(marketAsset, collateralAsset, 0, borrowers, collateralPrice, 10000000);
         expect(batch).toEqual([
             {
                 user: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
@@ -254,7 +254,7 @@ describe("makeLiquidationBatch", () => {
             }
         ];
 
-        const batch = makeLiquidationBatch(marketAsset, collateralAsset, borrowers, collateralPrice, 10000000);
+        const batch = makeLiquidationBatch(marketAsset, collateralAsset, 0, borrowers, collateralPrice, 10000000);
         expect(batch).toEqual([
             {
                 user: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
@@ -263,6 +263,68 @@ describe("makeLiquidationBatch", () => {
             }
         ])
     });
+
+
+    test("20 usdc is available, 3 borrowers, should cover all with + 60 usdc flash loan capacity", () => {
+        const borrowers: BorrowerStatusEntity[] = [
+            {
+                address: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
+                ltv: 0.5038,
+                health: 0.9726,
+                debt: 35.7413,
+                collateral: 70.9416,
+                risk: 1.0282,
+                maxRepay: {
+                    "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 21.125664850930649,
+                },
+                totalRepayAmount: 21.125664850930649,
+            },
+            {
+                address: "ST2DXHX9Q844EBT80DYJXFWXJKCJ5FFAX53H4AZFA",
+                ltv: 0.5038,
+                health: 0.9726,
+                debt: 35.7413,
+                collateral: 70.9416,
+                risk: 1.0282,
+                maxRepay: {
+                    "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 4.623614857930649,
+                },
+                totalRepayAmount: 4.623614857930649,
+            },
+            {
+                address: "ST2VWSP59FEVDXXYGGWYG90M3N67ZST2AGPA3P2HC",
+                ltv: 0.5038,
+                health: 0.9726,
+                debt: 35.7413,
+                collateral: 70.9416,
+                risk: 1.0282,
+                maxRepay: {
+                    "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 17.9313224,
+                },
+                totalRepayAmount: 17.9313224,
+            }
+        ];
+
+        const batch = makeLiquidationBatch(marketAsset, collateralAsset, 60_00000000, borrowers, collateralPrice, 10000000);
+        expect(batch).toEqual([
+            {
+                user: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
+                liquidatorRepayAmount: 2112500000,
+                minCollateralExpected: 23796
+            },
+            {
+                liquidatorRepayAmount: 462300000,
+                minCollateralExpected: 5207,
+                user: "ST2DXHX9Q844EBT80DYJXFWXJKCJ5FFAX53H4AZFA",
+            },
+            {
+                liquidatorRepayAmount: 1793100000,
+                minCollateralExpected: 20198,
+                user: "ST2VWSP59FEVDXXYGGWYG90M3N67ZST2AGPA3P2HC",
+            }
+        ])
+    });
+
 });
 
 test("calcMinOut", () => {
