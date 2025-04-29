@@ -129,7 +129,7 @@ const worker = async () => {
         nonce
     }
 
-    if (USE_FLASH_LOAN) {
+    if (USE_FLASH_LOAN && marketAsset.balance < spendBn) {
         const callbackData = someCV(
             bufferCV(
                 serializeCVBytes(
@@ -163,7 +163,6 @@ const worker = async () => {
             someCV(bufferCV(priceAttestationBuff)),
             batchCV,
             uintCV(epoch() + TX_TIMEOUT),
-            contractPrincipalCV(contract.address, contract.name),
             uintCV(swap.dex)
         ];
 
