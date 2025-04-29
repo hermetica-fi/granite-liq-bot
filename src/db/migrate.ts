@@ -19,6 +19,7 @@ export const createDb = () => {
         "collateral_asset TEXT NOT NULL," +
         "collateral_asset_balance TEXT NOT NULL DEFAULT '0'," +
         "unprofitability_threshold TEXT," +
+        "flash_loan_sc TEXT," +
         "lock_tx TEXT," +
         "unlocks_at INTEGER," +
         "created_at INTEGER NOT NULL" +

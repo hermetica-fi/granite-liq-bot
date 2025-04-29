@@ -3,14 +3,14 @@ import { type AssetInfo, type ContractEntity } from "../types";
 import { epoch } from "../util";
 import { sqlSelect, type Filter } from "./sql";
 
-export const insertContract = (address: string, operator: string, operatorPriv: string, marketAsset: AssetInfo, collateralAsset: AssetInfo, unprofitabilityThreshold: number) => {
+export const insertContract = (address: string, operator: string, operatorPriv: string, marketAsset: AssetInfo, collateralAsset: AssetInfo, unprofitabilityThreshold: number, flashLoanSc: string) => {
     const [contractAddress, contractName] = address.trim().split('.');
 
-    dbCon.run(`INSERT INTO contract (id, address, name, operator_address, operator_priv, market_asset, collateral_asset, unprofitability_threshold, created_at) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    dbCon.run(`INSERT INTO contract (id, address, name, operator_address, operator_priv, market_asset, collateral_asset, unprofitability_threshold, flash_loan_sc, created_at) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `,
         [
-            address, contractAddress, contractName, operator, operatorPriv, JSON.stringify(marketAsset), JSON.stringify(collateralAsset), unprofitabilityThreshold, epoch()
+            address, contractAddress, contractName, operator, operatorPriv, JSON.stringify(marketAsset), JSON.stringify(collateralAsset), unprofitabilityThreshold, flashLoanSc, epoch()
         ]);
 }
 
@@ -19,7 +19,7 @@ export const getContractList = (args: {
     orderBy?: 'created_at DESC' | 'CAST(market_asset_balance AS REAL) DESC'
 }): ContractEntity[] => {
     const rows = sqlSelect({
-        fields: 'id, address, name, operator_address, operator_balance, market_asset, market_asset_balance, collateral_asset, collateral_asset_balance, unprofitability_threshold, lock_tx, unlocks_at',
+        fields: 'id, address, name, operator_address, operator_balance, market_asset, market_asset_balance, collateral_asset, collateral_asset_balance, unprofitability_threshold, flash_loan_sc, lock_tx, unlocks_at',
         table: 'contract',
         filters: args?.filters,
         orderBy: args?.orderBy || 'created_at DESC',
@@ -40,6 +40,7 @@ export const getContractList = (args: {
             balance: Number(row.collateral_asset_balance)
         } : null,
         unprofitabilityThreshold: Number(row.unprofitability_threshold),
+        flashLoanSc: row.flash_loan_sc,
         lockTx: row.lock_tx,
         unlocksAt: row.unlocks_at ? Number(row.unlocks_at) : null
     }))
