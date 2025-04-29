@@ -74,3 +74,7 @@ export const updateContractBalances = (operatorBalance: string | number, marketA
 export const updateContractUnprofitabilityThreshold = (threshold: string | number, contractId: string) => {
     dbCon.run("UPDATE contract SET unprofitability_threshold = ? WHERE id = ?", [threshold, contractId]);
 }
+
+export const updateContractFlashLoanSc = (flashLoanSc: string, contractId: string) => {
+    dbCon.run("UPDATE contract SET flash_loan_sc = ? WHERE id = ?", [flashLoanSc, contractId]);
+}
