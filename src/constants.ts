@@ -9,6 +9,7 @@ const { contracts } = market;
 
 export const IR_PARAMS_SCALING_FACTOR = market.scaling_factor.toString().match(/0/g)!.length;
 export const MARKET_ASSET_DECIMAL = market.market_asset.decimals;
+export const MARKET_ASSET = `${market.market_asset.contract.principal}.${market.market_asset.contract.name}`;
 
 export const CONTRACTS: {
     borrower: string;

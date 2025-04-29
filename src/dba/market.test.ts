@@ -3,9 +3,11 @@ import { dbCon } from "../db/con";
 import {
     getAccrueInterestParamsLocal,
     getCollateralParamsLocal, getDebtParamsLocal,
+    getFlashLoanCapacityLocal,
     getIrParamsLocal,
     getLpParamsLocal, getMarketState,
     setAccrueInterestParamsLocal, setCollateralParamsLocal, setDebtParamsLocal,
+    setFlashLoanCapacityLocal,
     setIrParamsLocal, setLpParamsLocal
 } from "./market";
 
@@ -94,6 +96,14 @@ describe("dba market", () => {
         });
     });
 
+    test("FlashLoanCapacityLocal", () => {
+        setFlashLoanCapacityLocal({ 'ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-usdc': 102543 });
+        const resp = getFlashLoanCapacityLocal();
+        expect(resp).toEqual({
+            "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-usdc": 102543,
+        });
+    })
+
 
     test("getMarketState", () => {
         dbCon.run("DELETE FROM kv_store");
@@ -140,6 +150,9 @@ describe("dba market", () => {
             },
         });
 
+        expect(() => { getMarketState() }).toThrow(Error('flashLoanCapacity not found'));
+        setFlashLoanCapacityLocal({ 'ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-usdc': 102.5785 })
+
         const resp = getMarketState();
         expect(resp).toEqual({
             irParams: {
@@ -173,7 +186,8 @@ describe("dba market", () => {
             },
             marketAssetParams: {
                 decimals: 6
-            }
+            },
+            flashLoanCapacity: { "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-usdc": 102.5785 }
         });
     });
 });

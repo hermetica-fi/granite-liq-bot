@@ -92,6 +92,7 @@ export type MarketState = {
     debtParams: DebtParams;
     collateralParams: Record<string, CollateralParams>;
     marketAssetParams: MarketAssetParams;
+    flashLoanCapacity: Record<string, number>,
 }
 
 export type LiquidationBatch = {

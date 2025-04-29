@@ -133,6 +133,7 @@ Returns: [Config](#Config)
   HAS_HIRO_API_KEY: boolean,
   IR_PARAMS_SCALING_FACTOR: number,
   MARKET_ASSET_DECIMAL: number,
+  MARKET_ASSET: string,
   MIN_TO_LIQUIDATE: number,
   MIN_TO_LIQUIDATE_PER_USER: number,
   PRICE_FEED_IDS: {
@@ -141,6 +142,7 @@ Returns: [Config](#Config)
     }[],
   SKIP_SWAP_CHECK: boolean,
   TX_TIMEOUT: 600,
-  USE_STAGING: boolean
+  USE_STAGING: boolean,
+  USE_FLASH_LOAN: boolean
 }
 ```

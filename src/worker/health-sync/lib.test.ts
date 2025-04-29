@@ -106,7 +106,8 @@ describe("health-sync lib", () => {
             },
             marketAssetParams: {
                 decimals: 8
-            }
+            },
+            flashLoanCapacity: { "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-usdc": 0 }
         };
 
         const borrower = {
@@ -162,7 +163,8 @@ describe("health-sync lib", () => {
             },
             marketAssetParams: {
                 decimals: 8
-            }
+            },
+            flashLoanCapacity: { "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-usdc": 0 }
         }
 
         const borrower = {
@@ -179,7 +181,7 @@ describe("health-sync lib", () => {
             collateral: 21555.903554761313,
             risk: 1.3679001300585538,
             maxRepay: {
-               'ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth': 9213.016077167267
+                'ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-eth': 9213.016077167267
             },
             totalRepayAmount: 9213.016077167267
         });

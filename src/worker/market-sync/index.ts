@@ -1,8 +1,8 @@
-import { getAccrueInterestParams, getCollateralParams, getDebtParams, getIrParams, getLpParams } from "../../client/read-only-call";
-import { CONTRACTS } from "../../constants";
+import { getAccrueInterestParams, getAssetBalance, getCollateralParams, getDebtParams, getIrParams, getLpParams } from "../../client/read-only-call";
+import { CONTRACTS, MARKET_ASSET, MARKET_ASSET_DECIMAL } from "../../constants";
 import {
     setAccrueInterestParamsLocal, setCollateralParamsLocal,
-    setDebtParamsLocal, setIrParamsLocal, setLpParamsLocal
+    setDebtParamsLocal, setFlashLoanCapacityLocal, setIrParamsLocal, setLpParamsLocal
 } from "../../dba/market";
 import { createLogger } from "../../logger";
 import type { CollateralParams } from "../../types";
@@ -17,6 +17,7 @@ const lastSyncTs = {
     debtParams: 0,
     collateralParams: 0,
     priceFeed: 0,
+    flashLoanCapacity: 0
 }
 
 const syncMarketState = async () => {
@@ -58,6 +59,12 @@ const syncMarketState = async () => {
         setCollateralParamsLocal(collateralParams);
         // logger.info(`setCollateralParamsLocal: ${JSON.stringify(collateralParams)}`);
         lastSyncTs.collateralParams = now;
+    }
+
+    if(lastSyncTs.flashLoanCapacity < now - 30){
+        const flashLoanCapacityBn = await getAssetBalance(MARKET_ASSET, CONTRACTS.state);
+        setFlashLoanCapacityLocal({[MARKET_ASSET]: flashLoanCapacityBn/ 10 ** MARKET_ASSET_DECIMAL});
+        lastSyncTs.flashLoanCapacity = now;
     }
 
     // logger.info(`setPriceFeedLocal: ${JSON.stringify(priceFeed)}`);
