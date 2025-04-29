@@ -51,7 +51,10 @@ describe("dba contracts", () => {
                     balance: 0,
                 },
                 unprofitabilityThreshold: 0,
-                flashLoanSc: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.flash-loan-v1",
+                flashLoanSc: {
+                    address: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T",
+                    name: "flash-loan-v1"
+                },
                 lockTx: null,
                 unlocksAt: null,
             }, {
@@ -75,7 +78,10 @@ describe("dba contracts", () => {
                     balance: 0,
                 },
                 unprofitabilityThreshold: 0,
-                flashLoanSc: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.flash-loan-v1",
+                flashLoanSc: {
+                    address: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T",
+                    name: "flash-loan-v1"
+                },
                 lockTx: null,
                 unlocksAt: null,
             }
@@ -106,7 +112,10 @@ describe("dba contracts", () => {
                     balance: 0,
                 },
                 unprofitabilityThreshold: 0,
-                flashLoanSc: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.flash-loan-v1",
+                flashLoanSc: {
+                    address: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T",
+                    name: "flash-loan-v1"
+                },
                 lockTx: null,
                 unlocksAt: null,
             }
@@ -148,7 +157,10 @@ describe("dba contracts", () => {
                 balance: 0,
             },
             unprofitabilityThreshold: 0,
-            flashLoanSc: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.flash-loan-v1",
+            flashLoanSc: {
+                address: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T",
+                name: "flash-loan-v1"
+            },
             lockTx: "0x00",
             unlocksAt: null,
         });
@@ -180,7 +192,10 @@ describe("dba contracts", () => {
                 balance: 0,
             },
             unprofitabilityThreshold: 0,
-            flashLoanSc: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.flash-loan-v1",
+            flashLoanSc: {
+                address: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T",
+                name: "flash-loan-v1"
+            },
             lockTx: "0x00",
             unlocksAt: 1738262112,
         });
@@ -212,7 +227,10 @@ describe("dba contracts", () => {
                 balance: 0,
             },
             unprofitabilityThreshold: 0,
-            flashLoanSc: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.flash-loan-v1",
+            flashLoanSc: {
+                address: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T",
+                name: "flash-loan-v1"
+            },
             lockTx: null,
             unlocksAt: null,
         });
@@ -243,7 +261,10 @@ describe("dba contracts", () => {
                 balance: 0,
             },
             unprofitabilityThreshold: 0,
-            flashLoanSc: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.flash-loan-v1",
+            flashLoanSc: {
+                address: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T",
+                name: "flash-loan-v1"
+            },
             lockTx: null,
             unlocksAt: null,
         });

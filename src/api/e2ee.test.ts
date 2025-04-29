@@ -97,7 +97,9 @@ const ADDRESS = getAddressFromPrivateKey(wallet.accounts[0].stxPrivateKey, 'main
 mock.module("../client/hiro", () => {
     return {
         getContractInfo: () => {
-            return {}
+            return {
+
+            }
         }
     }
 });
@@ -108,7 +110,8 @@ mock.module("../client/read-only-call", () => {
             return {
                 operator: ADDRESS,
                 marketAsset: '',
-                collateralAsset: ''
+                collateralAsset: '',
+                flashLoanSc: "SP1NNSAHT51JS8MEDDBYC7WYD2A2EGB0EMVD35KMA.flash-loan-v1"
             }
         },
         getAssetInfo: () => {
@@ -187,7 +190,10 @@ describe("api e2e", () => {
                 lockTx: "",
                 unlocksAt: null,
                 unprofitabilityThreshold: 0,
-                flashLoanSc: "SP1NNSAHT51JS8MEDDBYC7WYD2A2EGB0EMVD35KMA.flash-loan-v1"
+                flashLoanSc: {
+                    address: "SP1NNSAHT51JS8MEDDBYC7WYD2A2EGB0EMVD35KMA",
+                    name: "flash-loan-v1"
+                }
             }
         ]);
     })

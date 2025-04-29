@@ -40,7 +40,10 @@ export const getContractList = (args: {
             balance: Number(row.collateral_asset_balance)
         } : null,
         unprofitabilityThreshold: Number(row.unprofitability_threshold),
-        flashLoanSc: row.flash_loan_sc,
+        flashLoanSc: {
+            address: row.flash_loan_sc.split(".")[0],
+            name: row.flash_loan_sc.split(".")[1],
+        },
         lockTx: row.lock_tx,
         unlocksAt: row.unlocks_at ? Number(row.unlocks_at) : null
     }))

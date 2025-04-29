@@ -30,7 +30,10 @@ export type ContractEntity = {
     marketAsset: AssetInfoWithBalance | null,
     collateralAsset: AssetInfoWithBalance | null,
     unprofitabilityThreshold: number,
-    flashLoanSc: string,
+    flashLoanSc: {
+        address: string,
+        name: string
+    },
     lockTx: string | null
     unlocksAt: number | null,
 }
