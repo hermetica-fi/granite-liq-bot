@@ -114,6 +114,10 @@ const worker = async () => {
         return;
     }
 
+    const priv = getContractOperatorPriv(contract.id)!;
+    const nonce = (await getAccountNonces(contract.operatorAddress, 'mainnet')).possible_next_nonce;
+    const fee = await estimateTxFeeOptimistic();
+    
     const functionArgs = [
         someCV(bufferCV(priceAttestationBuff)),
         batchCV,
@@ -121,10 +125,6 @@ const worker = async () => {
         contractPrincipalCV(contract.address, contract.name),
         uintCV(swap.dex)
     ];
-
-    const priv = getContractOperatorPriv(contract.id)!;
-    const nonce = (await getAccountNonces(contract.operatorAddress, 'mainnet')).possible_next_nonce;
-    const fee = await estimateTxFeeOptimistic();
 
     const txOptions = {
         contractAddress: contract.address,
