@@ -1,6 +1,6 @@
 import { describe, expect, setSystemTime, test } from "bun:test";
 import { epoch } from "../util";
-import { getContractList, getContractOperatorPriv, insertContract, lockContract, unlockContract, unlockContractSchedule, updateContractBalances } from "./contract";
+import { getContractList, getContractOperatorPriv, insertContract, lockContract, unlockContract, unlockContractSchedule, updateContractBalances, updateContractFlashLoanSc, updateContractUnprofitabilityThreshold } from "./contract";
 
 describe("dba contracts", () => {
     test("insertContract", () => {
@@ -264,6 +264,74 @@ describe("dba contracts", () => {
             flashLoanSc: {
                 address: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T",
                 name: "flash-loan-v1"
+            },
+            lockTx: null,
+            unlocksAt: null,
+        });
+    });
+
+    test("updateContractUnprofitabilityThreshold", () => {
+        updateContractUnprofitabilityThreshold(10, "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.liquidator");
+        const contracts = getContractList({ filters: [['id', '=', 'SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.liquidator']] });
+        expect(contracts.length).toEqual(1);
+        expect(contracts[0]).toEqual({
+            id: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.liquidator",
+            address: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T",
+            name: "liquidator",
+            operatorAddress: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T",
+            operatorBalance: 1000000,
+            marketAsset: {
+                address: "SP3Y2ZSH8P7D50B0VBTSX11S7XSG24M1VB9YFQA4K.token-aeusdc",
+                name: "Ethereum USDC via Allbridge",
+                symbol: "aeUSDC",
+                decimals: 6,
+                balance: 100000000,
+            },
+            collateralAsset: {
+                address: "SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token",
+                name: "sBTC",
+                symbol: "sBTC",
+                decimals: 8,
+                balance: 0,
+            },
+            unprofitabilityThreshold: 10,
+            flashLoanSc: {
+                address: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T",
+                name: "flash-loan-v1"
+            },
+            lockTx: null,
+            unlocksAt: null,
+        });
+    });
+
+    test("updateContractFlashLoanSc", () => {
+        updateContractFlashLoanSc("SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.flash-loan-v2", "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.liquidator");
+        const contracts = getContractList({ filters: [['id', '=', 'SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.liquidator']] });
+        expect(contracts.length).toEqual(1);
+        expect(contracts[0]).toEqual({
+            id: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.liquidator",
+            address: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T",
+            name: "liquidator",
+            operatorAddress: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T",
+            operatorBalance: 1000000,
+            marketAsset: {
+                address: "SP3Y2ZSH8P7D50B0VBTSX11S7XSG24M1VB9YFQA4K.token-aeusdc",
+                name: "Ethereum USDC via Allbridge",
+                symbol: "aeUSDC",
+                decimals: 6,
+                balance: 100000000,
+            },
+            collateralAsset: {
+                address: "SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token",
+                name: "sBTC",
+                symbol: "sBTC",
+                decimals: 8,
+                balance: 0,
+            },
+            unprofitabilityThreshold: 10,
+            flashLoanSc: {
+                address: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T",
+                name: "flash-loan-v2"
             },
             lockTx: null,
             unlocksAt: null,
