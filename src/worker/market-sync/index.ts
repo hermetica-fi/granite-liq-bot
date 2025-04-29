@@ -1,5 +1,5 @@
 import { getAccrueInterestParams, getAssetBalance, getCollateralParams, getDebtParams, getIrParams, getLpParams } from "../../client/read-only-call";
-import { CONTRACTS, MARKET_ASSET, MARKET_ASSET_DECIMAL } from "../../constants";
+import { CONTRACTS, MARKET_ASSET } from "../../constants";
 import {
     setAccrueInterestParamsLocal, setCollateralParamsLocal,
     setDebtParamsLocal, setFlashLoanCapacityLocal, setIrParamsLocal, setLpParamsLocal
@@ -62,8 +62,8 @@ const syncMarketState = async () => {
     }
 
     if(lastSyncTs.flashLoanCapacity < now - 60){
-        const flashLoanCapacityBn = await getAssetBalance(MARKET_ASSET, CONTRACTS.state);
-        setFlashLoanCapacityLocal({[MARKET_ASSET]: flashLoanCapacityBn/ 10 ** MARKET_ASSET_DECIMAL});
+        const flashLoanCapacity = await getAssetBalance(MARKET_ASSET, CONTRACTS.state);
+        setFlashLoanCapacityLocal({[MARKET_ASSET]: flashLoanCapacity});
         lastSyncTs.flashLoanCapacity = now;
     }
 

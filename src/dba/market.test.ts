@@ -151,7 +151,7 @@ describe("dba market", () => {
         });
 
         expect(() => { getMarketState() }).toThrow(Error('flashLoanCapacity not found'));
-        setFlashLoanCapacityLocal({ 'ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-usdc': 102.5785 })
+        setFlashLoanCapacityLocal({ 'ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-usdc': 1025785 })
 
         const resp = getMarketState();
         expect(resp).toEqual({
@@ -187,7 +187,7 @@ describe("dba market", () => {
             marketAssetParams: {
                 decimals: 6
             },
-            flashLoanCapacity: { "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-usdc": 102.5785 }
+            flashLoanCapacity: { "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-usdc": 1025785 }
         });
     });
 });
