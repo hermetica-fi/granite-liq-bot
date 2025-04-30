@@ -30,6 +30,10 @@ export type ContractEntity = {
     marketAsset: AssetInfoWithBalance | null,
     collateralAsset: AssetInfoWithBalance | null,
     unprofitabilityThreshold: number,
+    flashLoanSc: {
+        address: string,
+        name: string
+    },
     lockTx: string | null
     unlocksAt: number | null,
 }
@@ -92,6 +96,7 @@ export type MarketState = {
     debtParams: DebtParams;
     collateralParams: Record<string, CollateralParams>;
     marketAssetParams: MarketAssetParams;
+    flashLoanCapacity: Record<string, number>,
 }
 
 export type LiquidationBatch = {

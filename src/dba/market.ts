@@ -52,6 +52,15 @@ export const setCollateralParamsLocal = (collateralParams: Record<string, Collat
     kvStoreSet(`collateral-params`, JSON.stringify(collateralParams));
 }
 
+export const setFlashLoanCapacityLocal = (params: Record<string, number>) => {
+    kvStoreSet(`flash-loan-capacity`, JSON.stringify(params));
+}
+
+export const getFlashLoanCapacityLocal = (): Record<string, number> | null => {
+    const r = kvStoreGet(`flash-loan-capacity`);
+    return r ? JSON.parse(r) : null;
+}
+
 export const getMarketState = (): MarketState => {
     const irParams = getIrParamsLocal();
     assert(irParams, 'irParams not found');
@@ -64,6 +73,8 @@ export const getMarketState = (): MarketState => {
     const collateralParams = getCollateralParamsLocal();
     assert(collateralParams, 'collateralParams not found');
     assert(Object.keys(collateralParams).length > 0, 'collateralParams is empty');
+    const flashLoanCapacity = getFlashLoanCapacityLocal();
+    assert(flashLoanCapacity, 'flashLoanCapacity not found');
 
     return {
         irParams,
@@ -73,7 +84,8 @@ export const getMarketState = (): MarketState => {
         collateralParams,
         marketAssetParams: {
             decimals: MARKET_ASSET_DECIMAL
-        }
+        },
+        flashLoanCapacity
     }
 }
 

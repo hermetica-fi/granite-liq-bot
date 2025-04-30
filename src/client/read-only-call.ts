@@ -247,11 +247,13 @@ export const getLiquidatorContractInfo = async (address: string) => {
   const marketAsset = info.value["market-asset"].value;
   const collateralAsset = info.value["collateral-asset"].value;
   const unprofitabilityThreshold = Number(info.value["unprofitability-threshold"].value);
+  const flashLoanSc = info.value["flash-loan-sc"].value
 
   return {
     operator,
     marketAsset,
     collateralAsset,
-    unprofitabilityThreshold
+    unprofitabilityThreshold,
+    flashLoanSc
   }
 }

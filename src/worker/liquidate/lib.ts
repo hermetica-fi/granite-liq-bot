@@ -43,10 +43,10 @@ export const calcCollateralToGive = (repayAmount: bigint, liquidationDiscount: b
     return decimalCorrectedCollateral;
 }
 
-export const makeLiquidationBatch = (marketAssetInfo: AssetInfoWithBalance, collateralAssetInfo: AssetInfoWithBalance, borrowers: BorrowerStatusEntity[], collateralPrice: number, liquidationPremium: number): LiquidationBatch[] => {
+export const makeLiquidationBatch = (marketAssetInfo: AssetInfoWithBalance, collateralAssetInfo: AssetInfoWithBalance, flashLoanCapacity: number, borrowers: BorrowerStatusEntity[], collateralPrice: number, liquidationPremium: number): LiquidationBatch[] => {
     const batch: LiquidationBatch[] = [];
 
-    let availableBn = marketAssetInfo.balance;
+    let availableBn = marketAssetInfo.balance + flashLoanCapacity;
 
     for (const borrower of borrowers) {
         if (availableBn <= 0) {

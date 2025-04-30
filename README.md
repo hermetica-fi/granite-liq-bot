@@ -27,6 +27,7 @@ docker-compose up --build -d
 - `SKIP_SWAP_CHECK`: (optional) 1 to skip swap output check. Note that transactions might fail
 - `SLACK_TOKEN`: Slack oauth token for alerts
 - `SLACK_CHANNEL_ID`: Channel id to push slack alert messages
+- `USE_FLASH_LOAN`: 1 to use flash loan based liquidations
 
 ## API
 

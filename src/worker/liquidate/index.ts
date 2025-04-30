@@ -1,8 +1,8 @@
 import type { StacksNetworkName } from "@stacks/network";
-import { broadcastTransaction, bufferCV, contractPrincipalCV, makeContractCall, PostConditionMode, someCV, uintCV } from "@stacks/transactions";
+import { broadcastTransaction, bufferCV, contractPrincipalCV, makeContractCall, PostConditionMode, serializeCVBytes, someCV, tupleCV, uintCV, type ClarityValue, type SignedContractCallOptions } from "@stacks/transactions";
 import { fetchFn, getAccountNonces } from "../../client/hiro";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
-import { DRY_RUN, MIN_TO_LIQUIDATE, SKIP_SWAP_CHECK, TX_TIMEOUT } from "../../constants";
+import { DRY_RUN, MIN_TO_LIQUIDATE, SKIP_SWAP_CHECK, TX_TIMEOUT, USE_FLASH_LOAN } from "../../constants";
 import { getBorrowerStatusList, getBorrowersToSync } from "../../dba/borrower";
 import { getContractList, getContractOperatorPriv, lockContract } from "../../dba/contract";
 import { insertLiquidation } from "../../dba/liquidation";
@@ -67,7 +67,9 @@ const worker = async () => {
 
     const priceAttestationBuff = hexToUint8Array(priceFeed.attestation);
 
-    const batch = makeLiquidationBatch(marketAsset, collateralAsset, borrowers, collateralPrice, liquidationPremium);
+    const flashLoanCapacity = USE_FLASH_LOAN ? (marketState.flashLoanCapacity[marketAsset.address] || 0) : 0;
+
+    const batch = makeLiquidationBatch(marketAsset, collateralAsset, flashLoanCapacity, borrowers, collateralPrice, liquidationPremium);
 
     if (batch.length === 0) {
         // logger.info("Nothing to liquidate");
@@ -112,30 +114,65 @@ const worker = async () => {
         return;
     }
 
-    const functionArgs = [
-        someCV(bufferCV(priceAttestationBuff)),
-        batchCV,
-        uintCV(epoch() + TX_TIMEOUT),
-        contractPrincipalCV(contract.address, contract.name),
-        uintCV(swap.dex)
-    ];
-
     const priv = getContractOperatorPriv(contract.id)!;
     const nonce = (await getAccountNonces(contract.operatorAddress, 'mainnet')).possible_next_nonce;
     const fee = await estimateTxFeeOptimistic();
 
-    const txOptions = {
-        contractAddress: contract.address,
-        contractName: contract.name,
-        functionName: "liquidate-with-swap",
-        functionArgs,
+    let functionArgs: ClarityValue[];
+    let txOptions: SignedContractCallOptions;
+    const baseTxOptions = {
         senderKey: priv,
-        senderAddress: contract.operatorAddress,
         network: 'mainnet' as StacksNetworkName,
         fee,
         validateWithAbi: true,
         postConditionMode: PostConditionMode.Allow,
         nonce
+    }
+
+    if (USE_FLASH_LOAN && marketAsset.balance < spendBn) {
+        const callbackData = someCV(
+            bufferCV(
+                serializeCVBytes(
+                    tupleCV({
+                        "pyth-price-feed-data": someCV(bufferCV(priceAttestationBuff)),
+                        batch: batchCV,
+                        deadline: uintCV(epoch() + TX_TIMEOUT),
+                        dex: uintCV(swap.dex)
+                    })
+                )
+            )
+        );
+
+        const loanAmount = spendBn - marketAsset.balance;
+
+        functionArgs = [
+            uintCV(loanAmount),
+            contractPrincipalCV(contract.address, contract.name),
+            callbackData
+        ];
+
+        txOptions = {
+            contractAddress: contract.flashLoanSc.address,
+            contractName: contract.flashLoanSc.name,
+            functionName: "flash-loan",
+            functionArgs,
+            ...baseTxOptions
+        }
+    } else {
+        functionArgs = [
+            someCV(bufferCV(priceAttestationBuff)),
+            batchCV,
+            uintCV(epoch() + TX_TIMEOUT),
+            uintCV(swap.dex)
+        ];
+
+        txOptions = {
+            contractAddress: contract.address,
+            contractName: contract.name,
+            functionName: "liquidate-with-swap",
+            functionArgs,
+            ...baseTxOptions
+        };
     }
 
     const call = await makeContractCall({ ...txOptions, network: 'mainnet', client: { fetch: fetchFn } });
