@@ -285,8 +285,8 @@ describe("api e2e", () => {
             IR_PARAMS_SCALING_FACTOR: 12,
             MARKET_ASSET_DECIMAL: 6,
             MARKET_ASSET: "SP3Y2ZSH8P7D50B0VBTSX11S7XSG24M1VB9YFQA4K.token-aeusdc",
-            MIN_TO_LIQUIDATE: 0.1,
-            MIN_TO_LIQUIDATE_PER_USER: 0.1,
+            MIN_TO_LIQUIDATE: 2,
+            MIN_TO_LIQUIDATE_PER_USER: 0.5,
             PRICE_FEED_IDS: [
                 {
                     ticker: "usdc",
