@@ -300,7 +300,8 @@ describe("api e2e", () => {
             SKIP_SWAP_CHECK: false,
             TX_TIMEOUT: 600,
             USE_STAGING: false,
-            USE_FLASH_LOAN: false
+            USE_FLASH_LOAN: false,
+            USE_USDH: false
         })
     });
 
