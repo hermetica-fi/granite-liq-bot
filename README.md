@@ -28,6 +28,8 @@ docker-compose up --build -d
 - `SLACK_TOKEN`: Slack oauth token for alerts
 - `SLACK_CHANNEL_ID`: Channel id to push slack alert messages
 - `USE_FLASH_LOAN`: 1 to use flash loan based liquidations
+- `USE_USDH`: 1 to use USDh based liquidations
+- `GRANITE_RPC`: Granite Rpc node to make heavy read only contract calls
 
 ## API
 

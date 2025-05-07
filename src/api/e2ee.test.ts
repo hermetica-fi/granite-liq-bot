@@ -281,6 +281,7 @@ describe("api e2e", () => {
             },
             DRY_RUN: false,
             ENV: "test",
+            GRANITE_RPC: "https://leather.granite.world",
             HAS_HIRO_API_KEY: true,
             IR_PARAMS_SCALING_FACTOR: 12,
             MARKET_ASSET_DECIMAL: 6,

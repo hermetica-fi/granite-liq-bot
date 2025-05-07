@@ -41,3 +41,4 @@ export const USE_USDH = process.env.USE_USDH === "1";
 export const ALERT_BALANCE = 5_00000;
 
 export const HAS_HIRO_API_KEY = process.env.HIRO_API_KEY !== undefined;
+export const GRANITE_RPC = process.env.GRANITE_RPC;
