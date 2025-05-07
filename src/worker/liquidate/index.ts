@@ -90,7 +90,7 @@ const worker = async () => {
 
     // Swap check
     const minExpected = formatUnits(calcMinOut(spendBn, contract.unprofitabilityThreshold), marketAsset.decimals);
-    const swap = await estimateSbtcToAeusdc(receive);
+    const swap = await estimateSbtcToAeusdc(receive, USE_USDH ? { btcPriceBn: BigInt(cFeed.price.price), minterContract: contract.id } : undefined);
     const dex = getDexNameById(swap.dex);
 
     if (swap.dy < minExpected) {
