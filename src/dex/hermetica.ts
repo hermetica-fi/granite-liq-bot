@@ -2,7 +2,7 @@ import { contractPrincipalCV, cvToJSON, fetchCallReadOnlyFunction } from "@stack
 import { fetchFn } from "../client/hiro";
 import { formatUnits, parseUnits } from "../units";
 
-const getPriceSlippage = async (minterContract: string) => {
+export const getPriceSlippage = async (minterContract: string) => {
     return await fetchCallReadOnlyFunction({
         contractAddress: 'SPN5AKG35QZSK2M8GAMR4AFX45659RJHDW353HSG',
         contractName: 'minting-auto-v1',
@@ -22,7 +22,6 @@ const getPriceSlippage = async (minterContract: string) => {
 export const estimateSbtcToUsdhMint = async (sBtcAmount: number, btcPriceBn: bigint, minterContract: string) => {
     const sBtcAmountBn = BigInt(parseUnits(sBtcAmount, 8));
     const priceSlippageBps = BigInt(await getPriceSlippage(minterContract));
-    console.log(priceSlippageBps)
     const bpsBase = 10000n;
     const tokenBase = 100000000n; // 8 decimals same for: btc, pyth btc price, usdh
     const slippageAmount = (btcPriceBn * priceSlippageBps) / bpsBase;
@@ -32,4 +31,3 @@ export const estimateSbtcToUsdhMint = async (sBtcAmount: number, btcPriceBn: big
 
     return formatUnits(Number(mintableUsdh), 8);
 }
-
