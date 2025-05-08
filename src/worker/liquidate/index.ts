@@ -67,7 +67,17 @@ const worker = async () => {
 
     const priceAttestationBuff = hexToUint8Array(priceFeed.attestation);
 
-    const flashLoanCapacity = USE_FLASH_LOAN ? (marketState.flashLoanCapacity[marketAsset.address] || 0) : 0;
+    const flashLoanCapacity = (() => {
+        if (USE_USDH) {
+            return 0;
+        }
+
+        if (USE_FLASH_LOAN) {
+            return marketState.flashLoanCapacity[marketAsset.address] || 0;
+        }
+
+        return 0;
+    })();
 
     const batch = makeLiquidationBatch(marketAsset, collateralAsset, flashLoanCapacity, borrowers, collateralPrice, liquidationPremium);
 
