@@ -290,12 +290,12 @@ describe("api e2e", () => {
             MIN_TO_LIQUIDATE_PER_USER: 0.5,
             PRICE_FEED_IDS: [
                 {
-                    ticker: "usdc",
-                    feed_id: "0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a",
-                },
-                {
                     ticker: "btc",
                     feed_id: "0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43",
+                },
+                {
+                    ticker: "usdc",
+                    feed_id: "0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a",
                 }
             ],
             SKIP_SWAP_CHECK: false,

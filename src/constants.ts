@@ -25,7 +25,7 @@ export const CONTRACTS: {
     collaterals: market.collaterals.map(x => `${x.contract.principal}.${x.contract.name}`)
 };
 
-export const PRICE_FEED_IDS: { ticker: Ticker, feed_id: string }[] = [market.market_asset, ...market.collaterals]
+export const PRICE_FEED_IDS: { ticker: Ticker, feed_id: string }[] = [...market.collaterals, market.market_asset]
     .map(a => ({ ticker: toTicker(a.display_name), feed_id: `0x${a.price_feed!}` }));
 
 export const MIN_TO_LIQUIDATE = 2; // usdc
