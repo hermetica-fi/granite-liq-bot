@@ -129,12 +129,13 @@ const worker = async () => {
         postConditionMode: PostConditionMode.Allow,
         nonce
     }
+    const deadline = epoch() + TX_TIMEOUT;
 
     if (USE_USDH) {
         functionArgs = [
             someCV(bufferCV(priceAttestationBuff)),
             batchCV,
-            uintCV(epoch() + TX_TIMEOUT),
+            uintCV(deadline),
             uintCV(cFeed.price.price),
             uintCV(500)
         ];
@@ -154,7 +155,7 @@ const worker = async () => {
                         tupleCV({
                             "pyth-price-feed-data": someCV(bufferCV(priceAttestationBuff)),
                             batch: batchCV,
-                            deadline: uintCV(epoch() + TX_TIMEOUT),
+                            deadline: uintCV(deadline),
                             dex: uintCV(swap.dex)
                         })
                     )
@@ -180,7 +181,7 @@ const worker = async () => {
             functionArgs = [
                 someCV(bufferCV(priceAttestationBuff)),
                 batchCV,
-                uintCV(epoch() + TX_TIMEOUT),
+                uintCV(deadline),
                 uintCV(swap.dex)
             ];
 
