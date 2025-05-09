@@ -28,8 +28,8 @@ export const CONTRACTS: {
 export const PRICE_FEED_IDS: { ticker: Ticker, feed_id: string }[] = [...market.collaterals, market.market_asset]
     .map(a => ({ ticker: toTicker(a.display_name), feed_id: `0x${a.price_feed!}` }));
 
-export const MIN_TO_LIQUIDATE = 2; // usdc
-export const MIN_TO_LIQUIDATE_PER_USER = 0.5; // usdc
+export const MIN_TO_LIQUIDATE = 4; // usdc
+export const MIN_TO_LIQUIDATE_PER_USER = 1; // usdc
 export const TX_TIMEOUT = 60 * 10; // seconds
 export const BORROWER_SYNC_DELAY = 10; // seconds
 
