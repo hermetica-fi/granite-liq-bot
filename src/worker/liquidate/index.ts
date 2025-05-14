@@ -67,17 +67,7 @@ const worker = async () => {
 
     const priceAttestationBuff = hexToUint8Array(priceFeed.attestation);
 
-    const flashLoanCapacity = (() => {
-        if (USE_USDH) {
-            return 0;
-        }
-
-        if (USE_FLASH_LOAN) {
-            return marketState.flashLoanCapacity[marketAsset.address] || 0;
-        }
-
-        return 0;
-    })();
+    const flashLoanCapacity = USE_FLASH_LOAN ? (marketState.flashLoanCapacity[marketAsset.address] || 0) : 0;
 
     const batch = makeLiquidationBatch(marketAsset, collateralAsset, flashLoanCapacity, borrowers, collateralPrice, liquidationPremium);
 
@@ -142,21 +132,54 @@ const worker = async () => {
     const deadline = epoch() + TX_TIMEOUT;
 
     if (USE_USDH) {
-        functionArgs = [
-            someCV(bufferCV(priceAttestationBuff)),
-            batchCV,
-            uintCV(deadline),
-            uintCV(cFeed.price.price),
-            uintCV(500)
-        ];
+        if (USE_FLASH_LOAN && marketAsset.balance < spendBn) {
+            const callbackData = someCV(
+                bufferCV(
+                    serializeCVBytes(
+                        tupleCV({
+                            "pyth-price-feed-data": someCV(bufferCV(priceAttestationBuff)),
+                            batch: batchCV,
+                            deadline: uintCV(deadline),
+                            dex: uintCV(999),
+                            "btc-price": uintCV(cFeed.price.price),
+                            "price-slippage-tolerance": uintCV(500)
+                        })
+                    )
+                )
+            );
 
-        txOptions = {
-            contractAddress: contract.address,
-            contractName: contract.name,
-            functionName: "liquidate-with-usdh-swap",
-            functionArgs,
-            ...baseTxOptions
-        };
+            const loanAmount = spendBn - marketAsset.balance;
+
+            functionArgs = [
+                uintCV(loanAmount),
+                contractPrincipalCV(contract.address, contract.name),
+                callbackData
+            ];
+
+            txOptions = {
+                contractAddress: contract.flashLoanSc.address,
+                contractName: contract.flashLoanSc.name,
+                functionName: "flash-loan",
+                functionArgs,
+                ...baseTxOptions
+            }
+        } else {
+            functionArgs = [
+                someCV(bufferCV(priceAttestationBuff)),
+                batchCV,
+                uintCV(deadline),
+                uintCV(cFeed.price.price),
+                uintCV(500)
+            ];
+
+            txOptions = {
+                contractAddress: contract.address,
+                contractName: contract.name,
+                functionName: "liquidate-with-usdh-swap",
+                functionArgs,
+                ...baseTxOptions
+            };
+        }
     } else {
         if (USE_FLASH_LOAN && marketAsset.balance < spendBn) {
             const callbackData = someCV(
@@ -166,7 +189,9 @@ const worker = async () => {
                             "pyth-price-feed-data": someCV(bufferCV(priceAttestationBuff)),
                             batch: batchCV,
                             deadline: uintCV(deadline),
-                            dex: uintCV(swap.dex)
+                            dex: uintCV(swap.dex),
+                            "btc-price": uintCV(0),
+                            "price-slippage-tolerance": uintCV(0)
                         })
                     )
                 )
