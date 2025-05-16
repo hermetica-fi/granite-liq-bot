@@ -2,7 +2,7 @@ import type { StacksNetworkName } from "@stacks/network";
 import { bufferCV, contractPrincipalCV, listCV, PostConditionMode, principalCV, serializeCVBytes, someCV, tupleCV, uintCV, type SignedContractCallOptions } from "@stacks/transactions";
 import type { PriceFeedResponse } from "../../client/pyth";
 import { MIN_TO_LIQUIDATE_PER_USER, TX_TIMEOUT, USDH_SLIPPAGE_TOLERANCE } from "../../constants";
-import type { SwapInfo } from "../../dex";
+import { DEX_USDH_FLASH_LOAN, type SwapInfo } from "../../dex";
 import { hexToUint8Array, toTicker } from "../../helper";
 import type { ContractEntity, LiquidationBatch, LiquidationBatchWithStats } from "../../types";
 import { type AssetInfoWithBalance, type BorrowerStatusEntity } from "../../types";
@@ -135,7 +135,7 @@ export const makeLiquidationTxOptions = (
                             "pyth-price-feed-data": someCV(bufferCV(priceAttestationBuff)),
                             batch: batchCV,
                             deadline: uintCV(deadline),
-                            dex: uintCV(999),
+                            dex: uintCV(DEX_USDH_FLASH_LOAN),
                             "btc-price": uintCV(cFeed.price.price),
                             "price-slippage-tolerance": uintCV(USDH_SLIPPAGE_TOLERANCE)
                         })
