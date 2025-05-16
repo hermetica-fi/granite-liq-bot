@@ -1,5 +1,5 @@
 import type { StacksNetworkName } from "@stacks/network";
-import { broadcastTransaction, bufferCV, contractPrincipalCV, makeContractCall, PostConditionMode, serializeCVBytes, someCV, tupleCV, uintCV, type ClarityValue, type SignedContractCallOptions } from "@stacks/transactions";
+import { broadcastTransaction, bufferCV, contractPrincipalCV, makeContractCall, PostConditionMode, serializeCVBytes, someCV, tupleCV, uintCV, type SignedContractCallOptions } from "@stacks/transactions";
 import { fetchFn, getAccountNonces } from "../../client/hiro";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
 import { DRY_RUN, MIN_TO_LIQUIDATE, SKIP_SWAP_CHECK, TX_TIMEOUT, USDH_SLIPPAGE_TOLERANCE, USE_FLASH_LOAN, USE_USDH } from "../../constants";
@@ -119,7 +119,6 @@ const worker = async () => {
     const nonce = (await getAccountNonces(contract.operatorAddress, 'mainnet')).possible_next_nonce;
     const fee = await estimateTxFeeOptimistic();
 
-    let functionArgs: ClarityValue[];
     let txOptions: SignedContractCallOptions;
     const baseTxOptions = {
         senderKey: priv,
@@ -150,7 +149,7 @@ const worker = async () => {
 
             const loanAmount = spendBn - marketAsset.balance;
 
-            functionArgs = [
+            const functionArgs = [
                 uintCV(loanAmount),
                 contractPrincipalCV(contract.address, contract.name),
                 callbackData
@@ -164,7 +163,7 @@ const worker = async () => {
                 ...baseTxOptions
             }
         } else {
-            functionArgs = [
+            const functionArgs = [
                 someCV(bufferCV(priceAttestationBuff)),
                 batchCV,
                 uintCV(deadline),
@@ -199,7 +198,7 @@ const worker = async () => {
 
             const loanAmount = spendBn - marketAsset.balance;
 
-            functionArgs = [
+            const functionArgs = [
                 uintCV(loanAmount),
                 contractPrincipalCV(contract.address, contract.name),
                 callbackData
@@ -213,7 +212,7 @@ const worker = async () => {
                 ...baseTxOptions
             }
         } else {
-            functionArgs = [
+            const functionArgs = [
                 someCV(bufferCV(priceAttestationBuff)),
                 batchCV,
                 uintCV(deadline),
