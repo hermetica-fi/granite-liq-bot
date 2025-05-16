@@ -2,7 +2,7 @@ import type { StacksNetworkName } from "@stacks/network";
 import { bufferCV, contractPrincipalCV, listCV, PostConditionMode, principalCV, serializeCVBytes, someCV, tupleCV, uintCV, type SignedContractCallOptions } from "@stacks/transactions";
 import type { PriceFeedResponse } from "../../client/pyth";
 import { MIN_TO_LIQUIDATE_PER_USER, TX_TIMEOUT, USDH_SLIPPAGE_TOLERANCE } from "../../constants";
-import type { SwapResponse } from "../../dex";
+import type { SwapInfo } from "../../dex";
 import { hexToUint8Array, toTicker } from "../../helper";
 import type { ContractEntity, LiquidationBatch } from "../../types";
 import { type AssetInfoWithBalance, type BorrowerStatusEntity } from "../../types";
@@ -96,7 +96,7 @@ export const makeLiquidationTxOptions = (
         {
             contract: ContractEntity, priv: string, nonce: number, fee: number,
             batch: LiquidationBatch[], spendBn: number, priceFeed: PriceFeedResponse,
-            useFlashLoan: boolean, useUsdh: boolean, swap: SwapResponse
+            useFlashLoan: boolean, useUsdh: boolean, swap: SwapInfo
         }): SignedContractCallOptions => {
 
     const marketAsset = contract.marketAsset!;

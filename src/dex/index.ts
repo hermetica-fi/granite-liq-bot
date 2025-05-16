@@ -5,7 +5,7 @@ import { estimateSbtcToUsdhMint } from "./hermetica";
 const DEX_ALEX = 1;
 const DEX_BITFLOW = 2;
 
-export type SwapResponse = { dex: number, dy: number }
+export type SwapInfo = { dex: number, dy: number }
 
 export const getDexNameById = (id: number) => {
     if (id === DEX_ALEX) {
@@ -20,7 +20,7 @@ export const getDexNameById = (id: number) => {
 export const estimateSbtcToAeusdc = async (sBtcAmount: number, usdhContext?: {
     btcPriceBn: bigint,
     minterContract: string
-}): Promise<SwapResponse> => {
+}): Promise<SwapInfo> => {
     if (usdhContext) {
         const usdh = await estimateSbtcToUsdhMint(sBtcAmount, usdhContext.btcPriceBn, usdhContext.minterContract);
         const aeUsdc = await estimateUsdhToToAeusdc(usdh);
