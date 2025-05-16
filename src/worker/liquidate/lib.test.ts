@@ -471,7 +471,7 @@ describe("makeLiquidationTxOptions", () => {
 
     const swap = { dex: 2, dy: 1000 };
 
-    test("normal dex liquidation", () => {
+    test("dex liquidation", () => {
         const txOptions = makeLiquidationTxOptions({
             contract,
             priv,
@@ -485,6 +485,52 @@ describe("makeLiquidationTxOptions", () => {
         });
     
         expect(txOptions).toMatchSnapshot();
-    })
+    });
+
+
+    test("flash loan + dex liquidation", () => {
+        const txOptions = makeLiquidationTxOptions({
+            contract,
+            priv,
+            nonce,
+            fee,
+            batchInfo,
+            priceFeed,
+            swap,
+            useFlashLoan: true,
+            useUsdh: false,
+        });
+    
+        expect(txOptions).toMatchSnapshot();
+    });
+
+    test("flash loan + dex liquidation while sufficient capital is on the contract", () => {
+        const txOptions = makeLiquidationTxOptions({
+            contract,
+            priv,
+            nonce,
+            fee,
+            batchInfo: {
+                batch: [
+                    {
+                        user: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
+                        liquidatorRepayAmount: 2112500,
+                        minCollateralExpected: 1379
+                    }
+                ],
+                spendBn: 2112500,
+                spend: 2.1125,
+                receiveBn: 1379,
+                receive: 0.00001379,
+            },
+            priceFeed,
+            swap,
+            useFlashLoan: true,
+            useUsdh: false,
+        });
+    
+        expect(txOptions).toMatchSnapshot();
+    });
+    
 });
 
