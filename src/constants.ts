@@ -37,6 +37,7 @@ export const DRY_RUN = process.env.DRY_RUN === "1";
 export const SKIP_SWAP_CHECK = process.env.SKIP_SWAP_CHECK === "1";
 export const USE_FLASH_LOAN = process.env.USE_FLASH_LOAN === "1";
 export const USE_USDH = process.env.USE_USDH === "1";
+export const USDH_SLIPPAGE_TOLERANCE = 500;
 
 export const ALERT_BALANCE = 5_00000;
 

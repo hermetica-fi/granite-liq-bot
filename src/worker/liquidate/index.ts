@@ -2,7 +2,7 @@ import type { StacksNetworkName } from "@stacks/network";
 import { broadcastTransaction, bufferCV, contractPrincipalCV, makeContractCall, PostConditionMode, serializeCVBytes, someCV, tupleCV, uintCV, type ClarityValue, type SignedContractCallOptions } from "@stacks/transactions";
 import { fetchFn, getAccountNonces } from "../../client/hiro";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
-import { DRY_RUN, MIN_TO_LIQUIDATE, SKIP_SWAP_CHECK, TX_TIMEOUT, USE_FLASH_LOAN, USE_USDH } from "../../constants";
+import { DRY_RUN, MIN_TO_LIQUIDATE, SKIP_SWAP_CHECK, TX_TIMEOUT, USDH_SLIPPAGE_TOLERANCE, USE_FLASH_LOAN, USE_USDH } from "../../constants";
 import { getBorrowerStatusList, getBorrowersToSync } from "../../dba/borrower";
 import { getContractList, getContractOperatorPriv, lockContract } from "../../dba/contract";
 import { insertLiquidation } from "../../dba/liquidation";
@@ -142,7 +142,7 @@ const worker = async () => {
                             deadline: uintCV(deadline),
                             dex: uintCV(999),
                             "btc-price": uintCV(cFeed.price.price),
-                            "price-slippage-tolerance": uintCV(500)
+                            "price-slippage-tolerance": uintCV(USDH_SLIPPAGE_TOLERANCE)
                         })
                     )
                 )
@@ -169,7 +169,7 @@ const worker = async () => {
                 batchCV,
                 uintCV(deadline),
                 uintCV(cFeed.price.price),
-                uintCV(500)
+                uintCV(USDH_SLIPPAGE_TOLERANCE)
             ];
 
             txOptions = {
