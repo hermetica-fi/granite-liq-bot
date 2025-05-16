@@ -546,6 +546,22 @@ describe("makeLiquidationTxOptions", () => {
     
         expect(txOptions).toMatchSnapshot();
     });
+
+
+    test("usdh + flash loan + dex liquidation", () => {
+        const txOptions = makeLiquidationTxOptions({
+            contract,
+            priv,
+            nonce,
+            fee,
+            batchInfo,
+            priceFeed,
+            swap,
+            useFlashLoan: true,
+            useUsdh: true,
+        });
     
+        expect(txOptions).toMatchSnapshot();
+    });
 });
 
