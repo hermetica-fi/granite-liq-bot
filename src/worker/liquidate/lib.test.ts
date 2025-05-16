@@ -487,7 +487,6 @@ describe("makeLiquidationTxOptions", () => {
         expect(txOptions).toMatchSnapshot();
     });
 
-
     test("flash loan + dex liquidation", () => {
         const txOptions = makeLiquidationTxOptions({
             contract,
@@ -527,6 +526,22 @@ describe("makeLiquidationTxOptions", () => {
             swap,
             useFlashLoan: true,
             useUsdh: false,
+        });
+    
+        expect(txOptions).toMatchSnapshot();
+    });
+
+    test("usdh + dex liquidation", () => {
+        const txOptions = makeLiquidationTxOptions({
+            contract,
+            priv,
+            nonce,
+            fee,
+            batchInfo,
+            priceFeed,
+            swap,
+            useFlashLoan: false,
+            useUsdh: true,
         });
     
         expect(txOptions).toMatchSnapshot();
