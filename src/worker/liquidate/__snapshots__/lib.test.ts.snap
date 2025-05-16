@@ -1,4 +1,5 @@
- 
+// Bun Snapshot v1, https://goo.gl/fbAQLP
+
 exports[`makeLiquidationTxOptions dex liquidation 1`] = `
 {
   "contractAddress": "SPT4BE98XGF7NSWV1V0ZK1YMS0KQ0A6X2X8EJ5EM",
@@ -123,6 +124,102 @@ exports[`makeLiquidationTxOptions flash loan + dex liquidation 1`] = `
   "postConditionMode": 1,
   "senderKey": "priv",
   "validateWithAbi": true,
+}
+`;
+
+exports[`makeLiquidationTxOptions flash loan + dex liquidation 2`] = `
+{
+  "type": "tuple",
+  "value": {
+    "batch": {
+      "type": "list",
+      "value": [
+        {
+          "type": "some",
+          "value": {
+            "type": "tuple",
+            "value": {
+              "liquidator-repay-amount": {
+                "type": "uint",
+                "value": 2112500000n,
+              },
+              "min-collateral-expected": {
+                "type": "uint",
+                "value": 23796n,
+              },
+              "user": {
+                "type": "address",
+                "value": "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
+              },
+            },
+          },
+        },
+        {
+          "type": "some",
+          "value": {
+            "type": "tuple",
+            "value": {
+              "liquidator-repay-amount": {
+                "type": "uint",
+                "value": 462300000n,
+              },
+              "min-collateral-expected": {
+                "type": "uint",
+                "value": 5207n,
+              },
+              "user": {
+                "type": "address",
+                "value": "ST2DXHX9Q844EBT80DYJXFWXJKCJ5FFAX53H4AZFA",
+              },
+            },
+          },
+        },
+        {
+          "type": "some",
+          "value": {
+            "type": "tuple",
+            "value": {
+              "liquidator-repay-amount": {
+                "type": "uint",
+                "value": 1793100000n,
+              },
+              "min-collateral-expected": {
+                "type": "uint",
+                "value": 20198n,
+              },
+              "user": {
+                "type": "address",
+                "value": "ST2VWSP59FEVDXXYGGWYG90M3N67ZST2AGPA3P2HC",
+              },
+            },
+          },
+        },
+      ],
+    },
+    "btc-price": {
+      "type": "uint",
+      "value": 0n,
+    },
+    "deadline": {
+      "type": "uint",
+      "value": 1738263157n,
+    },
+    "dex": {
+      "type": "uint",
+      "value": 2n,
+    },
+    "price-slippage-tolerance": {
+      "type": "uint",
+      "value": 0n,
+    },
+    "pyth-price-feed-data": {
+      "type": "some",
+      "value": {
+        "type": "buffer",
+        "value": "0504e41550100000003b",
+      },
+    },
+  },
 }
 `;
 
@@ -310,6 +407,102 @@ exports[`makeLiquidationTxOptions usdh + flash loan + dex liquidation 1`] = `
   "postConditionMode": 1,
   "senderKey": "priv",
   "validateWithAbi": true,
+}
+`;
+
+exports[`makeLiquidationTxOptions usdh + flash loan + dex liquidation 2`] = `
+{
+  "type": "tuple",
+  "value": {
+    "batch": {
+      "type": "list",
+      "value": [
+        {
+          "type": "some",
+          "value": {
+            "type": "tuple",
+            "value": {
+              "liquidator-repay-amount": {
+                "type": "uint",
+                "value": 2112500000n,
+              },
+              "min-collateral-expected": {
+                "type": "uint",
+                "value": 23796n,
+              },
+              "user": {
+                "type": "address",
+                "value": "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
+              },
+            },
+          },
+        },
+        {
+          "type": "some",
+          "value": {
+            "type": "tuple",
+            "value": {
+              "liquidator-repay-amount": {
+                "type": "uint",
+                "value": 462300000n,
+              },
+              "min-collateral-expected": {
+                "type": "uint",
+                "value": 5207n,
+              },
+              "user": {
+                "type": "address",
+                "value": "ST2DXHX9Q844EBT80DYJXFWXJKCJ5FFAX53H4AZFA",
+              },
+            },
+          },
+        },
+        {
+          "type": "some",
+          "value": {
+            "type": "tuple",
+            "value": {
+              "liquidator-repay-amount": {
+                "type": "uint",
+                "value": 1793100000n,
+              },
+              "min-collateral-expected": {
+                "type": "uint",
+                "value": 20198n,
+              },
+              "user": {
+                "type": "address",
+                "value": "ST2VWSP59FEVDXXYGGWYG90M3N67ZST2AGPA3P2HC",
+              },
+            },
+          },
+        },
+      ],
+    },
+    "btc-price": {
+      "type": "uint",
+      "value": 10384556671615n,
+    },
+    "deadline": {
+      "type": "uint",
+      "value": 1738263157n,
+    },
+    "dex": {
+      "type": "uint",
+      "value": 999n,
+    },
+    "price-slippage-tolerance": {
+      "type": "uint",
+      "value": 500n,
+    },
+    "pyth-price-feed-data": {
+      "type": "some",
+      "value": {
+        "type": "buffer",
+        "value": "0504e41550100000003b",
+      },
+    },
+  },
 }
 `;
 

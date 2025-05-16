@@ -1,4 +1,4 @@
-import { cvToJSON } from "@stacks/transactions";
+import { cvToJSON, deserializeCV } from "@stacks/transactions";
 import { describe, expect, test } from "bun:test";
 import type { AssetInfoWithBalance, BorrowerStatusEntity, LiquidationBatch } from "../../types";
 import { calcMinOut, liquidationBatchCv, makeLiquidationBatch, makeLiquidationTxOptions } from "./lib";
@@ -501,6 +501,8 @@ describe("makeLiquidationTxOptions", () => {
         });
     
         expect(txOptions).toMatchSnapshot();
+
+        expect(deserializeCV(cvToJSON(txOptions.functionArgs[2]).value.value)).toMatchSnapshot();
     });
 
     test("flash loan + dex liquidation while sufficient capital is on the contract", () => {
@@ -560,8 +562,10 @@ describe("makeLiquidationTxOptions", () => {
             useFlashLoan: true,
             useUsdh: true,
         });
-    
+
         expect(txOptions).toMatchSnapshot();
+
+        expect(deserializeCV(cvToJSON(txOptions.functionArgs[2]).value.value)).toMatchSnapshot();
     });
 
     test("usdh + flash loan + dex liquidation while sufficient capital is on the contract", () => {
