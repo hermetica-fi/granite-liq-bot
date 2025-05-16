@@ -4,9 +4,9 @@ import type { PriceFeedResponse } from "../../client/pyth";
 import { MIN_TO_LIQUIDATE_PER_USER, TX_TIMEOUT, USDH_SLIPPAGE_TOLERANCE } from "../../constants";
 import type { SwapInfo } from "../../dex";
 import { hexToUint8Array, toTicker } from "../../helper";
-import type { ContractEntity, LiquidationBatch } from "../../types";
+import type { ContractEntity, LiquidationBatch, LiquidationBatchWithStats } from "../../types";
 import { type AssetInfoWithBalance, type BorrowerStatusEntity } from "../../types";
-import { parseUnits, toFixedDown } from "../../units";
+import { formatUnits, parseUnits, toFixedDown } from "../../units";
 import { epoch } from "../../util";
 
 
@@ -48,7 +48,7 @@ export const calcCollateralToGive = (repayAmount: bigint, liquidationDiscount: b
     return decimalCorrectedCollateral;
 }
 
-export const makeLiquidationBatch = (marketAssetInfo: AssetInfoWithBalance, collateralAssetInfo: AssetInfoWithBalance, flashLoanCapacity: number, borrowers: BorrowerStatusEntity[], collateralPrice: number, liquidationPremium: number): LiquidationBatch[] => {
+export const makeLiquidationBatch = (marketAssetInfo: AssetInfoWithBalance, collateralAssetInfo: AssetInfoWithBalance, flashLoanCapacity: number, borrowers: BorrowerStatusEntity[], collateralPrice: number, liquidationPremium: number): LiquidationBatchWithStats => {
     const batch: LiquidationBatch[] = [];
 
     let availableBn = marketAssetInfo.balance + flashLoanCapacity;
@@ -82,7 +82,18 @@ export const makeLiquidationBatch = (marketAssetInfo: AssetInfoWithBalance, coll
         });
     }
 
-    return batch;
+    const spendBn = batch.reduce((acc, b) => acc + b.liquidatorRepayAmount, 0);
+    const spend = formatUnits(spendBn, marketAssetInfo.decimals);
+    const receiveBn = batch.reduce((acc, b) => acc + b.minCollateralExpected, 0);
+    const receive = formatUnits(receiveBn, collateralAssetInfo.decimals);
+
+    return {
+        batch,
+        spendBn,
+        spend,
+        receiveBn,
+        receive
+    };
 }
 
 export const calcMinOut = (paid: number, unprofitabilityThreshold: number) => {
@@ -92,10 +103,10 @@ export const calcMinOut = (paid: number, unprofitabilityThreshold: number) => {
 }
 
 export const makeLiquidationTxOptions = (
-    { contract, priv, nonce, fee, batch, spendBn, priceFeed, useFlashLoan, useUsdh, swap }:
+    { contract, priv, nonce, fee, batchInfo, priceFeed, useFlashLoan, useUsdh, swap }:
         {
             contract: ContractEntity, priv: string, nonce: number, fee: number,
-            batch: LiquidationBatch[], spendBn: number, priceFeed: PriceFeedResponse,
+            batchInfo: LiquidationBatchWithStats, priceFeed: PriceFeedResponse,
             useFlashLoan: boolean, useUsdh: boolean, swap: SwapInfo
         }): SignedContractCallOptions => {
 
@@ -103,7 +114,7 @@ export const makeLiquidationTxOptions = (
     const collateralAsset = contract.collateralAsset!;
     const cFeed = priceFeed.items[toTicker(collateralAsset.symbol)];
     const priceAttestationBuff = hexToUint8Array(priceFeed.attestation);
-    const batchCV = liquidationBatchCv(batch);
+    const batchCV = liquidationBatchCv(batchInfo.batch);
 
     const baseTxOptions = {
         senderKey: priv,
@@ -116,7 +127,7 @@ export const makeLiquidationTxOptions = (
     const deadline = epoch() + TX_TIMEOUT;
 
     if (useUsdh) {
-        if (useFlashLoan && marketAsset.balance < spendBn) {
+        if (useFlashLoan && marketAsset.balance < batchInfo.spendBn) {
             const callbackData = someCV(
                 bufferCV(
                     serializeCVBytes(
@@ -132,7 +143,7 @@ export const makeLiquidationTxOptions = (
                 )
             );
 
-            const loanAmount = spendBn - marketAsset.balance;
+            const loanAmount = batchInfo.spendBn - marketAsset.balance;
 
             const functionArgs = [
                 uintCV(loanAmount),
@@ -165,7 +176,7 @@ export const makeLiquidationTxOptions = (
             };
         }
     } else {
-        if (useFlashLoan && marketAsset.balance < spendBn) {
+        if (useFlashLoan && marketAsset.balance < batchInfo.spendBn) {
             const callbackData = someCV(
                 bufferCV(
                     serializeCVBytes(
@@ -181,7 +192,7 @@ export const makeLiquidationTxOptions = (
                 )
             );
 
-            const loanAmount = spendBn - marketAsset.balance;
+            const loanAmount = batchInfo.spendBn - marketAsset.balance;
 
             const functionArgs = [
                 uintCV(loanAmount),

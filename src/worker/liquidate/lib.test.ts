@@ -104,13 +104,19 @@ describe("makeLiquidationBatch", () => {
         ];
 
         const batch = makeLiquidationBatch(marketAsset, collateralAsset, 0, borrowers, collateralPrice, 10000000);
-        expect(batch).toEqual([
-            {
-                user: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
-                liquidatorRepayAmount: 212500000,
-                minCollateralExpected: 2393
-            }
-        ]);
+        expect(batch).toEqual({
+            batch: [
+                {
+                    user: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
+                    liquidatorRepayAmount: 212500000,
+                    minCollateralExpected: 2393
+                }
+            ],
+            spendBn: 212500000,
+            spend: 2.125,
+            receiveBn: 2393,
+            receive: 0.00002393
+        });
     });
 
     test("20 usdc is available, 2 borrowers", () => {
@@ -143,17 +149,23 @@ describe("makeLiquidationBatch", () => {
 
         const batch = makeLiquidationBatch(marketAsset, collateralAsset, 0, borrowers, collateralPrice, 10000000);
 
-        expect(batch).toEqual([
-            {
-                user: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
-                liquidatorRepayAmount: 212500000,
-                minCollateralExpected: 2393,
-            }, {
-                user: "ST2DXHX9Q844EBT80DYJXFWXJKCJ5FFAX53H4AZFA",
-                liquidatorRepayAmount: 462300000,
-                minCollateralExpected: 5207,
-            }
-        ]);
+        expect(batch).toEqual({
+            batch: [
+                {
+                    user: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
+                    liquidatorRepayAmount: 212500000,
+                    minCollateralExpected: 2393,
+                }, {
+                    user: "ST2DXHX9Q844EBT80DYJXFWXJKCJ5FFAX53H4AZFA",
+                    liquidatorRepayAmount: 462300000,
+                    minCollateralExpected: 5207,
+                }
+            ],
+            spendBn: 674800000,
+            spend: 6.748,
+            receiveBn: 7600,
+            receive: 0.000076
+        });
     });
 
     test("20 usdc is available, 3 borrowers, should not cover 3rd borrower's full repay amount", () => {
@@ -197,21 +209,27 @@ describe("makeLiquidationBatch", () => {
         ];
 
         const batch = makeLiquidationBatch(marketAsset, collateralAsset, 0, borrowers, collateralPrice, 10000000);
-        expect(batch).toEqual([
-            {
-                user: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
-                liquidatorRepayAmount: 212500000,
-                minCollateralExpected: 2393,
-            }, {
-                user: "ST2DXHX9Q844EBT80DYJXFWXJKCJ5FFAX53H4AZFA",
-                liquidatorRepayAmount: 462300000,
-                minCollateralExpected: 5207,
-            }, {
-                user: "ST2VWSP59FEVDXXYGGWYG90M3N67ZST2AGPA3P2HC",
-                liquidatorRepayAmount: 1325200000,
-                minCollateralExpected: 14927,
-            }
-        ]);
+        expect(batch).toEqual({
+            batch: [
+                {
+                    user: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
+                    liquidatorRepayAmount: 212500000,
+                    minCollateralExpected: 2393,
+                }, {
+                    user: "ST2DXHX9Q844EBT80DYJXFWXJKCJ5FFAX53H4AZFA",
+                    liquidatorRepayAmount: 462300000,
+                    minCollateralExpected: 5207,
+                }, {
+                    user: "ST2VWSP59FEVDXXYGGWYG90M3N67ZST2AGPA3P2HC",
+                    liquidatorRepayAmount: 1325200000,
+                    minCollateralExpected: 14927,
+                }
+            ],
+            spendBn: 2000000000,
+            spend: 20,
+            receiveBn: 22527,
+            receive: 0.00022527
+        });
     });
 
     test("20 usdc is available, 3 borrowers, should only cover the first borrower's partial repay amount", () => {
@@ -255,13 +273,19 @@ describe("makeLiquidationBatch", () => {
         ];
 
         const batch = makeLiquidationBatch(marketAsset, collateralAsset, 0, borrowers, collateralPrice, 10000000);
-        expect(batch).toEqual([
-            {
-                user: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
-                liquidatorRepayAmount: 2000000000,
-                minCollateralExpected: 22528
-            }
-        ])
+        expect(batch).toEqual({
+            batch: [
+                {
+                    user: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
+                    liquidatorRepayAmount: 2000000000,
+                    minCollateralExpected: 22528
+                }
+            ],
+            spendBn: 2000000000,
+            spend: 20,
+            receiveBn: 22528,
+            receive: 0.00022528
+        })
     });
 
 
@@ -306,23 +330,29 @@ describe("makeLiquidationBatch", () => {
         ];
 
         const batch = makeLiquidationBatch(marketAsset, collateralAsset, 60_00000000, borrowers, collateralPrice, 10000000);
-        expect(batch).toEqual([
-            {
-                user: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
-                liquidatorRepayAmount: 2112500000,
-                minCollateralExpected: 23796
-            },
-            {
-                liquidatorRepayAmount: 462300000,
-                minCollateralExpected: 5207,
-                user: "ST2DXHX9Q844EBT80DYJXFWXJKCJ5FFAX53H4AZFA",
-            },
-            {
-                liquidatorRepayAmount: 1793100000,
-                minCollateralExpected: 20198,
-                user: "ST2VWSP59FEVDXXYGGWYG90M3N67ZST2AGPA3P2HC",
-            }
-        ])
+        expect(batch).toEqual({
+            batch: [
+                {
+                    user: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
+                    liquidatorRepayAmount: 2112500000,
+                    minCollateralExpected: 23796
+                },
+                {
+                    liquidatorRepayAmount: 462300000,
+                    minCollateralExpected: 5207,
+                    user: "ST2DXHX9Q844EBT80DYJXFWXJKCJ5FFAX53H4AZFA",
+                },
+                {
+                    liquidatorRepayAmount: 1793100000,
+                    minCollateralExpected: 20198,
+                    user: "ST2VWSP59FEVDXXYGGWYG90M3N67ZST2AGPA3P2HC",
+                }
+            ],
+            spendBn: 4367900000,
+            spend: 43.679,
+            receiveBn: 49201,
+            receive: 0.00049201,
+        })
     });
 
 });

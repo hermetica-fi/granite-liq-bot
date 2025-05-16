@@ -65,17 +65,13 @@ const worker = async () => {
 
     const flashLoanCapacity = USE_FLASH_LOAN ? (marketState.flashLoanCapacity[marketAsset.address] || 0) : 0;
 
-    const batch = makeLiquidationBatch(marketAsset, collateralAsset, flashLoanCapacity, borrowers, collateralPrice, liquidationPremium);
+    const batchInfo = makeLiquidationBatch(marketAsset, collateralAsset, flashLoanCapacity, borrowers, collateralPrice, liquidationPremium);
+    const { batch, spendBn, spend, receive } = batchInfo;
 
     if (batch.length === 0) {
         // logger.info("Nothing to liquidate");
         return;
     }
-
-    const spendBn = batch.reduce((acc, b) => acc + b.liquidatorRepayAmount, 0);
-    const spend = formatUnits(spendBn, marketAsset.decimals);
-    const receiveBn = batch.reduce((acc, b) => acc + b.minCollateralExpected, 0);
-    const receive = formatUnits(receiveBn, collateralAsset.decimals);
 
     if (spend < MIN_TO_LIQUIDATE) {
         // logger.info(`Too small to liquidate. spend: ${spend}, receive: ${receive}`);
@@ -118,8 +114,7 @@ const worker = async () => {
         priv,
         nonce,
         fee,
-        batch,
-        spendBn,
+        batchInfo,
         priceFeed,
         swap,
         useFlashLoan: USE_FLASH_LOAN,
