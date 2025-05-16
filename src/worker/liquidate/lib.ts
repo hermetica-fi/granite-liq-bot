@@ -1,8 +1,13 @@
-import { listCV, principalCV, someCV, tupleCV, uintCV } from "@stacks/transactions";
-import { MIN_TO_LIQUIDATE_PER_USER } from "../../constants";
-import type { LiquidationBatch } from "../../types";
+import type { StacksNetworkName } from "@stacks/network";
+import { bufferCV, contractPrincipalCV, listCV, PostConditionMode, principalCV, serializeCVBytes, someCV, tupleCV, uintCV, type SignedContractCallOptions } from "@stacks/transactions";
+import type { PriceFeedResponse } from "../../client/pyth";
+import { MIN_TO_LIQUIDATE_PER_USER, TX_TIMEOUT, USDH_SLIPPAGE_TOLERANCE } from "../../constants";
+import type { SwapResponse } from "../../dex";
+import { hexToUint8Array, toTicker } from "../../helper";
+import type { ContractEntity, LiquidationBatch } from "../../types";
 import { type AssetInfoWithBalance, type BorrowerStatusEntity } from "../../types";
 import { parseUnits, toFixedDown } from "../../units";
+import { epoch } from "../../util";
 
 
 export const liquidationBatchCv = (batch: LiquidationBatch[]) => {
@@ -86,3 +91,126 @@ export const calcMinOut = (paid: number, unprofitabilityThreshold: number) => {
     return Number(BigInt(paid) - ((BigInt(paid) * BigInt(unprofitabilityThreshold)) / SCALING_FACTOR));
 }
 
+export const makeLiquidationTxOptions = (
+    { contract, priv, nonce, fee, batch, spendBn, priceFeed, useFlashLoan, useUsdh, swap }:
+        {
+            contract: ContractEntity, priv: string, nonce: number, fee: number,
+            batch: LiquidationBatch[], spendBn: number, priceFeed: PriceFeedResponse,
+            useFlashLoan: boolean, useUsdh: boolean, swap: SwapResponse
+        }): SignedContractCallOptions => {
+
+    const marketAsset = contract.marketAsset!;
+    const collateralAsset = contract.collateralAsset!;
+    const cFeed = priceFeed.items[toTicker(collateralAsset.symbol)];
+    const priceAttestationBuff = hexToUint8Array(priceFeed.attestation);
+    const batchCV = liquidationBatchCv(batch);
+
+    const baseTxOptions = {
+        senderKey: priv,
+        network: 'mainnet' as StacksNetworkName,
+        fee,
+        validateWithAbi: true,
+        postConditionMode: PostConditionMode.Allow,
+        nonce
+    }
+    const deadline = epoch() + TX_TIMEOUT;
+
+    if (useUsdh) {
+        if (useFlashLoan && marketAsset.balance < spendBn) {
+            const callbackData = someCV(
+                bufferCV(
+                    serializeCVBytes(
+                        tupleCV({
+                            "pyth-price-feed-data": someCV(bufferCV(priceAttestationBuff)),
+                            batch: batchCV,
+                            deadline: uintCV(deadline),
+                            dex: uintCV(999),
+                            "btc-price": uintCV(cFeed.price.price),
+                            "price-slippage-tolerance": uintCV(USDH_SLIPPAGE_TOLERANCE)
+                        })
+                    )
+                )
+            );
+
+            const loanAmount = spendBn - marketAsset.balance;
+
+            const functionArgs = [
+                uintCV(loanAmount),
+                contractPrincipalCV(contract.address, contract.name),
+                callbackData
+            ];
+
+            return {
+                contractAddress: contract.flashLoanSc.address,
+                contractName: contract.flashLoanSc.name,
+                functionName: "flash-loan",
+                functionArgs,
+                ...baseTxOptions
+            }
+        } else {
+            const functionArgs = [
+                someCV(bufferCV(priceAttestationBuff)),
+                batchCV,
+                uintCV(deadline),
+                uintCV(cFeed.price.price),
+                uintCV(USDH_SLIPPAGE_TOLERANCE)
+            ];
+
+            return {
+                contractAddress: contract.address,
+                contractName: contract.name,
+                functionName: "liquidate-with-usdh-swap",
+                functionArgs,
+                ...baseTxOptions
+            };
+        }
+    } else {
+        if (useFlashLoan && marketAsset.balance < spendBn) {
+            const callbackData = someCV(
+                bufferCV(
+                    serializeCVBytes(
+                        tupleCV({
+                            "pyth-price-feed-data": someCV(bufferCV(priceAttestationBuff)),
+                            batch: batchCV,
+                            deadline: uintCV(deadline),
+                            dex: uintCV(swap.dex),
+                            "btc-price": uintCV(0),
+                            "price-slippage-tolerance": uintCV(0)
+                        })
+                    )
+                )
+            );
+
+            const loanAmount = spendBn - marketAsset.balance;
+
+            const functionArgs = [
+                uintCV(loanAmount),
+                contractPrincipalCV(contract.address, contract.name),
+                callbackData
+            ];
+
+            return {
+                contractAddress: contract.flashLoanSc.address,
+                contractName: contract.flashLoanSc.name,
+                functionName: "flash-loan",
+                functionArgs,
+                ...baseTxOptions
+            }
+        } else {
+            const functionArgs = [
+                someCV(bufferCV(priceAttestationBuff)),
+                batchCV,
+                uintCV(deadline),
+                uintCV(swap.dex)
+            ];
+
+            return {
+                contractAddress: contract.address,
+                contractName: contract.name,
+                functionName: "liquidate-with-swap",
+                functionArgs,
+                ...baseTxOptions
+            };
+        }
+    }
+}

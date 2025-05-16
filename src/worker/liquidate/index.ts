@@ -1,20 +1,18 @@
-import type { StacksNetworkName } from "@stacks/network";
-import { broadcastTransaction, bufferCV, contractPrincipalCV, makeContractCall, PostConditionMode, serializeCVBytes, someCV, tupleCV, uintCV, type SignedContractCallOptions } from "@stacks/transactions";
+import { broadcastTransaction, makeContractCall } from "@stacks/transactions";
 import { fetchFn, getAccountNonces } from "../../client/hiro";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
-import { DRY_RUN, MIN_TO_LIQUIDATE, SKIP_SWAP_CHECK, TX_TIMEOUT, USDH_SLIPPAGE_TOLERANCE, USE_FLASH_LOAN, USE_USDH } from "../../constants";
+import { DRY_RUN, MIN_TO_LIQUIDATE, SKIP_SWAP_CHECK, USE_FLASH_LOAN, USE_USDH } from "../../constants";
 import { getBorrowerStatusList, getBorrowersToSync } from "../../dba/borrower";
 import { getContractList, getContractOperatorPriv, lockContract } from "../../dba/contract";
 import { insertLiquidation } from "../../dba/liquidation";
 import { getMarketState } from "../../dba/market";
 import { estimateSbtcToAeusdc, getDexNameById } from "../../dex";
 import { estimateTxFeeOptimistic } from "../../fee";
-import { hexToUint8Array, toTicker } from "../../helper";
+import { toTicker } from "../../helper";
 import { onLiqSwapOutError, onLiqTx, onLiqTxError } from "../../hooks";
 import { createLogger } from "../../logger";
 import { formatUnits } from "../../units";
-import { epoch } from "../../util";
-import { calcMinOut, liquidationBatchCv, makeLiquidationBatch } from "./lib";
+import { calcMinOut, makeLiquidationBatch, makeLiquidationTxOptions } from "./lib";
 
 const logger = createLogger("liquidate");
 
@@ -65,8 +63,6 @@ const worker = async () => {
     const collateralPrice = Number(cFeed.price.price);
     const collateralPriceFormatted = formatUnits(collateralPrice, Math.abs(cFeed.price.expo)).toFixed(2);
 
-    const priceAttestationBuff = hexToUint8Array(priceFeed.attestation);
-
     const flashLoanCapacity = USE_FLASH_LOAN ? (marketState.flashLoanCapacity[marketAsset.address] || 0) : 0;
 
     const batch = makeLiquidationBatch(marketAsset, collateralAsset, flashLoanCapacity, borrowers, collateralPrice, liquidationPremium);
@@ -75,8 +71,6 @@ const worker = async () => {
         // logger.info("Nothing to liquidate");
         return;
     }
-
-    const batchCV = liquidationBatchCv(batch);
 
     const spendBn = batch.reduce((acc, b) => acc + b.liquidatorRepayAmount, 0);
     const spend = formatUnits(spendBn, marketAsset.decimals);
@@ -119,115 +113,18 @@ const worker = async () => {
     const nonce = (await getAccountNonces(contract.operatorAddress, 'mainnet')).possible_next_nonce;
     const fee = await estimateTxFeeOptimistic();
 
-    let txOptions: SignedContractCallOptions;
-    const baseTxOptions = {
-        senderKey: priv,
-        network: 'mainnet' as StacksNetworkName,
+    const txOptions = makeLiquidationTxOptions({
+        contract,
+        priv,
+        nonce,
         fee,
-        validateWithAbi: true,
-        postConditionMode: PostConditionMode.Allow,
-        nonce
-    }
-    const deadline = epoch() + TX_TIMEOUT;
-
-    if (USE_USDH) {
-        if (USE_FLASH_LOAN && marketAsset.balance < spendBn) {
-            const callbackData = someCV(
-                bufferCV(
-                    serializeCVBytes(
-                        tupleCV({
-                            "pyth-price-feed-data": someCV(bufferCV(priceAttestationBuff)),
-                            batch: batchCV,
-                            deadline: uintCV(deadline),
-                            dex: uintCV(999),
-                            "btc-price": uintCV(cFeed.price.price),
-                            "price-slippage-tolerance": uintCV(USDH_SLIPPAGE_TOLERANCE)
-                        })
-                    )
-                )
-            );
-
-            const loanAmount = spendBn - marketAsset.balance;
-
-            const functionArgs = [
-                uintCV(loanAmount),
-                contractPrincipalCV(contract.address, contract.name),
-                callbackData
-            ];
-
-            txOptions = {
-                contractAddress: contract.flashLoanSc.address,
-                contractName: contract.flashLoanSc.name,
-                functionName: "flash-loan",
-                functionArgs,
-                ...baseTxOptions
-            }
-        } else {
-            const functionArgs = [
-                someCV(bufferCV(priceAttestationBuff)),
-                batchCV,
-                uintCV(deadline),
-                uintCV(cFeed.price.price),
-                uintCV(USDH_SLIPPAGE_TOLERANCE)
-            ];
-
-            txOptions = {
-                contractAddress: contract.address,
-                contractName: contract.name,
-                functionName: "liquidate-with-usdh-swap",
-                functionArgs,
-                ...baseTxOptions
-            };
-        }
-    } else {
-        if (USE_FLASH_LOAN && marketAsset.balance < spendBn) {
-            const callbackData = someCV(
-                bufferCV(
-                    serializeCVBytes(
-                        tupleCV({
-                            "pyth-price-feed-data": someCV(bufferCV(priceAttestationBuff)),
-                            batch: batchCV,
-                            deadline: uintCV(deadline),
-                            dex: uintCV(swap.dex),
-                            "btc-price": uintCV(0),
-                            "price-slippage-tolerance": uintCV(0)
-                        })
-                    )
-                )
-            );
-
-            const loanAmount = spendBn - marketAsset.balance;
-
-            const functionArgs = [
-                uintCV(loanAmount),
-                contractPrincipalCV(contract.address, contract.name),
-                callbackData
-            ];
-
-            txOptions = {
-                contractAddress: contract.flashLoanSc.address,
-                contractName: contract.flashLoanSc.name,
-                functionName: "flash-loan",
-                functionArgs,
-                ...baseTxOptions
-            }
-        } else {
-            const functionArgs = [
-                someCV(bufferCV(priceAttestationBuff)),
-                batchCV,
-                uintCV(deadline),
-                uintCV(swap.dex)
-            ];
-
-            txOptions = {
-                contractAddress: contract.address,
-                contractName: contract.name,
-                functionName: "liquidate-with-swap",
-                functionArgs,
-                ...baseTxOptions
-            };
-        }
-    }
+        batch,
+        spendBn,
+        priceFeed,
+        swap,
+        useFlashLoan: USE_FLASH_LOAN,
+        useUsdh: USE_USDH,
+    })
 
     const call = await makeContractCall({ ...txOptions, network: 'mainnet', client: { fetch: fetchFn } });
     const tx = await broadcastTransaction({ transaction: call, network: 'mainnet', client: { fetch: fetchFn } });
