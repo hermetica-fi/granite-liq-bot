@@ -65,7 +65,14 @@ const worker = async () => {
 
     const flashLoanCapacity = USE_FLASH_LOAN ? (marketState.flashLoanCapacity[marketAsset.address] || 0) : 0;
 
-    const batchInfo = makeLiquidationBatch(marketAsset, collateralAsset, flashLoanCapacity, borrowers, collateralPrice, liquidationPremium);
+    const batchInfo = makeLiquidationBatch({
+        marketAssetInfo: marketAsset,
+        collateralAssetInfo: collateralAsset,
+        flashLoanCapacity,
+        borrowers,
+        collateralPrice,
+        liquidationPremium,
+    });
     const { batch, spendBn, spend, receive } = batchInfo;
 
     if (batch.length === 0) {

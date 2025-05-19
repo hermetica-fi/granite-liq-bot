@@ -103,7 +103,14 @@ describe("makeLiquidationBatch", () => {
             }
         ];
 
-        const batch = makeLiquidationBatch(marketAsset, collateralAsset, 0, borrowers, collateralPrice, 10000000);
+        const batch = makeLiquidationBatch({
+            marketAssetInfo: marketAsset,
+            collateralAssetInfo: collateralAsset,
+            flashLoanCapacity: 0,
+            borrowers,
+            collateralPrice,
+            liquidationPremium: 10000000
+        })
         expect(batch).toEqual({
             batch: [
                 {
@@ -147,7 +154,14 @@ describe("makeLiquidationBatch", () => {
             }
         ];
 
-        const batch = makeLiquidationBatch(marketAsset, collateralAsset, 0, borrowers, collateralPrice, 10000000);
+        const batch = makeLiquidationBatch({
+            marketAssetInfo: marketAsset,
+            collateralAssetInfo: collateralAsset,
+            flashLoanCapacity: 0,
+            borrowers,
+            collateralPrice,
+            liquidationPremium: 10000000
+        });
 
         expect(batch).toEqual({
             batch: [
@@ -208,7 +222,14 @@ describe("makeLiquidationBatch", () => {
             }
         ];
 
-        const batch = makeLiquidationBatch(marketAsset, collateralAsset, 0, borrowers, collateralPrice, 10000000);
+        const batch = makeLiquidationBatch({
+            marketAssetInfo: marketAsset,
+            collateralAssetInfo: collateralAsset,
+            flashLoanCapacity: 0,
+            borrowers,
+            collateralPrice,
+            liquidationPremium: 10000000
+        });
         expect(batch).toEqual({
             batch: [
                 {
@@ -272,7 +293,14 @@ describe("makeLiquidationBatch", () => {
             }
         ];
 
-        const batch = makeLiquidationBatch(marketAsset, collateralAsset, 0, borrowers, collateralPrice, 10000000);
+        const batch = makeLiquidationBatch({
+            marketAssetInfo: marketAsset,
+            collateralAssetInfo: collateralAsset,
+            flashLoanCapacity: 0,
+            borrowers,
+            collateralPrice,
+            liquidationPremium: 10000000
+        });
         expect(batch).toEqual({
             batch: [
                 {
@@ -329,7 +357,14 @@ describe("makeLiquidationBatch", () => {
             }
         ];
 
-        const batch = makeLiquidationBatch(marketAsset, collateralAsset, 60_00000000, borrowers, collateralPrice, 10000000);
+        const batch = makeLiquidationBatch({
+            marketAssetInfo: marketAsset,
+            collateralAssetInfo: collateralAsset,
+            flashLoanCapacity: 60_00000000,
+            borrowers,
+            collateralPrice,
+            liquidationPremium: 10000000
+        });
         expect(batch).toEqual({
             batch: [
                 {
@@ -483,7 +518,7 @@ describe("makeLiquidationTxOptions", () => {
             useFlashLoan: false,
             useUsdh: false,
         });
-    
+
         expect(txOptions).toMatchSnapshot();
     });
 
@@ -499,7 +534,7 @@ describe("makeLiquidationTxOptions", () => {
             useFlashLoan: true,
             useUsdh: false,
         });
-    
+
         expect(txOptions).toMatchSnapshot();
 
         expect(deserializeCV(cvToJSON(txOptions.functionArgs[2]).value.value)).toMatchSnapshot();
@@ -529,7 +564,7 @@ describe("makeLiquidationTxOptions", () => {
             useFlashLoan: true,
             useUsdh: false,
         });
-    
+
         expect(txOptions).toMatchSnapshot();
     });
 
@@ -545,7 +580,7 @@ describe("makeLiquidationTxOptions", () => {
             useFlashLoan: false,
             useUsdh: true,
         });
-    
+
         expect(txOptions).toMatchSnapshot();
     });
 
@@ -592,7 +627,7 @@ describe("makeLiquidationTxOptions", () => {
             useFlashLoan: true,
             useUsdh: true,
         });
-    
+
         expect(txOptions).toMatchSnapshot();
     });
 });
