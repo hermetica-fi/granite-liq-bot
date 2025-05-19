@@ -109,7 +109,8 @@ describe("makeLiquidationBatch", () => {
             flashLoanCapacity: 0,
             borrowers,
             collateralPrice,
-            liquidationPremium: 10000000
+            liquidationPremium: 10000000,
+            liquidationCap: 250_000
         })
         expect(batch).toEqual({
             batch: [
@@ -160,7 +161,8 @@ describe("makeLiquidationBatch", () => {
             flashLoanCapacity: 0,
             borrowers,
             collateralPrice,
-            liquidationPremium: 10000000
+            liquidationPremium: 10000000,
+            liquidationCap: 250_000
         });
 
         expect(batch).toEqual({
@@ -228,7 +230,8 @@ describe("makeLiquidationBatch", () => {
             flashLoanCapacity: 0,
             borrowers,
             collateralPrice,
-            liquidationPremium: 10000000
+            liquidationPremium: 10000000,
+            liquidationCap: 250_000
         });
         expect(batch).toEqual({
             batch: [
@@ -299,7 +302,8 @@ describe("makeLiquidationBatch", () => {
             flashLoanCapacity: 0,
             borrowers,
             collateralPrice,
-            liquidationPremium: 10000000
+            liquidationPremium: 10000000,
+            liquidationCap: 250_000
         });
         expect(batch).toEqual({
             batch: [
@@ -315,7 +319,6 @@ describe("makeLiquidationBatch", () => {
             receive: 0.00022528
         })
     });
-
 
     test("20 usdc is available, 3 borrowers, should cover all with + 60 usdc flash loan capacity", () => {
         const borrowers: BorrowerStatusEntity[] = [
@@ -363,7 +366,8 @@ describe("makeLiquidationBatch", () => {
             flashLoanCapacity: 60_00000000,
             borrowers,
             collateralPrice,
-            liquidationPremium: 10000000
+            liquidationPremium: 10000000,
+            liquidationCap: 250_000
         });
         expect(batch).toEqual({
             batch: [
@@ -390,6 +394,62 @@ describe("makeLiquidationBatch", () => {
         })
     });
 
+    test("20 usdc is available, 2 borrowers, should limit to liquidation batch", () => {
+        const borrowers: BorrowerStatusEntity[] = [
+            {
+                address: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
+                ltv: 0.5038,
+                health: 0.9726,
+                debt: 35.7413,
+                collateral: 70.9416,
+                risk: 1.0282,
+                maxRepay: {
+                    "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 2.125664850930649,
+                },
+                totalRepayAmount: 2.125664850930649,
+            },
+            {
+                address: "ST2DXHX9Q844EBT80DYJXFWXJKCJ5FFAX53H4AZFA",
+                ltv: 0.5038,
+                health: 0.9726,
+                debt: 35.7413,
+                collateral: 70.9416,
+                risk: 1.0282,
+                maxRepay: {
+                    "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 4.623614857930649,
+                },
+                totalRepayAmount: 4.623614857930649,
+            }
+        ];
+
+        const batch = makeLiquidationBatch({
+            marketAsset,
+            collateralAsset,
+            flashLoanCapacity: 0,
+            borrowers,
+            collateralPrice,
+            liquidationPremium: 10000000,
+            liquidationCap: 3
+        });
+
+        expect(batch).toEqual({
+            batch: [
+                {
+                    user: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
+                    liquidatorRepayAmount: 212500000,
+                    minCollateralExpected: 2393,
+                }, {
+                    user: "ST2DXHX9Q844EBT80DYJXFWXJKCJ5FFAX53H4AZFA",
+                    liquidatorRepayAmount: 87500000,
+                    minCollateralExpected: 985,
+                }
+            ],
+            spendBn: 300000000,
+            spend: 3,
+            receiveBn: 3378,
+            receive: 0.00003378
+        });
+    });
 });
 
 test("calcMinOut", () => {

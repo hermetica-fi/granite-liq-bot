@@ -1,7 +1,7 @@
 import { broadcastTransaction, makeContractCall } from "@stacks/transactions";
 import { fetchFn, getAccountNonces } from "../../client/hiro";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
-import { DRY_RUN, MIN_TO_LIQUIDATE, SKIP_SWAP_CHECK, USE_FLASH_LOAN, USE_USDH } from "../../constants";
+import { DRY_RUN, LIQUIDATON_CAP, MIN_TO_LIQUIDATE, SKIP_SWAP_CHECK, USE_FLASH_LOAN, USE_USDH } from "../../constants";
 import { getBorrowerStatusList, getBorrowersToSync } from "../../dba/borrower";
 import { getContractList, getContractOperatorPriv, lockContract } from "../../dba/contract";
 import { insertLiquidation } from "../../dba/liquidation";
@@ -72,6 +72,7 @@ const worker = async () => {
         borrowers,
         collateralPrice,
         liquidationPremium,
+        liquidationCap: LIQUIDATON_CAP
     });
     const { batch, spendBn, spend, receive } = batchInfo;
 
