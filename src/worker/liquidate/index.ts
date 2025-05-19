@@ -63,12 +63,12 @@ const worker = async () => {
     const collateralPrice = Number(cFeed.price.price);
     const collateralPriceFormatted = formatUnits(collateralPrice, Math.abs(cFeed.price.expo)).toFixed(2);
 
-    const flashLoanCapacity = USE_FLASH_LOAN ? (marketState.flashLoanCapacity[marketAsset.address] || 0) : 0;
+    const flashLoanCapacityBn = USE_FLASH_LOAN ? (marketState.flashLoanCapacity[marketAsset.address] || 0) : 0;
 
     const batchInfo = makeLiquidationBatch({
         marketAsset,
         collateralAsset,
-        flashLoanCapacity,
+        flashLoanCapacityBn,
         borrowers,
         collateralPrice,
         liquidationPremium,

@@ -106,7 +106,7 @@ describe("makeLiquidationBatch", () => {
         const batch = makeLiquidationBatch({
             marketAsset,
             collateralAsset,
-            flashLoanCapacity: 0,
+            flashLoanCapacityBn: 0,
             borrowers,
             collateralPrice,
             liquidationPremium: 10000000,
@@ -158,7 +158,7 @@ describe("makeLiquidationBatch", () => {
         const batch = makeLiquidationBatch({
             marketAsset,
             collateralAsset,
-            flashLoanCapacity: 0,
+            flashLoanCapacityBn: 0,
             borrowers,
             collateralPrice,
             liquidationPremium: 10000000,
@@ -227,7 +227,7 @@ describe("makeLiquidationBatch", () => {
         const batch = makeLiquidationBatch({
             marketAsset,
             collateralAsset,
-            flashLoanCapacity: 0,
+            flashLoanCapacityBn: 0,
             borrowers,
             collateralPrice,
             liquidationPremium: 10000000,
@@ -299,7 +299,7 @@ describe("makeLiquidationBatch", () => {
         const batch = makeLiquidationBatch({
             marketAsset,
             collateralAsset,
-            flashLoanCapacity: 0,
+            flashLoanCapacityBn: 0,
             borrowers,
             collateralPrice,
             liquidationPremium: 10000000,
@@ -363,7 +363,7 @@ describe("makeLiquidationBatch", () => {
         const batch = makeLiquidationBatch({
             marketAsset,
             collateralAsset,
-            flashLoanCapacity: 60_00000000,
+            flashLoanCapacityBn: 60_00000000,
             borrowers,
             collateralPrice,
             liquidationPremium: 10000000,
@@ -425,7 +425,7 @@ describe("makeLiquidationBatch", () => {
         const batch = makeLiquidationBatch({
             marketAsset,
             collateralAsset,
-            flashLoanCapacity: 0,
+            flashLoanCapacityBn: 0,
             borrowers,
             collateralPrice,
             liquidationPremium: 10000000,
