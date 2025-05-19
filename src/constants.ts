@@ -1,6 +1,8 @@
 import type { Ticker } from "./client/pyth";
 import { config } from "./config/dist";
 import { toTicker } from "./helper";
+import { parseUnits } from "./units";
+import { assertEnvVar, assertNumericEnvVar } from "./util";
 
 export const USE_STAGING = process.env.USE_STAGING === "1";
 
@@ -28,18 +30,16 @@ export const CONTRACTS: {
 export const PRICE_FEED_IDS: { ticker: Ticker, feed_id: string }[] = [...market.collaterals, market.market_asset]
     .map(a => ({ ticker: toTicker(a.display_name), feed_id: `0x${a.price_feed!}` }));
 
-export const MIN_TO_LIQUIDATE = 4; // usdc
-export const MIN_TO_LIQUIDATE_PER_USER = 1; // usdc
-export const TX_TIMEOUT = 60 * 10; // seconds
-export const BORROWER_SYNC_DELAY = 10; // seconds
-
+export const MIN_TO_LIQUIDATE = assertNumericEnvVar("MIN_TO_LIQUIDATE", 4)
+export const MIN_TO_LIQUIDATE_PER_USER = assertNumericEnvVar("MIN_TO_LIQUIDATE_PER_USER", 1)
+export const TX_TIMEOUT = assertNumericEnvVar("TX_TIMEOUT", 600);
+export const BORROWER_SYNC_DELAY = assertNumericEnvVar("BORROWER_SYNC_DELAY", 10);
 export const DRY_RUN = process.env.DRY_RUN === "1";
 export const SKIP_SWAP_CHECK = process.env.SKIP_SWAP_CHECK === "1";
 export const USE_FLASH_LOAN = process.env.USE_FLASH_LOAN === "1";
 export const USE_USDH = process.env.USE_USDH === "1";
-export const USDH_SLIPPAGE_TOLERANCE = 500;
-
-export const ALERT_BALANCE = 5_00000;
-
+export const USDH_SLIPPAGE_TOLERANCE = assertNumericEnvVar("USDH_SLIPPAGE_TOLERANCE", 500);
+export const LIQUIDATON_CAP = assertNumericEnvVar("LIQUIDATON_CAP");
+export const ALERT_BALANCE = parseUnits(assertNumericEnvVar("ALERT_BALANCE", 1), 6);
 export const HAS_HIRO_API_KEY = process.env.HIRO_API_KEY !== undefined;
-export const GRANITE_RPC = process.env.GRANITE_RPC;
+export const GRANITE_RPC = assertEnvVar("GRANITE_RPC", "https://leather.granite.world");

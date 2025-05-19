@@ -270,7 +270,7 @@ describe("api e2e", () => {
     test("/config", async () => {
         const resp = await fetch(`${API_BASE}/config`).then(r => r.json());
         expect(resp).toEqual({
-            ALERT_BALANCE: 500000,
+            ALERT_BALANCE: 1000000,
             BORROWER_SYNC_DELAY: 10,
             CONTRACTS: {
                 borrower: "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.borrower-v1",
@@ -284,6 +284,7 @@ describe("api e2e", () => {
             GRANITE_RPC: "https://leather.granite.world",
             HAS_HIRO_API_KEY: true,
             IR_PARAMS_SCALING_FACTOR: 12,
+            LIQUIDATON_CAP: 500000,
             MARKET_ASSET_DECIMAL: 6,
             MARKET_ASSET: "SP3Y2ZSH8P7D50B0VBTSX11S7XSG24M1VB9YFQA4K.token-aeusdc",
             MIN_TO_LIQUIDATE: 4,
