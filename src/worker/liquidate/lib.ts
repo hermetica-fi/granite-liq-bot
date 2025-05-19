@@ -72,9 +72,14 @@ export const makeLiquidationBatch = ({ marketAsset, collateralAsset, flashLoanCa
         const repayAmountAdjustedBn = parseUnits(repayAmountAdjusted, marketAsset.decimals);
         const repayAmountFinalBn = Math.min(availableBn, repayAmountAdjustedBn);
 
-        availableBn = availableBn - repayAmountFinalBn;
-
         const minCollateralExpected = calcCollateralToGive(BigInt(repayAmountFinalBn), BigInt(liquidationPremium), BigInt(collateralPrice), BigInt(collateralAsset.decimals), BigInt(marketAsset.decimals));
+
+        // sometimes happens due to rounding down
+        if (minCollateralExpected === 0n) {
+            continue;
+        }
+
+        availableBn = availableBn - repayAmountFinalBn;
 
         batch.push({
             user: borrower.address,
