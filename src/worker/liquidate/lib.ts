@@ -171,7 +171,7 @@ export const makeLiquidationTxOptions = (
             return {
                 contractAddress: contract.address,
                 contractName: contract.name,
-                functionName: "liquidate-with-usdh-swap",
+                functionName: "liquidate-with-swap-usdh",
                 functionArgs,
                 ...baseTxOptions
             };
