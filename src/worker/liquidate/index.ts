@@ -66,8 +66,8 @@ const worker = async () => {
     const flashLoanCapacity = USE_FLASH_LOAN ? (marketState.flashLoanCapacity[marketAsset.address] || 0) : 0;
 
     const batchInfo = makeLiquidationBatch({
-        marketAssetInfo: marketAsset,
-        collateralAssetInfo: collateralAsset,
+        marketAsset,
+        collateralAsset,
         flashLoanCapacity,
         borrowers,
         collateralPrice,

@@ -48,18 +48,18 @@ export const calcCollateralToGive = (repayAmount: bigint, liquidationDiscount: b
     return decimalCorrectedCollateral;
 }
 
-export const makeLiquidationBatch = ({ marketAssetInfo, collateralAssetInfo, flashLoanCapacity, borrowers, collateralPrice, liquidationPremium }:
-    { marketAssetInfo: AssetInfoWithBalance, collateralAssetInfo: AssetInfoWithBalance, flashLoanCapacity: number, borrowers: BorrowerStatusEntity[], collateralPrice: number, liquidationPremium: number }): LiquidationBatchWithStats => {
+export const makeLiquidationBatch = ({ marketAsset, collateralAsset, flashLoanCapacity, borrowers, collateralPrice, liquidationPremium }:
+    { marketAsset: AssetInfoWithBalance, collateralAsset: AssetInfoWithBalance, flashLoanCapacity: number, borrowers: BorrowerStatusEntity[], collateralPrice: number, liquidationPremium: number }): LiquidationBatchWithStats => {
     const batch: LiquidationBatch[] = [];
 
-    let availableBn = marketAssetInfo.balance + flashLoanCapacity;
+    let availableBn = marketAsset.balance + flashLoanCapacity;
 
     for (const borrower of borrowers) {
         if (availableBn <= 0) {
             break;
         }
 
-        const repayAmount = borrower.maxRepay[collateralAssetInfo.address];
+        const repayAmount = borrower.maxRepay[collateralAsset.address];
         if (!repayAmount) {
             continue;
         }
@@ -69,12 +69,12 @@ export const makeLiquidationBatch = ({ marketAssetInfo, collateralAssetInfo, fla
         }
 
         const repayAmountAdjusted = toFixedDown(repayAmount, 3);
-        const repayAmountAdjustedBn = parseUnits(repayAmountAdjusted, marketAssetInfo.decimals);
+        const repayAmountAdjustedBn = parseUnits(repayAmountAdjusted, marketAsset.decimals);
         const repayAmountFinalBn = Math.min(availableBn, repayAmountAdjustedBn);
 
         availableBn = availableBn - repayAmountFinalBn;
 
-        const minCollateralExpected = calcCollateralToGive(BigInt(repayAmountFinalBn), BigInt(liquidationPremium), BigInt(collateralPrice), BigInt(collateralAssetInfo.decimals), BigInt(marketAssetInfo.decimals));
+        const minCollateralExpected = calcCollateralToGive(BigInt(repayAmountFinalBn), BigInt(liquidationPremium), BigInt(collateralPrice), BigInt(collateralAsset.decimals), BigInt(marketAsset.decimals));
 
         batch.push({
             user: borrower.address,
@@ -84,9 +84,9 @@ export const makeLiquidationBatch = ({ marketAssetInfo, collateralAssetInfo, fla
     }
 
     const spendBn = batch.reduce((acc, b) => acc + b.liquidatorRepayAmount, 0);
-    const spend = formatUnits(spendBn, marketAssetInfo.decimals);
+    const spend = formatUnits(spendBn, marketAsset.decimals);
     const receiveBn = batch.reduce((acc, b) => acc + b.minCollateralExpected, 0);
-    const receive = formatUnits(receiveBn, collateralAssetInfo.decimals);
+    const receive = formatUnits(receiveBn, collateralAsset.decimals);
 
     return {
         batch,

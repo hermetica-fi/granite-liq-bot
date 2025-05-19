@@ -104,8 +104,8 @@ describe("makeLiquidationBatch", () => {
         ];
 
         const batch = makeLiquidationBatch({
-            marketAssetInfo: marketAsset,
-            collateralAssetInfo: collateralAsset,
+            marketAsset,
+            collateralAsset,
             flashLoanCapacity: 0,
             borrowers,
             collateralPrice,
@@ -155,8 +155,8 @@ describe("makeLiquidationBatch", () => {
         ];
 
         const batch = makeLiquidationBatch({
-            marketAssetInfo: marketAsset,
-            collateralAssetInfo: collateralAsset,
+            marketAsset,
+            collateralAsset,
             flashLoanCapacity: 0,
             borrowers,
             collateralPrice,
@@ -223,8 +223,8 @@ describe("makeLiquidationBatch", () => {
         ];
 
         const batch = makeLiquidationBatch({
-            marketAssetInfo: marketAsset,
-            collateralAssetInfo: collateralAsset,
+            marketAsset,
+            collateralAsset,
             flashLoanCapacity: 0,
             borrowers,
             collateralPrice,
@@ -294,8 +294,8 @@ describe("makeLiquidationBatch", () => {
         ];
 
         const batch = makeLiquidationBatch({
-            marketAssetInfo: marketAsset,
-            collateralAssetInfo: collateralAsset,
+            marketAsset,
+            collateralAsset,
             flashLoanCapacity: 0,
             borrowers,
             collateralPrice,
@@ -358,8 +358,8 @@ describe("makeLiquidationBatch", () => {
         ];
 
         const batch = makeLiquidationBatch({
-            marketAssetInfo: marketAsset,
-            collateralAssetInfo: collateralAsset,
+            marketAsset,
+            collateralAsset,
             flashLoanCapacity: 60_00000000,
             borrowers,
             collateralPrice,
