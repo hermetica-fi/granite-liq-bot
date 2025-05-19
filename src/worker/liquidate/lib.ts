@@ -76,6 +76,7 @@ export const makeLiquidationBatch = ({ marketAsset, collateralAsset, flashLoanCa
 
         // sometimes happens due to rounding down
         if (minCollateralExpected === 0n) {
+            availableBn = 0;
             continue;
         }
 
