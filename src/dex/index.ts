@@ -4,7 +4,7 @@ import { estimateSbtcToUsdhMint } from "./hermetica";
 
 const DEX_ALEX = 1;
 const DEX_BITFLOW = 2;
-export const DEX_USDH_FLASH_LOAN = 999;
+export const DEX_USDH_FLASH_LOAN = 3;
 
 export type SwapInfo = { dex: number, dy: number }
 
