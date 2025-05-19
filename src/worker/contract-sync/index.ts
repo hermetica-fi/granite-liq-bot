@@ -8,7 +8,7 @@ import { finalizeLiquidation } from "../../dba/liquidation";
 import { onLiqTxEnd, onLowFunds } from "../../hooks";
 import { createLogger } from "../../logger";
 import { type ContractEntity } from "../../types";
-import { formatUnits } from "../../units";
+import { formatUnits, parseUnits } from "../../units";
 import { epoch } from "../../util";
 import { getLiquidatedPrincipals } from "./lib";
 
@@ -58,7 +58,7 @@ export const worker = async () => {
 
         updateContractBalances(oBalance, mBalance, cBalance, contract.id);
 
-        if (Number(oBalance) <= ALERT_BALANCE) {
+        if (Number(oBalance) <= parseUnits(ALERT_BALANCE, 6)) {
             const strObalance = formatUnits(Number(oBalance), 6);
             logger.error(`Operator balance is low: ${strObalance} STX`)
             await onLowFunds(`${strObalance} STX`);

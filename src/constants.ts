@@ -1,7 +1,6 @@
 import type { Ticker } from "./client/pyth";
 import { config } from "./config/dist";
 import { toTicker } from "./helper";
-import { parseUnits } from "./units";
 import { assertEnvVar, assertNumericEnvVar } from "./util";
 
 export const USE_STAGING = process.env.USE_STAGING === "1";
@@ -40,6 +39,6 @@ export const USE_FLASH_LOAN = process.env.USE_FLASH_LOAN === "1";
 export const USE_USDH = process.env.USE_USDH === "1";
 export const USDH_SLIPPAGE_TOLERANCE = assertNumericEnvVar("USDH_SLIPPAGE_TOLERANCE", 500);
 export const LIQUIDATON_CAP = assertNumericEnvVar("LIQUIDATON_CAP");
-export const ALERT_BALANCE = parseUnits(assertNumericEnvVar("ALERT_BALANCE", 1), 6);
+export const ALERT_BALANCE = assertNumericEnvVar("ALERT_BALANCE", 1);
 export const HAS_HIRO_API_KEY = process.env.HIRO_API_KEY !== undefined;
 export const GRANITE_RPC = assertEnvVar("GRANITE_RPC", "https://leather.granite.world");

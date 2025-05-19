@@ -270,7 +270,7 @@ describe("api e2e", () => {
     test("/config", async () => {
         const resp = await fetch(`${API_BASE}/config`).then(r => r.json());
         expect(resp).toEqual({
-            ALERT_BALANCE: 1000000,
+            ALERT_BALANCE: 1,
             BORROWER_SYNC_DELAY: 10,
             CONTRACTS: {
                 borrower: "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.borrower-v1",
