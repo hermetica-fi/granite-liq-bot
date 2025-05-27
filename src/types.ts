@@ -104,3 +104,11 @@ export type LiquidationBatch = {
     liquidatorRepayAmount: number,
     minCollateralExpected: number,
 }
+
+export type LiquidationBatchWithStats = {
+    batch: LiquidationBatch[],
+    spendBn: number,
+    spend: number,
+    receiveBn: number,
+    receive: number,
+}

@@ -10,6 +10,7 @@ import { getBorrowerStatusList } from "../dba/borrower";
 import { getContractList, insertContract } from "../dba/contract";
 import { getLiquidationList } from "../dba/liquidation";
 import type { Filter } from "../dba/sql";
+import { parseUnits } from "../units";
 
 export const errorResponse = (error: any) => {
     if (typeof error === 'string') {
@@ -125,7 +126,7 @@ export const routes = {
         const lastLiquidation = getLiquidationList({ limit: 1 })[0] || null;
 
         const isHealthy = lastSync && Number(lastSync) > now - 120_000 && // Healthy if last sync was less than 120 seconds ago
-            (operatorBalance === null || operatorBalance >= constants.ALERT_BALANCE) // Operator balance can be null if there is no contract. Otherwise it should be bigger than ALERT_BALANCE
+            (operatorBalance === null || operatorBalance >= parseUnits(constants.ALERT_BALANCE, 6)) // Operator balance can be null if there is no contract. Otherwise it should be bigger than ALERT_BALANCE
 
         return Response.json({
             now: new Date(now).toISOString(),
