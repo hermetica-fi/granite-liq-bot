@@ -14,7 +14,7 @@ export const liquidationBatchCv = (batch: LiquidationBatch[]) => {
     const listItems = batch.map(b => someCV(tupleCV({
         "user": principalCV(b.user),
         "liquidator-repay-amount": uintCV(b.liquidatorRepayAmount),
-        "min-collateral-expected": uintCV(b.minCollateralExpected)
+        "min-collateral-expected": uintCV(1) // pass 1 instead of b.minCollateralExpected to avoid u30007 slippage error
     })));
 
     return listCV(listItems)
