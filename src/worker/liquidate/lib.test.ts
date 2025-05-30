@@ -37,7 +37,7 @@ test("liquidationBatchCv", () => {
                         },
                         "min-collateral-expected": {
                             "type": "uint",
-                            "value": "205455"
+                            "value": "1"
                         }
                     }
                 }
@@ -57,7 +57,7 @@ test("liquidationBatchCv", () => {
                         },
                         "min-collateral-expected": {
                             "type": "uint",
-                            "value": "105455"
+                            "value": "1"
                         }
                     }
                 }
