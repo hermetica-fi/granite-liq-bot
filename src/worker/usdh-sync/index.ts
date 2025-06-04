@@ -1,8 +1,9 @@
 import { getAssetBalance } from "../../client/read-only-call";
 import { MARKET_ASSET, USE_USDH } from "../../constants";
-import { getUsdhState, setUsdhReserveBalance } from "../../dba/usdh";
+import { setUsdhReserveBalance, setUsdhSafeTradeAmount } from "../../dba/usdh";
 import { createLogger } from "../../logger";
 import { epoch } from "../../util";
+import { findMaxSafeTradeAmount } from "./lib";
 
 const logger = createLogger("usdh-sync");
 
@@ -21,13 +22,16 @@ const syncUsdhState = async () => {
         setUsdhReserveBalance(val);
         lastSyncTs.reserveBalance = now;
     }
+
+    if (lastSyncTs.safeTradeAmount < now - 120) { // 2 mins
+        const val = await findMaxSafeTradeAmount();
+        setUsdhSafeTradeAmount(val);
+        lastSyncTs.safeTradeAmount = now;
+    }
 }
 
 export const main = async () => {
     if (USE_USDH) {
         await syncUsdhState();
-        const usdhState = getUsdhState();
-        console.log(usdhState)
     }
 }
-
