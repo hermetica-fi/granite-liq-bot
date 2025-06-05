@@ -1,5 +1,6 @@
 import assert from "assert";
 import { kvStoreGet, kvStoreSet } from "../db/helper";
+import type { UsdhState } from "../types";
 
 export const getUsdhReserveBalanceLocal = (): string | null => {
     return kvStoreGet(`usdh-reserve-balance`) || null;
@@ -17,10 +18,10 @@ export const setUsdhSafeTradeAmountLocal = (amount: string | number) => {
     kvStoreSet(`usdh-safe-trade-amount`, amount);
 }
 
-export const getUsdhState = () => {
+export const getUsdhState = (): UsdhState => {
     const usdhReserveBalance = getUsdhReserveBalanceLocal();
     assert(usdhReserveBalance, 'usdhReserveBalance not found');
-    
+
     const usdhSafeTradeAmount = getUsdhSafeTradeAmountLocal();
     assert(usdhSafeTradeAmount, 'usdhSafeTradeAmount not found');
 
