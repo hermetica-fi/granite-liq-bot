@@ -2,6 +2,7 @@ import type { StacksNetworkName } from "@stacks/network";
 import { bufferCV, contractPrincipalCV, listCV, PostConditionMode, principalCV, serializeCVBytes, someCV, tupleCV, uintCV, type SignedContractCallOptions } from "@stacks/transactions";
 import type { PriceFeedResponse } from "../../client/pyth";
 import { MIN_TO_LIQUIDATE_PER_USER, TX_TIMEOUT, USDH_SLIPPAGE_TOLERANCE } from "../../constants";
+import { getUsdhState } from "../../dba/usdh";
 import { DEX_USDH_FLASH_LOAN, type SwapInfo } from "../../dex";
 import { hexToUint8Array, toTicker } from "../../helper";
 import type { ContractEntity, LiquidationBatch, LiquidationBatchWithStats } from "../../types";
@@ -230,4 +231,13 @@ export const makeLiquidationTxOptions = (
             };
         }
     }
+}
+
+export const makeLiquidationCap = (baseCap: number, useUsdh: boolean) => {
+    if (useUsdh) {
+        const usdhState = getUsdhState();
+        return Math.min(baseCap, usdhState.reserveBalance, usdhState.safeTradeAmount);
+    }
+
+    return baseCap;
 }

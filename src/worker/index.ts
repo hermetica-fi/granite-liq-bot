@@ -7,6 +7,7 @@ import { main as eventSync } from "./event-sync";
 import { main as healthSync } from "./health-sync";
 import { main as liquidate } from "./liquidate";
 import { main as marketSync } from "./market-sync";
+import { main as usdhSync } from "./usdh-sync";
 
 const BASE_DELAY = 7_000;
 
@@ -15,9 +16,9 @@ const workerInner = async () => {
     await eventSync();
     await borrowerSync();
     await marketSync();
+    await usdhSync();
     await healthSync();
     await liquidate();
-
 
     kvStoreSet("last-sync", Date.now());
 }

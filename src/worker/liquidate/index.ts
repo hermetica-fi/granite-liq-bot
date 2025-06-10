@@ -12,7 +12,7 @@ import { toTicker } from "../../helper";
 import { onLiqSwapOutError, onLiqTx, onLiqTxError } from "../../hooks";
 import { createLogger } from "../../logger";
 import { formatUnits } from "../../units";
-import { calcMinOut, makeLiquidationBatch, makeLiquidationTxOptions } from "./lib";
+import { calcMinOut, makeLiquidationBatch, makeLiquidationCap, makeLiquidationTxOptions } from "./lib";
 
 const logger = createLogger("liquidate");
 
@@ -72,7 +72,7 @@ const worker = async () => {
         borrowers,
         collateralPrice,
         liquidationPremium,
-        liquidationCap: LIQUIDATON_CAP
+        liquidationCap: makeLiquidationCap(LIQUIDATON_CAP, USE_USDH)
     });
     const { batch, spendBn, spend, receive } = batchInfo;
 

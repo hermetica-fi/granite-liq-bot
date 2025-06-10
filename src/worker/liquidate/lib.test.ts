@@ -1,9 +1,7 @@
 import { cvToJSON, deserializeCV } from "@stacks/transactions";
-import { describe, expect, test } from "bun:test";
+import { describe, expect, it, mock, test } from "bun:test";
 import type { AssetInfoWithBalance, BorrowerStatusEntity, LiquidationBatch } from "../../types";
-import { calcMinOut, liquidationBatchCv, makeLiquidationBatch, makeLiquidationTxOptions } from "./lib";
-
-
+import { calcMinOut, liquidationBatchCv, makeLiquidationBatch, makeLiquidationCap, makeLiquidationTxOptions } from "./lib";
 
 test("liquidationBatchCv", () => {
     const batch: LiquidationBatch[] = [
@@ -692,3 +690,47 @@ describe("makeLiquidationTxOptions", () => {
     });
 });
 
+describe("makeLiquidationCap", () => {
+    it("should pick baseCap", () => {
+        expect(makeLiquidationCap(25000, false)).toBe(25000);
+    });
+
+    it("should pick baseCap", () => {
+        mock.module("../../dba/usdh", () => {
+            return {
+                getUsdhState: () => ({
+                    reserveBalance: 35000,
+                    safeTradeAmount: 65000,
+                })
+            }
+        });
+
+        expect(makeLiquidationCap(25000, true)).toBe(25000);
+    });
+
+    it("should pick reserveBalance", () => {
+        mock.module("../../dba/usdh", () => {
+            return {
+                getUsdhState: () => ({
+                    reserveBalance: 35000,
+                    safeTradeAmount: 65000,
+                })
+            }
+        });
+
+        expect(makeLiquidationCap(45000, true)).toBe(35000);
+    });
+
+    it("should pick safeTradeAmount", () => {
+        mock.module("../../dba/usdh", () => {
+            return {
+                getUsdhState: () => ({
+                    reserveBalance: 65000,
+                    safeTradeAmount: 15000,
+                })
+            }
+        });
+
+        expect(makeLiquidationCap(45000, true)).toBe(15000);
+    });
+});

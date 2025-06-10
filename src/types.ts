@@ -112,3 +112,8 @@ export type LiquidationBatchWithStats = {
     receiveBn: number,
     receive: number,
 }
+
+export type UsdhState = {
+    reserveBalance: number,
+    safeTradeAmount: number,
+}
