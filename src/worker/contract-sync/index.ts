@@ -3,7 +3,7 @@ import { getAccountBalances, getTransaction } from "../../client/hiro";
 import { getAssetBalance, getLiquidatorContractInfo } from "../../client/read-only-call";
 import { ALERT_BALANCE } from "../../constants";
 import { upsertBorrower } from "../../dba/borrower";
-import { getContractList, unlockContract, unlockContractSchedule, updateContractBalances, updateContractFlashLoanSc, updateContractUnprofitabilityThreshold } from "../../dba/contract";
+import { getContractList, unlockContract, unlockContractSchedule, updateContractBalances, updateContractFlashLoanSc, updateContractUnprofitabilityThreshold, updateContractUsdhThreshold } from "../../dba/contract";
 import { finalizeLiquidation } from "../../dba/liquidation";
 import { onLiqTxEnd, onLowFunds } from "../../hooks";
 import { createLogger } from "../../logger";
@@ -67,6 +67,7 @@ export const worker = async () => {
         const info = await getLiquidatorContractInfo(contract.id);
         updateContractUnprofitabilityThreshold(info.unprofitabilityThreshold, contract.id);
         updateContractFlashLoanSc(info.flashLoanSc, contract.id);
+        updateContractUsdhThreshold(info.usdhThreshold, contract.id);
     }
 };
 

@@ -55,7 +55,7 @@ const prepareTestDb = () => {
     });
 
     `
-        SP1NNSAHT51JS8MEDDBYC7WYD2A2EGB0EMVD35KMA.liquidator|SP1NNSAHT51JS8MEDDBYC7WYD2A2EGB0EMVD35KMA|liquidator|SP1NNSAHT51JS8MEDDBYC7WYD2A2EGB0EMVD35KMA|7b62c15db7f5281f67968d567e478a9d2aeca7c68588d792e33f54624ed2e0e501|1998330|{"address":"SP3Y2ZSH8P7D50B0VBTSX11S7XSG24M1VB9YFQA4K.token-aeusdc","name":"Ethereum USDC via Allbridge","symbol":"aeUSDC","decimals":6}|12176373|{"address":"SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token","name":"sBTC","symbol":"sBTC","decimals":8}|0|0|SP1NNSAHT51JS8MEDDBYC7WYD2A2EGB0EMVD35KMA.flash-loan-v1|||1743168773
+        SP1NNSAHT51JS8MEDDBYC7WYD2A2EGB0EMVD35KMA.liquidator|SP1NNSAHT51JS8MEDDBYC7WYD2A2EGB0EMVD35KMA|liquidator|SP1NNSAHT51JS8MEDDBYC7WYD2A2EGB0EMVD35KMA|7b62c15db7f5281f67968d567e478a9d2aeca7c68588d792e33f54624ed2e0e501|1998330|{"address":"SP3Y2ZSH8P7D50B0VBTSX11S7XSG24M1VB9YFQA4K.token-aeusdc","name":"Ethereum USDC via Allbridge","symbol":"aeUSDC","decimals":6}|12176373|{"address":"SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token","name":"sBTC","symbol":"sBTC","decimals":8}|0|0|SP1NNSAHT51JS8MEDDBYC7WYD2A2EGB0EMVD35KMA.flash-loan-v1|9975|||1743168773
         `.split("\n").map(x => x.trim()).filter(x => x).forEach(r => {
         dbCon.run(insert(r, 'contract'));
     });
@@ -111,7 +111,9 @@ mock.module("../client/read-only-call", () => {
                 operator: ADDRESS,
                 marketAsset: '',
                 collateralAsset: '',
-                flashLoanSc: "SP1NNSAHT51JS8MEDDBYC7WYD2A2EGB0EMVD35KMA.flash-loan-v1"
+                unprofitabilityThreshold: 0,
+                flashLoanSc: "SP1NNSAHT51JS8MEDDBYC7WYD2A2EGB0EMVD35KMA.flash-loan-v1",
+                usdhThreshold: 9997
             }
         },
         getAssetInfo: () => {
@@ -193,7 +195,8 @@ describe("api e2e", () => {
                 flashLoanSc: {
                     address: "SP1NNSAHT51JS8MEDDBYC7WYD2A2EGB0EMVD35KMA",
                     name: "flash-loan-v1"
-                }
+                },
+                usdhThreshold: 9975,
             }
         ]);
     })
@@ -276,7 +279,7 @@ describe("api e2e", () => {
                 borrower: "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.borrower-v1",
                 state: "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.state-v1",
                 ir: "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.linear-kinked-ir-v1",
-                liquidator: "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.liquidator-v1",
+                liquidator: "SPRZH8YN496DYPM7Z2KY1V4P4B4NPJYWE5Q7D56Y.liquidator-v1",
                 collaterals: ["SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token"],
             },
             DRY_RUN: false,
