@@ -34,6 +34,7 @@ export type ContractEntity = {
         address: string,
         name: string
     },
+    usdhThreshold: number,
     lockTx: string | null
     unlocksAt: number | null,
 }
