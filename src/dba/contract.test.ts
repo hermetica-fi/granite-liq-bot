@@ -1,6 +1,6 @@
 import { describe, expect, setSystemTime, test } from "bun:test";
 import { epoch } from "../util";
-import { getContractList, getContractOperatorPriv, insertContract, lockContract, unlockContract, unlockContractSchedule, updateContractBalances, updateContractFlashLoanSc, updateContractUnprofitabilityThreshold } from "./contract";
+import { getContractList, getContractOperatorPriv, insertContract, lockContract, unlockContract, unlockContractSchedule, updateContractBalances, updateContractFlashLoanSc, updateContractUnprofitabilityThreshold, updateContractUsdhThreshold } from "./contract";
 
 describe("dba contracts", () => {
     test("insertContract", () => {
@@ -11,7 +11,8 @@ describe("dba contracts", () => {
             { address: "SP3Y2ZSH8P7D50B0VBTSX11S7XSG24M1VB9YFQA4K.token-aeusdc", name: "Ethereum USDC via Allbridge", symbol: "aeUSDC", decimals: 6 },
             { address: "SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token", name: "sBTC", symbol: "sBTC", decimals: 8 },
             0,
-            'SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.flash-loan-v1'
+            'SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.flash-loan-v1',
+            9975
         );
     });
 
@@ -23,7 +24,8 @@ describe("dba contracts", () => {
             { address: "ST3Y2ZSH8P7D50B0VBTSX11S7XSG24M1VB9YFQA4K.mock-usdc", name: "mock USDC", symbol: "USDC", decimals: 8 },
             { address: "SN3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.mock-sbtc", name: "mock sBTC", symbol: "sBTC", decimals: 8 },
             0,
-            'SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.flash-loan-v1'
+            'SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.flash-loan-v1',
+            9975
         );
     });
 
@@ -55,6 +57,7 @@ describe("dba contracts", () => {
                     address: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T",
                     name: "flash-loan-v1"
                 },
+                usdhThreshold: 9975,
                 lockTx: null,
                 unlocksAt: null,
             }, {
@@ -82,6 +85,7 @@ describe("dba contracts", () => {
                     address: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T",
                     name: "flash-loan-v1"
                 },
+                usdhThreshold: 9975,
                 lockTx: null,
                 unlocksAt: null,
             }
@@ -116,6 +120,7 @@ describe("dba contracts", () => {
                     address: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T",
                     name: "flash-loan-v1"
                 },
+                usdhThreshold: 9975,
                 lockTx: null,
                 unlocksAt: null,
             }
@@ -161,6 +166,7 @@ describe("dba contracts", () => {
                 address: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T",
                 name: "flash-loan-v1"
             },
+            usdhThreshold: 9975,
             lockTx: "0x00",
             unlocksAt: null,
         });
@@ -196,6 +202,7 @@ describe("dba contracts", () => {
                 address: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T",
                 name: "flash-loan-v1"
             },
+            usdhThreshold: 9975,
             lockTx: "0x00",
             unlocksAt: 1738262112,
         });
@@ -231,6 +238,7 @@ describe("dba contracts", () => {
                 address: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T",
                 name: "flash-loan-v1"
             },
+            usdhThreshold: 9975,
             lockTx: null,
             unlocksAt: null,
         });
@@ -265,6 +273,7 @@ describe("dba contracts", () => {
                 address: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T",
                 name: "flash-loan-v1"
             },
+            usdhThreshold: 9975,
             lockTx: null,
             unlocksAt: null,
         });
@@ -299,6 +308,7 @@ describe("dba contracts", () => {
                 address: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T",
                 name: "flash-loan-v1"
             },
+            usdhThreshold: 9975,
             lockTx: null,
             unlocksAt: null,
         });
@@ -333,6 +343,42 @@ describe("dba contracts", () => {
                 address: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T",
                 name: "flash-loan-v2"
             },
+            usdhThreshold: 9975,
+            lockTx: null,
+            unlocksAt: null,
+        });
+    });
+
+    test("updateContractUsdhThreshold", () => {
+        updateContractUsdhThreshold(9901, "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.liquidator");
+        const contracts = getContractList({ filters: [['id', '=', 'SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.liquidator']] });
+        expect(contracts.length).toEqual(1);
+        expect(contracts[0]).toEqual({
+            id: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T.liquidator",
+            address: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T",
+            name: "liquidator",
+            operatorAddress: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T",
+            operatorBalance: 1000000,
+            marketAsset: {
+                address: "SP3Y2ZSH8P7D50B0VBTSX11S7XSG24M1VB9YFQA4K.token-aeusdc",
+                name: "Ethereum USDC via Allbridge",
+                symbol: "aeUSDC",
+                decimals: 6,
+                balance: 100000000,
+            },
+            collateralAsset: {
+                address: "SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token",
+                name: "sBTC",
+                symbol: "sBTC",
+                decimals: 8,
+                balance: 0,
+            },
+            unprofitabilityThreshold: 10,
+            flashLoanSc: {
+                address: "SP1AK5J442ET8N7AAWSSNGGZZD1PZ6X9JD1FW551T",
+                name: "flash-loan-v2"
+            },
+            usdhThreshold: 9901,
             lockTx: null,
             unlocksAt: null,
         });

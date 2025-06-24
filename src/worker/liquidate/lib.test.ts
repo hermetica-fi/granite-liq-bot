@@ -485,6 +485,7 @@ describe("makeLiquidationTxOptions", () => {
             address: "SPT4BE98XGF7NSWV1V0ZK1YMS0KQ0A6X2X8EJ5EM",
             name: "flash-loan-v1",
         },
+        usdhThreshold: 9975,
         lockTx: null,
         unlocksAt: null,
     }
