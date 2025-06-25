@@ -1,7 +1,7 @@
 import type { StacksNetworkName } from "@stacks/network";
 import { bufferCV, contractPrincipalCV, listCV, PostConditionMode, principalCV, serializeCVBytes, someCV, tupleCV, uintCV, type SignedContractCallOptions } from "@stacks/transactions";
 import type { PriceFeedResponse } from "../../client/pyth";
-import { MIN_TO_LIQUIDATE_PER_USER, TX_TIMEOUT, USDH_SLIPPAGE_TOLERANCE } from "../../constants";
+import { MIN_TO_LIQUIDATE_PER_USER, TX_TIMEOUT, USDH_RESERVE_CONTRACT, USDH_SLIPPAGE_TOLERANCE } from "../../constants";
 import { getUsdhState } from "../../dba/usdh";
 import { DEX_USDH_FLASH_LOAN, type SwapInfo } from "../../dex";
 import { hexToUint8Array, toTicker } from "../../helper";
@@ -144,7 +144,8 @@ export const makeLiquidationTxOptions = (
                             deadline: uintCV(deadline),
                             dex: uintCV(DEX_USDH_FLASH_LOAN),
                             "btc-price": uintCV(cFeed.price.price),
-                            "price-slippage-tolerance": uintCV(USDH_SLIPPAGE_TOLERANCE)
+                            "price-slippage-tolerance": uintCV(USDH_SLIPPAGE_TOLERANCE),
+                            "reserve-contract": principalCV(USDH_RESERVE_CONTRACT)
                         })
                     )
                 )
@@ -171,7 +172,8 @@ export const makeLiquidationTxOptions = (
                 batchCV,
                 uintCV(deadline),
                 uintCV(cFeed.price.price),
-                uintCV(USDH_SLIPPAGE_TOLERANCE)
+                uintCV(USDH_SLIPPAGE_TOLERANCE),
+                principalCV(USDH_RESERVE_CONTRACT)
             ];
 
             return {
@@ -193,7 +195,8 @@ export const makeLiquidationTxOptions = (
                             deadline: uintCV(deadline),
                             dex: uintCV(swap.dex),
                             "btc-price": uintCV(0),
-                            "price-slippage-tolerance": uintCV(0)
+                            "price-slippage-tolerance": uintCV(0),
+                            "reserve-contract": principalCV("SP000000000000000000002Q6VF78")
                         })
                     )
                 )
