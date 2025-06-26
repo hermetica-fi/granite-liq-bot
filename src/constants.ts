@@ -1,5 +1,5 @@
+import { config } from "granite-config";
 import type { Ticker } from "./client/pyth";
-import { config } from "./config/dist";
 import { toTicker } from "./helper";
 import { assertEnvVar, assertNumericEnvVar } from "./util";
 
@@ -42,4 +42,4 @@ export const USDH_RESERVE_CONTRACT = assertEnvVar("USDH_RESERVE_CONTRACT", "SPN5
 export const LIQUIDATON_CAP = assertNumericEnvVar("LIQUIDATON_CAP");
 export const ALERT_BALANCE = assertNumericEnvVar("ALERT_BALANCE", 1);
 export const HAS_HIRO_API_KEY = process.env.HIRO_API_KEY !== undefined;
-export const GRANITE_RPC = assertEnvVar("GRANITE_RPC", "https://leather.granite.world");
+export const GRANITE_RPC = assertEnvVar("GRANITE_RPC");
