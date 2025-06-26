@@ -1,5 +1,5 @@
+import { config } from "granite-config";
 import type { Ticker } from "./client/pyth";
-import { config } from "./config/dist";
 import { toTicker } from "./helper";
 import { assertEnvVar, assertNumericEnvVar } from "./util";
 
