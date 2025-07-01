@@ -23,35 +23,35 @@ const lastSyncTs = {
 const syncMarketState = async () => {
     const now = epoch();
 
-    if (lastSyncTs.irParams < now - 3000) {
+    if (lastSyncTs.irParams < now - 7200) { // 2 hours
         const val = await getIrParams();
         setIrParamsLocal(val);
         // logger.info(`setIrParamsLocal: ${JSON.stringify(val)}`);
         lastSyncTs.irParams = now;
     }
 
-    if (lastSyncTs.lpParams < now - 60) {
+    if (lastSyncTs.lpParams < now - 300) { // 5 mins
         const val = await getLpParams();
         setLpParamsLocal(val);
         //logger.info(`setLpParamsLocal: ${JSON.stringify(val)}`);
         lastSyncTs.lpParams = now;
     }
 
-    if (lastSyncTs.accrueInterestParams < now - 60) {
+    if (lastSyncTs.accrueInterestParams < now - 300) { // 5 mins
         const val = await getAccrueInterestParams();
         setAccrueInterestParamsLocal(val);
         // logger.info(`setAccrueInterestParamsLocal: ${JSON.stringify(val)}`);
         lastSyncTs.accrueInterestParams = now;
     }
 
-    if (lastSyncTs.debtParams < now - 60) {
+    if (lastSyncTs.debtParams < now - 300) { // 5 mins
         const val = await getDebtParams();
         setDebtParamsLocal(val);
         // logger.info(`setDebtParamsLocal: ${JSON.stringify(val)}`);
         lastSyncTs.debtParams = now;
     }
 
-    if (lastSyncTs.collateralParams < now - 60) {
+    if (lastSyncTs.collateralParams < now - 300) { // 5 mins
         const collateralParams: Record<string, CollateralParams> = {};
         for (const collateral of CONTRACTS.collaterals) {
             collateralParams[collateral] = await getCollateralParams(collateral);
@@ -61,7 +61,7 @@ const syncMarketState = async () => {
         lastSyncTs.collateralParams = now;
     }
 
-    if(lastSyncTs.flashLoanCapacity < now - 60){
+    if(lastSyncTs.flashLoanCapacity < now - 300){ // 5 mins
         const flashLoanCapacity = await getAssetBalance(MARKET_ASSET, CONTRACTS.state);
         setFlashLoanCapacityLocal({[MARKET_ASSET]: flashLoanCapacity});
         lastSyncTs.flashLoanCapacity = now;
