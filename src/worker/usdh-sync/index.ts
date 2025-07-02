@@ -19,13 +19,13 @@ const lastSyncTs = {
 const syncUsdhState = async (contract: ContractEntity) => {
     const now = epoch();
 
-    if (lastSyncTs.reserveBalance < now - 600) { // 10 mins
+    if (lastSyncTs.reserveBalance < now - 1200) { // 20 mins
         const val = await getAssetBalance(MARKET_ASSET, USDH_RESERVE_CONTRACT);
         setUsdhReserveBalanceLocal(val);
         lastSyncTs.reserveBalance = now;
     }
 
-    if (lastSyncTs.safeTradeAmount < now - 120) { // 2 mins
+    if (lastSyncTs.safeTradeAmount < now - 300) { // 5 mins
         const val = await findMaxSafeTradeAmount(contract.usdhThreshold / 10_000);
         setUsdhSafeTradeAmountLocal(val);
         lastSyncTs.safeTradeAmount = now;
