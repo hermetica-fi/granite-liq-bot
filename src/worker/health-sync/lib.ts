@@ -3,15 +3,13 @@ import {
     calculateLiquidationPoint,
     calculateTotalCollateralValue, convertDebtSharesToAssets, liquidatorMaxRepayAmount
 } from "granite-math-sdk";
-import type { PriceFeedResponse } from "../../client/pyth";
 import { IR_PARAMS_SCALING_FACTOR } from "../../constants";
-import { toTicker } from "../../helper";
 import type { BorrowerStatus, InterestRateParams, MarketState } from "../../types";
 
 export const calcBorrowerStatus = (borrower: {
     debtShares: number;
-    collateralsDeposited: Record<string, number>;
-}, marketState: MarketState, priceFeed: PriceFeedResponse): BorrowerStatus => {
+    collateralsDeposited: Record<string, { amount: number, price: number, decimals: number }>;
+}, marketState: MarketState): BorrowerStatus => {
     const irParams: InterestRateParams = {
         urKink: marketState.irParams.urKink / 10 ** IR_PARAMS_SCALING_FACTOR,
         baseIR: marketState.irParams.baseIR / 10 ** IR_PARAMS_SCALING_FACTOR,
@@ -36,24 +34,16 @@ export const calcBorrowerStatus = (borrower: {
 
     const collaterals = Object.keys(borrower.collateralsDeposited).map(key => {
         const { liquidationLTV, maxLTV, liquidationPremium } = marketState.collateralParams[key];
-        const feed = priceFeed.items[toTicker(key)];
+        const {amount, price, decimals} = borrower.collateralsDeposited[key];
 
-        if (!feed) {
-            throw new Error(`No price feed found for ${key}`);
-        }
-
-        const price = Number(feed.price.price);
-        const decimals = -1 * feed.price.expo;
-        
         return {
             id: key,
-            amount: borrower.collateralsDeposited[key] / 10 ** decimals,
+            amount: amount / 10 ** decimals,
             price: price / 10 ** decimals,
             liquidationLTV: liquidationLTV / 10 ** decimals,
             maxLTV: maxLTV / 10 ** decimals,
             liquidationPremium: liquidationPremium / 10 ** decimals,
         }
-      
     });
 
     const health = calculateAccountHealth(collaterals, debtAssets);
