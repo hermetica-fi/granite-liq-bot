@@ -11,12 +11,14 @@ import { generateDescendingPriceBuckets } from "./lib";
 
 const market = USE_STAGING ? config.markets.MAINNET_STAGING : config.markets.MAINNET;
 
+type LiquidationPoint = { liquidationPriceUSD: number, liquidatedAmountUSD: number };
+
 export const worker = async () => {
     const priceFeed = await fetchAndProcessPriceFeed();
     const marketState = getMarketState();
     const borrowers = getBorrowersForHealthCheck();
 
-    const map: Record<string, { liquidationPriceUSD: number, liquidatedAmountUSD: number }[]> = {}
+    const map: Record<string, LiquidationPoint[]> = {}
 
     for (let coll of market.collaterals) {
         const collateral = `${coll.contract.principal}.${coll.contract.name}`;
@@ -28,7 +30,7 @@ export const worker = async () => {
         const price = Number(feed.price.price);
         const decimals = -1 * feed.price.expo;
         const buckets = generateDescendingPriceBuckets(price, 100, 300, decimals);
-        const data: { liquidationPriceUSD: number, liquidatedAmountUSD: number }[] = [];
+        const data: LiquidationPoint[] = [];
 
         for (let bucket of buckets) {
             let liquidatedAmountUSD = 0;
