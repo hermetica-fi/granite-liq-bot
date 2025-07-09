@@ -160,6 +160,14 @@ export const routes = {
         });
         return Response.json(list);
     },
+    liquidationPointMap: async () => {
+        const raw = kvStoreGet("liquidation-map");
+        if (!raw) {
+            return Response.json([]);
+        }
+        const map = JSON.parse(raw);
+        return Response.json(map["btc"]);
+    },
     config: async () => {
         return Response.json({
             ENV: process.env.NODE_ENV || "",
