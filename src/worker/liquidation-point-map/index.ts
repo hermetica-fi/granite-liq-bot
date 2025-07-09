@@ -2,6 +2,7 @@ import assert from "assert";
 import { config } from "granite-config";
 import { fetchAndProcessPriceFeed } from "../../client/pyth";
 import { USE_STAGING } from "../../constants";
+import { kvStoreSet } from "../../db/helper";
 import { getBorrowerCollateralAmount, getBorrowersForHealthCheck } from "../../dba/borrower";
 import { getMarketState } from "../../dba/market";
 import { toTicker } from "../../helper";
@@ -15,7 +16,7 @@ export const worker = async () => {
     const marketState = getMarketState();
     const borrowers = getBorrowersForHealthCheck();
 
-    const heatmap: Record<string, { liquidationPriceUSD: number, liquidatedAmountUSD: number }[]> = {}
+    const map: Record<string, { liquidationPriceUSD: number, liquidatedAmountUSD: number }[]> = {}
 
     for (let coll of market.collaterals) {
         const collateral = `${coll.contract.principal}.${coll.contract.name}`;
@@ -26,7 +27,7 @@ export const worker = async () => {
         }
         const price = Number(feed.price.price);
         const decimals = -1 * feed.price.expo;
-        const buckets = generateDescendingPriceBuckets(price, 100, 200, decimals);
+        const buckets = generateDescendingPriceBuckets(price, 100, 300, decimals);
         const data: { liquidationPriceUSD: number, liquidatedAmountUSD: number }[] = [];
 
         for (let bucket of buckets) {
@@ -55,16 +56,12 @@ export const worker = async () => {
             data.push({ liquidationPriceUSD: bucket / 10 ** decimals, liquidatedAmountUSD });
         }
 
-        heatmap[ticker] = data;
+        map[ticker] = data;
     }
 
-    console.log(heatmap["btc"][heatmap["btc"].length - 1])
+    kvStoreSet("liquidation-map", JSON.stringify(map));
 };
 
 export const main = async () => {
     await worker();
 }
-
-main()
-
-
