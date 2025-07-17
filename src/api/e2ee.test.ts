@@ -276,10 +276,10 @@ describe("api e2e", () => {
             ALERT_BALANCE: 1,
             BORROWER_SYNC_DELAY: 10,
             CONTRACTS: {
-                borrower: "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.borrower-v1",
+                borrower: "SP3BJR4P3W2Y9G22HA595Z59VHBC9EQYRFWSKG743.borrower-v1",
                 state: "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.state-v1",
                 ir: "SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.linear-kinked-ir-v1",
-                liquidator: "SPRZH8YN496DYPM7Z2KY1V4P4B4NPJYWE5Q7D56Y.liquidator-v1",
+                liquidator: "SP3BJR4P3W2Y9G22HA595Z59VHBC9EQYRFWSKG743.liquidator-v1",
                 collaterals: ["SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token"],
             },
             DRY_RUN: false,
