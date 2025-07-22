@@ -17,6 +17,8 @@ export const main = async () => {
                 res = await routes.health();
             } else if (req.method === "GET" && url.pathname === "/liquidations") {
                 res = await routes.liquidations(url);
+            } else if (req.method === "GET" && url.pathname === "/liquidation-point-map") {
+                res = await routes.liquidationPointMap();
             } else if (req.method === "GET" && url.pathname === "/config") {
                 res = await routes.config();
             } else {
