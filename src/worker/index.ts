@@ -6,6 +6,7 @@ import { main as contractSync } from "./contract-sync";
 import { main as eventSync } from "./event-sync";
 import { main as healthSync } from "./health-sync";
 import { main as liquidate } from "./liquidate";
+import { main as liquidationPointMapSync } from "./liquidation-point-map";
 import { main as marketSync } from "./market-sync";
 import { main as usdhSync } from "./usdh-sync";
 
@@ -19,6 +20,7 @@ const workerInner = async () => {
     await usdhSync();
     await healthSync();
     await liquidate();
+    await liquidationPointMapSync();
 
     kvStoreSet("last-sync", Date.now());
 }

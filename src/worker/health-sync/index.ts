@@ -3,6 +3,7 @@ import { fetchAndProcessPriceFeed } from "../../client/pyth";
 import { dbCon } from "../../db/con";
 import { clearBorrowerStatuses, getBorrowerCollateralAmount, getBorrowersForHealthCheck, insertBorrowerStatus } from "../../dba/borrower";
 import { getMarketState } from "../../dba/market";
+import { toTicker } from "../../helper";
 import { calcBorrowerStatus } from "./lib";
 
 export const worker = async () => {
@@ -22,17 +23,25 @@ export const worker = async () => {
         continue;
       }
 
-      const collateralsDeposited: Record<string, number> = {}
+      const collateralsDeposited: Record<string, { amount: number, price: number, decimals: number }> = {}
       for (const collateral of borrower.collaterals) {
         const amount = getBorrowerCollateralAmount(borrower.address, collateral);
         assert(amount !== undefined, "User collateral amount is undefined");
-        collateralsDeposited[collateral] = amount;
+        const feed = priceFeed.items[toTicker(collateral)];
+        if (!feed) {
+          throw new Error(`No price feed found for ${collateral}`);
+        }
+        const price = Number(feed.price.price);
+        const decimals = -1 * feed.price.expo;
+        collateralsDeposited[collateral] = {
+          amount, price, decimals
+        };
       }
 
       const status = calcBorrowerStatus({
         debtShares: borrower.debtShares,
         collateralsDeposited
-      }, marketState, priceFeed);
+      }, marketState);
 
       insertBorrowerStatus(borrower.address, status);
     }

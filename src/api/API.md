@@ -39,6 +39,11 @@ SearchParams:
 
 Returns: [LiquidationEntity](#LiquidationEntity) list
 
+
+### /liquidation-point-map [GET]
+
+Returns: [LiquidationPoint](#LiquidationPoint) list
+
 ### /config [GET]
 
 Returns: [Config](#Config)
@@ -118,6 +123,15 @@ Returns: [Config](#Config)
         marketAssetBalance: number | null,
     },
     isHealthy: boolean
+}
+```
+
+### LiquidationPoint
+
+```ts
+{ 
+    liquidationPriceUSD: number, 
+    liquidatedAmountUSD: number 
 }
 ```
 
