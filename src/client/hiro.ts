@@ -4,7 +4,27 @@ import type { AddressBalanceResponse, AddressNonces, MempoolTransaction, Mempool
 const TIMEOUT = 10000;
 const MAX_RETRIES = 5;
 const INITIAL_DELAY = 5000;
-const HIRO_API_KEY = process?.env?.HIRO_API_KEY
+const HIRO_API_KEY = process?.env?.HIRO_API_KEY;
+
+const WINDOW_MS = 20_000;
+const REQUEST_THRESHOLD = 10;
+const requestTimestamps: number[] = [];
+
+export function shouldUseHiroApiKey(): boolean {
+    const now = Date.now();
+
+    const recent = requestTimestamps.filter(ts => now - ts <= WINDOW_MS);
+    requestTimestamps.length = 0;
+    requestTimestamps.push(...recent);
+
+    requestTimestamps.push(now);
+
+    if (requestTimestamps.length > 1000) {
+        requestTimestamps.splice(0, requestTimestamps.length - 1000);
+    }
+
+    return requestTimestamps.length >= REQUEST_THRESHOLD;
+}
 
 export const fetchFn = async (
     input: string | URL,
@@ -17,7 +37,9 @@ export const fetchFn = async (
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), TIMEOUT);
 
-        const _init = HIRO_API_KEY ? {
+        const useApiKey = shouldUseHiroApiKey();
+
+        const _init = useApiKey && HIRO_API_KEY ? {
             ...init,
             headers: {
                 ...init?.headers,
