@@ -1,11 +1,10 @@
 import type { StacksNetworkName } from "@stacks/network";
 import { bufferCV, contractPrincipalCV, listCV, PostConditionMode, principalCV, serializeCVBytes, someCV, tupleCV, uintCV, type SignedContractCallOptions } from "@stacks/transactions";
-import type { PriceFeedResponse } from "../../client/pyth";
 import { MIN_TO_LIQUIDATE_PER_USER, TX_TIMEOUT, USDH_RESERVE_CONTRACT, USDH_SLIPPAGE_TOLERANCE } from "../../constants";
 import { getUsdhState } from "../../dba/usdh";
 import { DEX_USDH_FLASH_LOAN, type SwapInfo } from "../../dex";
 import { hexToUint8Array, toTicker } from "../../helper";
-import type { ContractEntity, LiquidationBatch, LiquidationBatchWithStats } from "../../types";
+import type { ContractEntity, LiquidationBatch, LiquidationBatchWithStats, PriceFeedResponse } from "../../types";
 import { type AssetInfoWithBalance, type BorrowerStatusEntity } from "../../types";
 import { formatUnits, parseUnits, toFixedDown } from "../../units";
 import { epoch } from "../../util";

@@ -1,4 +1,4 @@
-import type { Ticker } from "./client/pyth";
+import type { PriceTicker } from "./types";
 
 export function hexToUint8Array(hexString: string): Uint8Array {
   // Remove any leading "0x" from the hex string if it exists
@@ -18,7 +18,7 @@ export function hexToUint8Array(hexString: string): Uint8Array {
   return bytes;
 }
 
-export const toTicker = (val: string): Ticker => {
+export const toTicker = (val: string): PriceTicker => {
   if (val.toLowerCase().indexOf("btc") !== -1) {
     return "btc"
   } else if (val.toLowerCase().indexOf("eth") !== -1) {

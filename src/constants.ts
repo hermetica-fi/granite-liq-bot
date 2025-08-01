@@ -1,6 +1,6 @@
 import { config } from "granite-config";
-import type { Ticker } from "./client/pyth";
 import { toTicker } from "./helper";
+import type { PriceTicker } from "./types";
 import { assertEnvVar, assertNumericEnvVar } from "./util";
 
 export const USE_STAGING = process.env.USE_STAGING === "1";
@@ -26,7 +26,7 @@ export const CONTRACTS: {
     collaterals: market.collaterals.map(x => `${x.contract.principal}.${x.contract.name}`)
 };
 
-export const PRICE_FEED_IDS: { ticker: Ticker, feed_id: string }[] = [...market.collaterals, market.market_asset]
+export const PRICE_FEED_IDS: { ticker: PriceTicker, feed_id: string }[] = [...market.collaterals, market.market_asset]
     .map(a => ({ ticker: toTicker(a.display_name), feed_id: `0x${a.price_feed!}` }));
 
 export const MIN_TO_LIQUIDATE = assertNumericEnvVar("MIN_TO_LIQUIDATE", 4)

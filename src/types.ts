@@ -118,3 +118,16 @@ export type UsdhState = {
     reserveBalance: number,
     safeTradeAmount: number,
 }
+
+export type PriceTicker = "btc" | "eth" | "usdc";
+
+type PriceFeedItem = {
+  price: string,
+  expo: number,
+  publish_time: number,
+}
+
+export type PriceFeedResponse = {
+  attestation: string,
+  items: Record<string, PriceFeedItem>
+}
