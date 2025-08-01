@@ -123,12 +123,16 @@ export type UsdhState = {
 export type PriceTicker = "btc" | "eth" | "usdc";
 
 export type PriceFeedItem = {
-  price: string,
-  expo: number,
-  publish_time: number,
+    price: string,
+    expo: number,
+    publish_time: number,
 }
 
 export type PriceFeedResponse = {
-  attestation: string,
-  items: Record<string, PriceFeedItem>
+    attestation: string,
+    items: Record<string, PriceFeedItem>
+}
+
+export type PriceFeedItemWithAttestation = PriceFeedItem & {
+    attestation: string | null;
 }

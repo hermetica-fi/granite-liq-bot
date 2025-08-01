@@ -42,3 +42,5 @@ export const LIQUIDATON_CAP = assertNumericEnvVar("LIQUIDATON_CAP");
 export const ALERT_BALANCE = assertNumericEnvVar("ALERT_BALANCE", 1);
 export const HAS_HIRO_API_KEY = process.env.HIRO_API_KEY !== undefined;
 export const GRANITE_RPC = assertEnvVar("GRANITE_RPC");
+export const PRICE_FEED_FRESHNESS_THRESHOLD = 300; // 5 min
+export const PRICE_FEED_FRESHNESS_BUFFER = 60; // 60 secs
