@@ -143,7 +143,7 @@ export const makeLiquidationTxOptions = (
                             batch: batchCV,
                             deadline: uintCV(deadline),
                             dex: uintCV(DEX_USDH_FLASH_LOAN),
-                            "btc-price": uintCV(cFeed.price.price),
+                            "btc-price": uintCV(cFeed.price),
                             "price-slippage-tolerance": uintCV(USDH_SLIPPAGE_TOLERANCE),
                             "reserve-contract": principalCV(USDH_RESERVE_CONTRACT)
                         })
@@ -171,7 +171,7 @@ export const makeLiquidationTxOptions = (
                 someCV(bufferCV(priceAttestationBuff)),
                 batchCV,
                 uintCV(deadline),
-                uintCV(cFeed.price.price),
+                uintCV(cFeed.price),
                 uintCV(USDH_SLIPPAGE_TOLERANCE),
                 principalCV(USDH_RESERVE_CONTRACT)
             ];

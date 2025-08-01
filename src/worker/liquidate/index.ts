@@ -60,8 +60,8 @@ const worker = async () => {
     if (!cFeed) {
         throw new Error("Collateral asset price feed not found");
     }
-    const collateralPrice = Number(cFeed.price.price);
-    const collateralPriceFormatted = formatUnits(collateralPrice, Math.abs(cFeed.price.expo)).toFixed(2);
+    const collateralPrice = Number(cFeed.price);
+    const collateralPriceFormatted = formatUnits(collateralPrice, Math.abs(cFeed.expo)).toFixed(2);
 
     const flashLoanCapacityBn = USE_FLASH_LOAN ? (marketState.flashLoanCapacity[marketAsset.address] || 0) : 0;
 
@@ -88,7 +88,7 @@ const worker = async () => {
 
     // Swap check
     const minExpected = formatUnits(calcMinOut(spendBn, contract.unprofitabilityThreshold), marketAsset.decimals);
-    const usdhContext = USE_USDH ? { btcPriceBn: BigInt(cFeed.price.price), minterContract: contract.id } : undefined;
+    const usdhContext = USE_USDH ? { btcPriceBn: BigInt(cFeed.price), minterContract: contract.id } : undefined;
     const swap = await estimateSbtcToAeusdc(receive, usdhContext);
     const dex = getDexNameById(swap.dex);
 

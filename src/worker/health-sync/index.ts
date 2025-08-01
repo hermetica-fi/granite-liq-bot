@@ -31,8 +31,8 @@ export const worker = async () => {
         if (!feed) {
           throw new Error(`No price feed found for ${collateral}`);
         }
-        const price = Number(feed.price.price);
-        const decimals = -1 * feed.price.expo;
+        const price = Number(feed.price);
+        const decimals = -1 * feed.expo;
         collateralsDeposited[collateral] = {
           amount, price, decimals
         };
