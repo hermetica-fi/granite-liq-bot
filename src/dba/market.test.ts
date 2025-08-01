@@ -108,7 +108,7 @@ describe("dba market", () => {
 
     test("OnChainPriceFeed", () => {
         setOnChainPriceFeed({
-            "SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token": {
+            "btc": {
                 price: "11470000751501",
                 expo: -8,
                 publish_time: 1754045925,
@@ -116,7 +116,7 @@ describe("dba market", () => {
         });
         const resp = getOnChainPriceFeed();
         expect(resp).toEqual({
-            "SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token": {
+            "btc": {
                 price: "11470000751501",
                 expo: -8,
                 publish_time: 1754045925,
@@ -216,7 +216,7 @@ describe("dba market", () => {
         });
 
         setOnChainPriceFeed({
-            "SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token": {
+            "btc": {
                 price: "11470000751501",
                 expo: -8,
                 publish_time: 1754045925,
@@ -225,7 +225,7 @@ describe("dba market", () => {
 
         const resp2 = getMarketState();
         expect(resp2.onChainPriceFeed).toEqual({
-            "SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token": {
+            "btc": {
                 price: "11470000751501",
                 expo: -8,
                 publish_time: 1754045925,

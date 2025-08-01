@@ -40,7 +40,7 @@ describe("health-sync lib", () => {
             },
             flashLoanCapacity: { "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-usdc": 0 },
             onChainPriceFeed: {
-                "SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token": {
+                "btc": {
                     price: "11470000751501",
                     expo: -8,
                     publish_time: 1754045925,
@@ -113,7 +113,7 @@ describe("health-sync lib", () => {
             },
             flashLoanCapacity: { "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-usdc": 0 },
             onChainPriceFeed: {
-                "SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token": {
+                "btc": {
                     price: "11470000751501",
                     expo: -8,
                     publish_time: 1754045925,

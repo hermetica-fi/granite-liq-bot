@@ -5,7 +5,7 @@ import {
     setDebtParamsLocal, setFlashLoanCapacityLocal, setIrParamsLocal, setLpParamsLocal,
     setOnChainPriceFeed
 } from "../../dba/market";
-import { getMarket } from "../../helper";
+import { getMarket, toTicker } from "../../helper";
 import { createLogger } from "../../logger";
 import type { CollateralParams, PriceFeedItem } from "../../types";
 import { epoch } from "../../util";
@@ -73,9 +73,10 @@ const syncMarketState = async () => {
     for (let coll of getMarket().collaterals) {
         const feed = await getPythPriceFeed(`0x${coll.price_feed}`);
         if (feed) {
-            onChainPriceFeed[`${coll.contract.principal}.${coll.contract.name}`] = feed;
+            onChainPriceFeed[toTicker(coll.contract.id)] = feed;
         }
     }
+    console.log("onChainPriceFeed", onChainPriceFeed)
     
     setOnChainPriceFeed(onChainPriceFeed);
 }
