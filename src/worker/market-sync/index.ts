@@ -76,7 +76,6 @@ const syncMarketState = async () => {
             onChainPriceFeed[toTicker(coll.contract.id)] = feed;
         }
     }
-    console.log("onChainPriceFeed", onChainPriceFeed)
     
     setOnChainPriceFeed(onChainPriceFeed);
 }

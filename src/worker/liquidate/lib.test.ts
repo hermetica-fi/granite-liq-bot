@@ -519,18 +519,9 @@ describe("makeLiquidationTxOptions", () => {
 
     const priceFeed = {
         "attestation": "504e41550100000003b",
-        "items": {
-            "btc": {
-                "price": "10384556671615",
-                "expo": -8,
-                "publish_time": 1747405182
-            },
-            "usdc": {
-                "price": "99993806",
-                "expo": -8,
-                "publish_time": 1747405182
-            }
-        }
+        "price": "10384556671615",
+        "expo": -8,
+        "publish_time": 1747405182
     }
 
     const swap = { dex: 2, dy: 1000 };

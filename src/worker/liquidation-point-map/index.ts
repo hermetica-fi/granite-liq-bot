@@ -1,16 +1,15 @@
 import assert from "assert";
-import { fetchAndProcessPriceFeed } from "../../client/pyth";
 import { kvStoreSet } from "../../db/helper";
 import { getBorrowerCollateralAmount, getBorrowersForHealthCheck } from "../../dba/borrower";
 import { getMarketState } from "../../dba/market";
 import { getMarket, toTicker } from "../../helper";
+import { getPriceFeed } from "../../price-feed";
 import { calcBorrowerStatus } from "../health-sync/lib";
 import { generateDescendingPriceBuckets } from "./lib";
 
 type LiquidationPoint = { liquidationPriceUSD: number, liquidatedAmountUSD: number };
 
 export const worker = async () => {
-    const priceFeed = await fetchAndProcessPriceFeed();
     const marketState = getMarketState();
     const borrowers = getBorrowersForHealthCheck();
 
@@ -19,10 +18,7 @@ export const worker = async () => {
     for (let coll of getMarket().collaterals) {
         const collateral = `${coll.contract.principal}.${coll.contract.name}`;
         const ticker = toTicker(collateral);
-        const feed = priceFeed.items[ticker];
-        if (!feed) {
-            throw new Error(`No price feed found for ${collateral}`);
-        }
+        const feed = await getPriceFeed(ticker, marketState);
         const price = Number(feed.price);
         const decimals = -1 * feed.expo;
         const buckets = generateDescendingPriceBuckets(price, 100, 300, decimals);
