@@ -108,7 +108,7 @@ describe("dba market", () => {
 
     test("OnChainPriceFeed", () => {
         setOnChainPriceFeed({
-            "sbtc-token": {
+            "SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token": {
                 price: "11470000751501",
                 expo: -8,
                 publish_time: 1754045925,
@@ -116,7 +116,7 @@ describe("dba market", () => {
         });
         const resp = getOnChainPriceFeed();
         expect(resp).toEqual({
-            "sbtc-token": {
+            "SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token": {
                 price: "11470000751501",
                 expo: -8,
                 publish_time: 1754045925,
@@ -174,13 +174,7 @@ describe("dba market", () => {
         setFlashLoanCapacityLocal({ 'ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-usdc': 1025785 })
 
         expect(() => { getMarketState() }).toThrow(Error('onChainPriceFeed not found'));
-        setOnChainPriceFeed({
-            "sbtc-token": {
-                price: "11470000751501",
-                expo: -8,
-                publish_time: 1754045925,
-            }
-        })
+        setOnChainPriceFeed({})
 
         const resp = getMarketState();
         expect(resp).toEqual({
@@ -218,25 +212,20 @@ describe("dba market", () => {
             },
             flashLoanCapacity: { "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-usdc": 1025785 },
             onChainPriceFeed: {
-                "sbtc-token": {
-                    price: "11470000751501",
-                    expo: -8,
-                    publish_time: 1754045925,
-                }
             }
         });
 
         setOnChainPriceFeed({
-            "sbtc-token": {
+            "SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token": {
                 price: "11470000751501",
                 expo: -8,
                 publish_time: 1754045925,
             }
         });
-        
+
         const resp2 = getMarketState();
         expect(resp2.onChainPriceFeed).toEqual({
-            "sbtc-token": {
+            "SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token": {
                 price: "11470000751501",
                 expo: -8,
                 publish_time: 1754045925,

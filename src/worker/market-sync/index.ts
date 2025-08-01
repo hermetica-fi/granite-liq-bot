@@ -73,10 +73,10 @@ const syncMarketState = async () => {
     for (let coll of getMarket().collaterals) {
         const feed = await getPythPriceFeed(`0x${coll.price_feed}`);
         if (feed) {
-            onChainPriceFeed[coll.contract.id] = feed;
+            onChainPriceFeed[`${coll.contract.principal}.${coll.contract.name}`] = feed;
         }
     }
-
+    
     setOnChainPriceFeed(onChainPriceFeed);
 }
 
