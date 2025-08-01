@@ -1,3 +1,4 @@
+import { config } from "granite-config";
 import type { PriceTicker } from "./types";
 
 export function hexToUint8Array(hexString: string): Uint8Array {
@@ -28,5 +29,8 @@ export const toTicker = (val: string): PriceTicker => {
   }
 
   throw new Error(`Invalid symbol: ${val}`);
+}
 
+export const getMarket = () => {
+  return process.env.USE_STAGING === "1" ? config.markets.MAINNET_STAGING : config.markets.MAINNET
 }
