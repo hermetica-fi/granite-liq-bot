@@ -108,6 +108,10 @@ export const calcMinOut = (paid: number, unprofitabilityThreshold: number) => {
     return Number(BigInt(paid) - ((BigInt(paid) * BigInt(unprofitabilityThreshold)) / SCALING_FACTOR));
 }
 
+export const makePriceAttestationBuff = (attestation: string | null) => {
+    return attestation ? someCV(bufferCV(hexToUint8Array(attestation))) : noneCV();
+}
+
 export const makeLiquidationTxOptions = (
     { contract, priv, nonce, fee, batchInfo, priceFeed, useFlashLoan, useUsdh, swap }:
         {
@@ -117,9 +121,7 @@ export const makeLiquidationTxOptions = (
         }): SignedContractCallOptions => {
 
     const marketAsset = contract.marketAsset!;
-    const priceAttestationBuff = priceFeed.attestation ? hexToUint8Array(priceFeed.attestation) : null;
     const batchCV = liquidationBatchCv(batchInfo.batch);
-
     const collateralAsset = contract.collateralAsset!;
     const cFeed = priceFeed.items[toTicker(collateralAsset.symbol)]!;
 
@@ -139,7 +141,7 @@ export const makeLiquidationTxOptions = (
                 bufferCV(
                     serializeCVBytes(
                         tupleCV({
-                            "pyth-price-feed-data": priceAttestationBuff ? someCV(bufferCV(priceAttestationBuff)) : noneCV(),
+                            "pyth-price-feed-data": makePriceAttestationBuff(priceFeed.attestation),
                             batch: batchCV,
                             deadline: uintCV(deadline),
                             dex: uintCV(DEX_USDH_FLASH_LOAN),
@@ -168,7 +170,7 @@ export const makeLiquidationTxOptions = (
             }
         } else {
             const functionArgs = [
-                priceAttestationBuff ? someCV(bufferCV(priceAttestationBuff)) : noneCV(),
+                makePriceAttestationBuff(priceFeed.attestation),
                 batchCV,
                 uintCV(deadline),
                 uintCV(cFeed.price),
@@ -190,7 +192,7 @@ export const makeLiquidationTxOptions = (
                 bufferCV(
                     serializeCVBytes(
                         tupleCV({
-                            "pyth-price-feed-data": priceAttestationBuff ? someCV(bufferCV(priceAttestationBuff)) : noneCV(),
+                            "pyth-price-feed-data": makePriceAttestationBuff(priceFeed.attestation),
                             batch: batchCV,
                             deadline: uintCV(deadline),
                             dex: uintCV(swap.dex),
@@ -219,7 +221,7 @@ export const makeLiquidationTxOptions = (
             }
         } else {
             const functionArgs = [
-                priceAttestationBuff ? someCV(bufferCV(priceAttestationBuff)) : noneCV(),
+                makePriceAttestationBuff(priceFeed.attestation),
                 batchCV,
                 uintCV(deadline),
                 uintCV(swap.dex)

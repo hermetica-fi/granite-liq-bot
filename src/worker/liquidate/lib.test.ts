@@ -1,7 +1,7 @@
 import { cvToJSON, deserializeCV } from "@stacks/transactions";
 import { describe, expect, it, mock, test } from "bun:test";
 import type { AssetInfoWithBalance, BorrowerStatusEntity, LiquidationBatch } from "../../types";
-import { calcMinOut, liquidationBatchCv, makeLiquidationBatch, makeLiquidationCap, makeLiquidationTxOptions } from "./lib";
+import { calcMinOut, liquidationBatchCv, makeLiquidationBatch, makeLiquidationCap, makeLiquidationTxOptions, makePriceAttestationBuff } from "./lib";
 
 test("liquidationBatchCv", () => {
     const batch: LiquidationBatch[] = [
@@ -608,7 +608,6 @@ describe("makeLiquidationTxOptions", () => {
         expect(txOptions).toMatchSnapshot();
     });
 
-
     test("usdh + flash loan + dex liquidation", () => {
         const txOptions = makeLiquidationTxOptions({
             contract,
@@ -655,6 +654,26 @@ describe("makeLiquidationTxOptions", () => {
         expect(txOptions).toMatchSnapshot();
     });
 });
+
+test("makePriceAttestationBuff", () => {
+    expect(cvToJSON(makePriceAttestationBuff("504e41550100000003b"))).toEqual({
+        type: "(optional (buff 10))",
+        value: {
+            type: "(buff 10)",
+            value: "0x0504e41550100000003b",
+        },
+    });
+
+    expect(cvToJSON(makePriceAttestationBuff(null))).toEqual({
+        type: "(optional none)",
+        value: null,
+    });
+
+    expect(cvToJSON(makePriceAttestationBuff(""))).toEqual({
+        type: "(optional none)",
+        value: null,
+    });
+})
 
 describe("makeLiquidationCap", () => {
     it("should pick baseCap", () => {
