@@ -26,7 +26,7 @@ export const worker = async () => {
 
   const priceFeed =  await getPriceFeed(tickers, marketState);
 
-  dbCon.transaction(async () => {
+  dbCon.transaction(() => {
     clearBorrowerStatuses();
     for (const borrower of borrowers) {
       if (borrower.debtShares === 0) {
