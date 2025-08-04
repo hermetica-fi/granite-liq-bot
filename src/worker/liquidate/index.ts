@@ -55,9 +55,11 @@ const worker = async () => {
     const marketState = getMarketState();
     const liquidationPremium = marketState.collateralParams[collateralAsset.address].liquidationPremium;
 
-    const priceFeed = await getPriceFeed(toTicker(collateralAsset.symbol), marketState);
-    const collateralPrice = Number(priceFeed.price);
-    const collateralPriceFormatted = formatUnits(collateralPrice, Math.abs(priceFeed.expo)).toFixed(2);
+    const collateralTicker = toTicker(collateralAsset.symbol);
+    const priceFeed = await getPriceFeed([collateralTicker], marketState);
+    const cFeed = priceFeed.items[collateralTicker]!;
+    const collateralPrice = Number(cFeed.price);
+    const collateralPriceFormatted = formatUnits(collateralPrice, Math.abs(cFeed.expo)).toFixed(2);
 
     const flashLoanCapacityBn = USE_FLASH_LOAN ? (marketState.flashLoanCapacity[marketAsset.address] || 0) : 0;
 
@@ -84,7 +86,7 @@ const worker = async () => {
 
     // Swap check
     const minExpected = formatUnits(calcMinOut(spendBn, contract.unprofitabilityThreshold), marketAsset.decimals);
-    const usdhContext = USE_USDH ? { btcPriceBn: BigInt(priceFeed.price), minterContract: contract.id } : undefined;
+    const usdhContext = USE_USDH ? { btcPriceBn: BigInt(cFeed.price), minterContract: contract.id } : undefined;
     const swap = await estimateSbtcToAeusdc(receive, usdhContext);
     const dex = getDexNameById(swap.dex);
 

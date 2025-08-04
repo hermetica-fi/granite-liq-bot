@@ -3,8 +3,8 @@ import { bufferCV, contractPrincipalCV, listCV, noneCV, PostConditionMode, princ
 import { MIN_TO_LIQUIDATE_PER_USER, TX_TIMEOUT, USDH_RESERVE_CONTRACT, USDH_SLIPPAGE_TOLERANCE } from "../../constants";
 import { getUsdhState } from "../../dba/usdh";
 import { DEX_USDH_FLASH_LOAN, type SwapInfo } from "../../dex";
-import { hexToUint8Array } from "../../helper";
-import type { ContractEntity, LiquidationBatch, LiquidationBatchWithStats, PriceFeedItemWithAttestation } from "../../types";
+import { hexToUint8Array, toTicker } from "../../helper";
+import type { ContractEntity, LiquidationBatch, LiquidationBatchWithStats, PriceFeedResponseMixed } from "../../types";
 import { type AssetInfoWithBalance, type BorrowerStatusEntity } from "../../types";
 import { formatUnits, parseUnits, toFixedDown } from "../../units";
 import { epoch } from "../../util";
@@ -112,13 +112,16 @@ export const makeLiquidationTxOptions = (
     { contract, priv, nonce, fee, batchInfo, priceFeed, useFlashLoan, useUsdh, swap }:
         {
             contract: ContractEntity, priv: string, nonce: number, fee: number,
-            batchInfo: LiquidationBatchWithStats, priceFeed: PriceFeedItemWithAttestation,
+            batchInfo: LiquidationBatchWithStats, priceFeed: PriceFeedResponseMixed,
             useFlashLoan: boolean, useUsdh: boolean, swap: SwapInfo
         }): SignedContractCallOptions => {
 
     const marketAsset = contract.marketAsset!;
     const priceAttestationBuff = priceFeed.attestation ? hexToUint8Array(priceFeed.attestation) : null;
     const batchCV = liquidationBatchCv(batchInfo.batch);
+
+    const collateralAsset = contract.collateralAsset!;
+    const cFeed = priceFeed.items[toTicker(collateralAsset.symbol)]!;
 
     const baseTxOptions = {
         senderKey: priv,
@@ -140,7 +143,7 @@ export const makeLiquidationTxOptions = (
                             batch: batchCV,
                             deadline: uintCV(deadline),
                             dex: uintCV(DEX_USDH_FLASH_LOAN),
-                            "btc-price": uintCV(priceFeed.price),
+                            "btc-price": uintCV(cFeed.price),
                             "price-slippage-tolerance": uintCV(USDH_SLIPPAGE_TOLERANCE),
                             "reserve-contract": principalCV(USDH_RESERVE_CONTRACT)
                         })
@@ -168,7 +171,7 @@ export const makeLiquidationTxOptions = (
                 priceAttestationBuff ? someCV(bufferCV(priceAttestationBuff)) : noneCV(),
                 batchCV,
                 uintCV(deadline),
-                uintCV(priceFeed.price),
+                uintCV(cFeed.price),
                 uintCV(USDH_SLIPPAGE_TOLERANCE),
                 principalCV(USDH_RESERVE_CONTRACT)
             ];

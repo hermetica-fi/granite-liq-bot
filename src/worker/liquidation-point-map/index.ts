@@ -4,6 +4,7 @@ import { getBorrowerCollateralAmount, getBorrowersForHealthCheck } from "../../d
 import { getMarketState } from "../../dba/market";
 import { getMarket, toTicker } from "../../helper";
 import { getPriceFeed } from "../../price-feed";
+import type { PriceTicker } from "../../types";
 import { calcBorrowerStatus } from "../health-sync/lib";
 import { generateDescendingPriceBuckets } from "./lib";
 
@@ -12,13 +13,15 @@ type LiquidationPoint = { liquidationPriceUSD: number, liquidatedAmountUSD: numb
 export const worker = async () => {
     const marketState = getMarketState();
     const borrowers = getBorrowersForHealthCheck();
-
+    const market = getMarket();
+    const tickers: PriceTicker[] = market.collaterals.map(x => toTicker(x.contract.id));
+    const priceFeed = await getPriceFeed(tickers, marketState);
     const map: Record<string, LiquidationPoint[]> = {}
 
-    for (let coll of getMarket().collaterals) {
+    for (let coll of market.collaterals) {
         const collateral = `${coll.contract.principal}.${coll.contract.name}`;
         const ticker = toTicker(collateral);
-        const feed = await getPriceFeed(ticker, marketState);
+        const feed = priceFeed.items[ticker]!;
         const price = Number(feed.price);
         const decimals = -1 * feed.expo;
         const buckets = generateDescendingPriceBuckets(price, 100, 300, decimals);

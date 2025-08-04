@@ -4,6 +4,7 @@ import { clearBorrowerStatuses, getBorrowerCollateralAmount, getBorrowersForHeal
 import { getMarketState } from "../../dba/market";
 import { toTicker } from "../../helper";
 import { getPriceFeed } from "../../price-feed";
+import type { PriceTicker } from "../../types";
 import { calcBorrowerStatus } from "./lib";
 
 export const worker = async () => {
@@ -14,6 +15,16 @@ export const worker = async () => {
   }
 
   const marketState = getMarketState();
+  const tickers: PriceTicker[] = [];
+  for (const borrower of borrowers) {
+    for (const collateral of borrower.collaterals) {
+      if(tickers.indexOf(toTicker(collateral)) === -1){
+        tickers.push(toTicker(collateral));
+      }
+    }
+  }
+
+  const priceFeed =  await getPriceFeed(tickers, marketState);
 
   dbCon.transaction(async () => {
     clearBorrowerStatuses();
@@ -26,8 +37,7 @@ export const worker = async () => {
       for (const collateral of borrower.collaterals) {
         const amount = getBorrowerCollateralAmount(borrower.address, collateral);
         assert(amount !== undefined, "User collateral amount is undefined");
-        const feed = await getPriceFeed(toTicker(collateral), marketState);
-        console.log(feed)
+        const feed = priceFeed.items[toTicker(collateral)]!;
         const price = Number(feed.price);
         const decimals = -1 * feed.expo;
         collateralsDeposited[collateral] = {

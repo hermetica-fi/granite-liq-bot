@@ -130,9 +130,10 @@ export type PriceFeedItem = {
 
 export type PriceFeedResponse = {
     attestation: string,
-    items: Record<string, PriceFeedItem>
+    items: Partial<Record<PriceTicker, PriceFeedItem>>;
 }
 
-export type PriceFeedItemWithAttestation = PriceFeedItem & {
+export type PriceFeedResponseMixed = {
     attestation: string | null;
+    items: Partial<Record<PriceTicker, PriceFeedItem>>;
 }
