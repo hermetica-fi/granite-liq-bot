@@ -98,7 +98,7 @@ export type MarketState = {
     collateralParams: Record<string, CollateralParams>;
     marketAssetParams: MarketAssetParams;
     flashLoanCapacity: Record<string, number>,
-    onChainPriceFeed: Record<string, PriceFeedItem>
+    onChainPriceFeed: Partial<Record<PriceTicker, PriceFeedItem>>
 }
 
 export type LiquidationBatch = {

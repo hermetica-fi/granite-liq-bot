@@ -7,7 +7,7 @@ import {
 } from "../../dba/market";
 import { getMarket, toTicker } from "../../helper";
 import { createLogger } from "../../logger";
-import type { CollateralParams, PriceFeedItem } from "../../types";
+import type { CollateralParams, PriceFeedItem, PriceTicker } from "../../types";
 import { epoch } from "../../util";
 
 const logger = createLogger("market-sync");
@@ -69,14 +69,14 @@ const syncMarketState = async () => {
         lastSyncTs.flashLoanCapacity = now;
     }
 
-    const onChainPriceFeed: Record<string, PriceFeedItem> = {};
+    const onChainPriceFeed: Partial<Record<PriceTicker, PriceFeedItem>> = {};
     for (let coll of getMarket().collaterals) {
         const feed = await getPythPriceFeed(`0x${coll.price_feed}`);
         if (feed) {
             onChainPriceFeed[toTicker(coll.contract.id)] = feed;
         }
     }
-    
+
     setOnChainPriceFeed(onChainPriceFeed);
 }
 

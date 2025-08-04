@@ -5,7 +5,8 @@ import type {
     AccrueInterestParams,
     CollateralParams, DebtParams, InterestRateParams, LpParams,
     MarketState,
-    PriceFeedItem
+    PriceFeedItem,
+    PriceTicker
 } from "../types";
 
 export const getIrParamsLocal = (): InterestRateParams | null => {
@@ -53,12 +54,12 @@ export const setCollateralParamsLocal = (collateralParams: Record<string, Collat
     kvStoreSet(`collateral-params`, JSON.stringify(collateralParams));
 }
 
-export const getOnChainPriceFeed = (): Record<string, PriceFeedItem> | null => {
+export const getOnChainPriceFeed = (): Partial<Record<PriceTicker, PriceFeedItem>> | null => {
     const r = kvStoreGet(`on-chain-price-feed`);
     return r ? JSON.parse(r) : null;
 }
 
-export const setOnChainPriceFeed = (feed: Record<string, PriceFeedItem>) => {
+export const setOnChainPriceFeed = (feed: Partial<Record<PriceTicker, PriceFeedItem>>) => {
     kvStoreSet(`on-chain-price-feed`, JSON.stringify(feed));
 }
 
