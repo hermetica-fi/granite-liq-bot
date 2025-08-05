@@ -26,6 +26,10 @@ const processEvents = (event: TransactionEventSmartContractLog) => {
 
   else if (action === "repay") {
     user = json.value["on-behalf-of"].value || json.value.sender.value;
+
+    if (typeof user === 'object') {
+      user = user.value;
+    }
   }
 
   if (user) {
@@ -69,7 +73,7 @@ const worker = async (contract: string) => {
       }
 
       if ("contract_log" in event) {
-         processEvents(event);
+        processEvents(event);
       }
     }
 
