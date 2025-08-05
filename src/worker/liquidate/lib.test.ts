@@ -1,7 +1,7 @@
 import { cvToJSON, deserializeCV } from "@stacks/transactions";
 import { describe, expect, it, mock, test } from "bun:test";
 import type { AssetInfoWithBalance, BorrowerStatusEntity, LiquidationBatch } from "../../types";
-import { calcMinOut, liquidationBatchCv, makeLiquidationBatch, makeLiquidationCap, makeLiquidationTxOptions, makePriceAttestationBuff } from "./lib";
+import { calcMinOut, limitBorrowers, liquidationBatchCv, makeLiquidationBatch, makeLiquidationCap, makeLiquidationTxOptions, makePriceAttestationBuff } from "./lib";
 
 test("liquidationBatchCv", () => {
     const batch: LiquidationBatch[] = [
@@ -719,3 +719,132 @@ describe("makeLiquidationCap", () => {
         expect(makeLiquidationCap(45000, true)).toBe(15000);
     });
 });
+
+describe("limitBorrowers", () => {
+    test("nore borrower, should return empty list", () => {
+        const borrowers: BorrowerStatusEntity[] = [];
+        const priceFeed = {
+            "attestation": "504e41550100000003b",
+            "items": {
+                "btc": {
+                    "price": "10384556671615",
+                    "expo": -8,
+                    "publish_time": 1747405182
+                }
+            }
+        }
+        expect(limitBorrowers(borrowers, priceFeed).length).toEqual(0);
+    });
+
+    test("one borrower, should return the same list", () => {
+        const borrowers: BorrowerStatusEntity[] = [
+            {
+                address: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
+                ltv: 0.5038,
+                health: 0.9726,
+                debt: 35.7413,
+                collateral: 70.9416,
+                risk: 1.0282,
+                maxRepay: {
+                    "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 2.125664850930649,
+                },
+                totalRepayAmount: 2.125664850930649,
+            }
+        ];
+        const priceFeed = {
+            "attestation": "504e41550100000003b",
+            "items": {
+                "btc": {
+                    "price": "10384556671615",
+                    "expo": -8,
+                    "publish_time": 1747405182
+                }
+            }
+        }
+        expect(limitBorrowers(borrowers, priceFeed).length).toEqual(1);
+    });
+
+    test("there is a price update, should limit to min", () => {
+        const borrowers: BorrowerStatusEntity[] = Array(4).fill({
+            address: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
+            ltv: 0.5038,
+            health: 0.9726,
+            debt: 35.7413,
+            collateral: 70.9416,
+            risk: 1.0282,
+            maxRepay: {
+                "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 2.125664850930649,
+            },
+            totalRepayAmount: 2.125664850930649,
+        });
+
+        const priceFeed = {
+            "attestation": "504e41550100000003b",
+            "items": {
+                "btc": {
+                    "price": "10384556671615",
+                    "expo": -8,
+                    "publish_time": 1747405182
+                }
+            }
+        }
+        
+        expect(limitBorrowers(borrowers, priceFeed).length).toEqual(3);
+    });
+
+    test("no price update, should should allow more than min ", () => {
+        const borrowers: BorrowerStatusEntity[] = Array(12).fill({
+            address: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
+            ltv: 0.5038,
+            health: 0.9726,
+            debt: 35.7413,
+            collateral: 70.9416,
+            risk: 1.0282,
+            maxRepay: {
+                "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 2.125664850930649,
+            },
+            totalRepayAmount: 2.125664850930649,
+        })
+
+        const priceFeed = {
+            "attestation": null,
+            "items": {
+                "btc": {
+                    "price": "10384556671615",
+                    "expo": -8,
+                    "publish_time": 1747405182
+                }
+            }
+        }
+
+        expect(limitBorrowers(borrowers, priceFeed).length).toEqual(12);
+    });
+
+    test("no price update, should should allow more than min up to max", () => {
+        const borrowers: BorrowerStatusEntity[] = Array(22).fill({
+            address: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
+            ltv: 0.5038,
+            health: 0.9726,
+            debt: 35.7413,
+            collateral: 70.9416,
+            risk: 1.0282,
+            maxRepay: {
+                "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 2.125664850930649,
+            },
+            totalRepayAmount: 2.125664850930649,
+        })
+
+        const priceFeed = {
+            "attestation": null,
+            "items": {
+                "btc": {
+                    "price": "10384556671615",
+                    "expo": -8,
+                    "publish_time": 1747405182
+                }
+            }
+        }
+
+        expect(limitBorrowers(borrowers, priceFeed).length).toEqual(20);
+    });
+})

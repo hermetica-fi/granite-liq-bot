@@ -1,6 +1,6 @@
 import type { StacksNetworkName } from "@stacks/network";
 import { bufferCV, contractPrincipalCV, listCV, noneCV, PostConditionMode, principalCV, serializeCVBytes, someCV, tupleCV, uintCV, type SignedContractCallOptions } from "@stacks/transactions";
-import { MIN_TO_LIQUIDATE_PER_USER, TX_TIMEOUT, USDH_RESERVE_CONTRACT, USDH_SLIPPAGE_TOLERANCE } from "../../constants";
+import { LIQUIDATON_POS_COUNT_MAX, LIQUIDATON_POS_COUNT_MIN, MIN_TO_LIQUIDATE_PER_USER, TX_TIMEOUT, USDH_RESERVE_CONTRACT, USDH_SLIPPAGE_TOLERANCE } from "../../constants";
 import { getUsdhState } from "../../dba/usdh";
 import { DEX_USDH_FLASH_LOAN, type SwapInfo } from "../../dex";
 import { hexToUint8Array, toTicker } from "../../helper";
@@ -245,4 +245,8 @@ export const makeLiquidationCap = (baseCap: number, useUsdh: boolean) => {
     }
 
     return baseCap;
+}
+
+export const limitBorrowers = (borrowers: BorrowerStatusEntity[], priceFeed: PriceFeedResponseMixed) => {
+    return priceFeed.attestation ? borrowers.slice(0, LIQUIDATON_POS_COUNT_MIN) : borrowers.slice(0, LIQUIDATON_POS_COUNT_MAX);
 }

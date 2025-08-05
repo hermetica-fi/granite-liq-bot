@@ -44,3 +44,5 @@ export const HAS_HIRO_API_KEY = process.env.HIRO_API_KEY !== undefined;
 export const GRANITE_RPC = assertEnvVar("GRANITE_RPC");
 export const PRICE_FEED_FRESHNESS_THRESHOLD = 300; // 5 min
 export const PRICE_FEED_FRESHNESS_BUFFER = 60; // 60 secs
+export const LIQUIDATON_POS_COUNT_MIN = 3;
+export const LIQUIDATON_POS_COUNT_MAX = 20;

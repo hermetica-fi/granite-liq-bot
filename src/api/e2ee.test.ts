@@ -288,6 +288,8 @@ describe("api e2e", () => {
             HAS_HIRO_API_KEY: true,
             IR_PARAMS_SCALING_FACTOR: 12,
             LIQUIDATON_CAP: 500000,
+            LIQUIDATON_POS_COUNT_MAX: 20,
+            LIQUIDATON_POS_COUNT_MIN: 3,
             MARKET_ASSET_DECIMAL: 6,
             MARKET_ASSET: "SP3Y2ZSH8P7D50B0VBTSX11S7XSG24M1VB9YFQA4K.token-aeusdc",
             MIN_TO_LIQUIDATE: 4,

@@ -12,7 +12,7 @@ import { onLiqSwapOutError, onLiqTx, onLiqTxError } from "../../hooks";
 import { createLogger } from "../../logger";
 import { getPriceFeed } from "../../price-feed";
 import { formatUnits } from "../../units";
-import { calcMinOut, makeLiquidationBatch, makeLiquidationCap, makeLiquidationTxOptions } from "./lib";
+import { calcMinOut, limitBorrowers, makeLiquidationBatch, makeLiquidationCap, makeLiquidationTxOptions } from "./lib";
 
 const logger = createLogger("liquidate");
 
@@ -54,20 +54,18 @@ const worker = async () => {
 
     const marketState = getMarketState();
     const liquidationPremium = marketState.collateralParams[collateralAsset.address].liquidationPremium;
-
     const collateralTicker = toTicker(collateralAsset.symbol);
     const priceFeed = await getPriceFeed([collateralTicker], marketState);
     const cFeed = priceFeed.items[collateralTicker]!;
     const collateralPrice = Number(cFeed.price);
     const collateralPriceFormatted = formatUnits(collateralPrice, Math.abs(cFeed.expo)).toFixed(2);
-
     const flashLoanCapacityBn = USE_FLASH_LOAN ? (marketState.flashLoanCapacity[marketAsset.address] || 0) : 0;
 
     const batchInfo = makeLiquidationBatch({
         marketAsset,
         collateralAsset,
         flashLoanCapacityBn,
-        borrowers,
+        borrowers: limitBorrowers(borrowers, priceFeed),
         collateralPrice,
         liquidationPremium,
         liquidationCap: makeLiquidationCap(LIQUIDATON_CAP, USE_USDH)
