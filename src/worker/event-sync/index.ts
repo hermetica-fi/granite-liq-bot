@@ -25,7 +25,7 @@ const processEvents = (event: TransactionEventSmartContractLog) => {
   }
 
   else if (action === "repay") {
-    user = json.value["on-behalf-of"].value || json.value.sender.value;
+    user = json.value["on-behalf-of"].value.value || json.value.sender.value;
   }
 
   if (user) {
