@@ -98,6 +98,7 @@ export type MarketState = {
     collateralParams: Record<string, CollateralParams>;
     marketAssetParams: MarketAssetParams;
     flashLoanCapacity: Record<string, number>,
+    onChainPriceFeed: Partial<Record<PriceTicker, PriceFeedItem>>
 }
 
 export type LiquidationBatch = {
@@ -117,4 +118,22 @@ export type LiquidationBatchWithStats = {
 export type UsdhState = {
     reserveBalance: number,
     safeTradeAmount: number,
+}
+
+export type PriceTicker = "btc" | "eth" | "usdc";
+
+export type PriceFeedItem = {
+    price: string,
+    expo: number,
+    publish_time: number,
+}
+
+export type PriceFeedResponse = {
+    attestation: string,
+    items: Partial<Record<PriceTicker, PriceFeedItem>>;
+}
+
+export type PriceFeedResponseMixed = {
+    attestation: string | null;
+    items: Partial<Record<PriceTicker, PriceFeedItem>>;
 }

@@ -1,11 +1,10 @@
 import type { StacksNetworkName } from "@stacks/network";
-import { bufferCV, contractPrincipalCV, listCV, PostConditionMode, principalCV, serializeCVBytes, someCV, tupleCV, uintCV, type SignedContractCallOptions } from "@stacks/transactions";
-import type { PriceFeedResponse } from "../../client/pyth";
-import { MIN_TO_LIQUIDATE_PER_USER, TX_TIMEOUT, USDH_RESERVE_CONTRACT, USDH_SLIPPAGE_TOLERANCE } from "../../constants";
+import { bufferCV, contractPrincipalCV, listCV, noneCV, PostConditionMode, principalCV, serializeCVBytes, someCV, tupleCV, uintCV, type SignedContractCallOptions } from "@stacks/transactions";
+import { LIQUIDATON_POS_COUNT_MAX, LIQUIDATON_POS_COUNT_MIN, MIN_TO_LIQUIDATE_PER_USER, TX_TIMEOUT, USDH_RESERVE_CONTRACT, USDH_SLIPPAGE_TOLERANCE } from "../../constants";
 import { getUsdhState } from "../../dba/usdh";
 import { DEX_USDH_FLASH_LOAN, type SwapInfo } from "../../dex";
 import { hexToUint8Array, toTicker } from "../../helper";
-import type { ContractEntity, LiquidationBatch, LiquidationBatchWithStats } from "../../types";
+import type { ContractEntity, LiquidationBatch, LiquidationBatchWithStats, PriceFeedResponseMixed } from "../../types";
 import { type AssetInfoWithBalance, type BorrowerStatusEntity } from "../../types";
 import { formatUnits, parseUnits, toFixedDown } from "../../units";
 import { epoch } from "../../util";
@@ -109,19 +108,22 @@ export const calcMinOut = (paid: number, unprofitabilityThreshold: number) => {
     return Number(BigInt(paid) - ((BigInt(paid) * BigInt(unprofitabilityThreshold)) / SCALING_FACTOR));
 }
 
+export const makePriceAttestationBuff = (attestation: string | null) => {
+    return attestation ? someCV(bufferCV(hexToUint8Array(attestation))) : noneCV();
+}
+
 export const makeLiquidationTxOptions = (
     { contract, priv, nonce, fee, batchInfo, priceFeed, useFlashLoan, useUsdh, swap }:
         {
             contract: ContractEntity, priv: string, nonce: number, fee: number,
-            batchInfo: LiquidationBatchWithStats, priceFeed: PriceFeedResponse,
+            batchInfo: LiquidationBatchWithStats, priceFeed: PriceFeedResponseMixed,
             useFlashLoan: boolean, useUsdh: boolean, swap: SwapInfo
         }): SignedContractCallOptions => {
 
     const marketAsset = contract.marketAsset!;
-    const collateralAsset = contract.collateralAsset!;
-    const cFeed = priceFeed.items[toTicker(collateralAsset.symbol)];
-    const priceAttestationBuff = hexToUint8Array(priceFeed.attestation);
     const batchCV = liquidationBatchCv(batchInfo.batch);
+    const collateralAsset = contract.collateralAsset!;
+    const cFeed = priceFeed.items[toTicker(collateralAsset.symbol)]!;
 
     const baseTxOptions = {
         senderKey: priv,
@@ -139,11 +141,11 @@ export const makeLiquidationTxOptions = (
                 bufferCV(
                     serializeCVBytes(
                         tupleCV({
-                            "pyth-price-feed-data": someCV(bufferCV(priceAttestationBuff)),
+                            "pyth-price-feed-data": makePriceAttestationBuff(priceFeed.attestation),
                             batch: batchCV,
                             deadline: uintCV(deadline),
                             dex: uintCV(DEX_USDH_FLASH_LOAN),
-                            "btc-price": uintCV(cFeed.price.price),
+                            "btc-price": uintCV(cFeed.price),
                             "price-slippage-tolerance": uintCV(USDH_SLIPPAGE_TOLERANCE),
                             "reserve-contract": principalCV(USDH_RESERVE_CONTRACT)
                         })
@@ -168,10 +170,10 @@ export const makeLiquidationTxOptions = (
             }
         } else {
             const functionArgs = [
-                someCV(bufferCV(priceAttestationBuff)),
+                makePriceAttestationBuff(priceFeed.attestation),
                 batchCV,
                 uintCV(deadline),
-                uintCV(cFeed.price.price),
+                uintCV(cFeed.price),
                 uintCV(USDH_SLIPPAGE_TOLERANCE),
                 principalCV(USDH_RESERVE_CONTRACT)
             ];
@@ -190,7 +192,7 @@ export const makeLiquidationTxOptions = (
                 bufferCV(
                     serializeCVBytes(
                         tupleCV({
-                            "pyth-price-feed-data": someCV(bufferCV(priceAttestationBuff)),
+                            "pyth-price-feed-data": makePriceAttestationBuff(priceFeed.attestation),
                             batch: batchCV,
                             deadline: uintCV(deadline),
                             dex: uintCV(swap.dex),
@@ -219,7 +221,7 @@ export const makeLiquidationTxOptions = (
             }
         } else {
             const functionArgs = [
-                someCV(bufferCV(priceAttestationBuff)),
+                makePriceAttestationBuff(priceFeed.attestation),
                 batchCV,
                 uintCV(deadline),
                 uintCV(swap.dex)
@@ -243,4 +245,8 @@ export const makeLiquidationCap = (baseCap: number, useUsdh: boolean) => {
     }
 
     return baseCap;
+}
+
+export const limitBorrowers = (borrowers: BorrowerStatusEntity[], priceFeed: PriceFeedResponseMixed) => {
+    return priceFeed.attestation ? borrowers.slice(0, LIQUIDATON_POS_COUNT_MIN) : borrowers.slice(0, LIQUIDATON_POS_COUNT_MAX);
 }

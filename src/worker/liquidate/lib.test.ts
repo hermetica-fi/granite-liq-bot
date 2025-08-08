@@ -1,7 +1,7 @@
 import { cvToJSON, deserializeCV } from "@stacks/transactions";
 import { describe, expect, it, mock, test } from "bun:test";
 import type { AssetInfoWithBalance, BorrowerStatusEntity, LiquidationBatch } from "../../types";
-import { calcMinOut, liquidationBatchCv, makeLiquidationBatch, makeLiquidationCap, makeLiquidationTxOptions } from "./lib";
+import { calcMinOut, limitBorrowers, liquidationBatchCv, makeLiquidationBatch, makeLiquidationCap, makeLiquidationTxOptions, makePriceAttestationBuff } from "./lib";
 
 test("liquidationBatchCv", () => {
     const batch: LiquidationBatch[] = [
@@ -521,44 +521,9 @@ describe("makeLiquidationTxOptions", () => {
         "attestation": "504e41550100000003b",
         "items": {
             "btc": {
-                "id": "e62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43",
-                "price": {
-                    "price": "10384556671615",
-                    "conf": "3561855687",
-                    "expo": -8,
-                    "publish_time": 1747405182
-                },
-                "ema_price": {
-                    "price": "10372757800000",
-                    "conf": "3972950400",
-                    "expo": -8,
-                    "publish_time": 1747405182
-                },
-                "metadata": {
-                    "slot": 217289634,
-                    "proof_available_time": 1747405183,
-                    "prev_publish_time": 1747405181
-                }
-            },
-            "usdc": {
-                "id": "eaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a",
-                "price": {
-                    "price": "99993806",
-                    "conf": "50216",
-                    "expo": -8,
-                    "publish_time": 1747405182
-                },
-                "ema_price": {
-                    "price": "99989672",
-                    "conf": "63697",
-                    "expo": -8,
-                    "publish_time": 1747405182
-                },
-                "metadata": {
-                    "slot": 217289634,
-                    "proof_available_time": 1747405183,
-                    "prev_publish_time": 1747405181
-                }
+                "price": "10384556671615",
+                "expo": -8,
+                "publish_time": 1747405182
             }
         }
     }
@@ -643,7 +608,6 @@ describe("makeLiquidationTxOptions", () => {
         expect(txOptions).toMatchSnapshot();
     });
 
-
     test("usdh + flash loan + dex liquidation", () => {
         const txOptions = makeLiquidationTxOptions({
             contract,
@@ -691,6 +655,26 @@ describe("makeLiquidationTxOptions", () => {
     });
 });
 
+test("makePriceAttestationBuff", () => {
+    expect(cvToJSON(makePriceAttestationBuff("504e41550100000003b"))).toEqual({
+        type: "(optional (buff 10))",
+        value: {
+            type: "(buff 10)",
+            value: "0x0504e41550100000003b",
+        },
+    });
+
+    expect(cvToJSON(makePriceAttestationBuff(null))).toEqual({
+        type: "(optional none)",
+        value: null,
+    });
+
+    expect(cvToJSON(makePriceAttestationBuff(""))).toEqual({
+        type: "(optional none)",
+        value: null,
+    });
+})
+
 describe("makeLiquidationCap", () => {
     it("should pick baseCap", () => {
         expect(makeLiquidationCap(25000, false)).toBe(25000);
@@ -735,3 +719,132 @@ describe("makeLiquidationCap", () => {
         expect(makeLiquidationCap(45000, true)).toBe(15000);
     });
 });
+
+describe("limitBorrowers", () => {
+    test("nore borrower, should return empty list", () => {
+        const borrowers: BorrowerStatusEntity[] = [];
+        const priceFeed = {
+            "attestation": "504e41550100000003b",
+            "items": {
+                "btc": {
+                    "price": "10384556671615",
+                    "expo": -8,
+                    "publish_time": 1747405182
+                }
+            }
+        }
+        expect(limitBorrowers(borrowers, priceFeed).length).toEqual(0);
+    });
+
+    test("one borrower, should return the same list", () => {
+        const borrowers: BorrowerStatusEntity[] = [
+            {
+                address: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
+                ltv: 0.5038,
+                health: 0.9726,
+                debt: 35.7413,
+                collateral: 70.9416,
+                risk: 1.0282,
+                maxRepay: {
+                    "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 2.125664850930649,
+                },
+                totalRepayAmount: 2.125664850930649,
+            }
+        ];
+        const priceFeed = {
+            "attestation": "504e41550100000003b",
+            "items": {
+                "btc": {
+                    "price": "10384556671615",
+                    "expo": -8,
+                    "publish_time": 1747405182
+                }
+            }
+        }
+        expect(limitBorrowers(borrowers, priceFeed).length).toEqual(1);
+    });
+
+    test("there is a price update, should limit to min", () => {
+        const borrowers: BorrowerStatusEntity[] = Array(4).fill({
+            address: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
+            ltv: 0.5038,
+            health: 0.9726,
+            debt: 35.7413,
+            collateral: 70.9416,
+            risk: 1.0282,
+            maxRepay: {
+                "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 2.125664850930649,
+            },
+            totalRepayAmount: 2.125664850930649,
+        });
+
+        const priceFeed = {
+            "attestation": "504e41550100000003b",
+            "items": {
+                "btc": {
+                    "price": "10384556671615",
+                    "expo": -8,
+                    "publish_time": 1747405182
+                }
+            }
+        }
+        
+        expect(limitBorrowers(borrowers, priceFeed).length).toEqual(3);
+    });
+
+    test("no price update, should should allow more than min ", () => {
+        const borrowers: BorrowerStatusEntity[] = Array(12).fill({
+            address: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
+            ltv: 0.5038,
+            health: 0.9726,
+            debt: 35.7413,
+            collateral: 70.9416,
+            risk: 1.0282,
+            maxRepay: {
+                "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 2.125664850930649,
+            },
+            totalRepayAmount: 2.125664850930649,
+        })
+
+        const priceFeed = {
+            "attestation": null,
+            "items": {
+                "btc": {
+                    "price": "10384556671615",
+                    "expo": -8,
+                    "publish_time": 1747405182
+                }
+            }
+        }
+
+        expect(limitBorrowers(borrowers, priceFeed).length).toEqual(12);
+    });
+
+    test("no price update, should should allow more than min up to max", () => {
+        const borrowers: BorrowerStatusEntity[] = Array(22).fill({
+            address: "ST3XD84X3PE79SHJAZCDW1V5E9EA8JSKRBNNJCANK",
+            ltv: 0.5038,
+            health: 0.9726,
+            debt: 35.7413,
+            collateral: 70.9416,
+            risk: 1.0282,
+            maxRepay: {
+                "ST20M5GABDT6WYJHXBT5CDH4501V1Q65242SPRMXH.mock-btc": 2.125664850930649,
+            },
+            totalRepayAmount: 2.125664850930649,
+        })
+
+        const priceFeed = {
+            "attestation": null,
+            "items": {
+                "btc": {
+                    "price": "10384556671615",
+                    "expo": -8,
+                    "publish_time": 1747405182
+                }
+            }
+        }
+
+        expect(limitBorrowers(borrowers, priceFeed).length).toEqual(20);
+    });
+})
