@@ -1,9 +1,10 @@
 import assert from "assert";
-import { fetchAndProcessPriceFeed } from "../../client/pyth";
 import { dbCon } from "../../db/con";
 import { clearBorrowerStatuses, getBorrowerCollateralAmount, getBorrowersForHealthCheck, insertBorrowerStatus } from "../../dba/borrower";
 import { getMarketState } from "../../dba/market";
 import { toTicker } from "../../helper";
+import { getPriceFeed } from "../../price-feed";
+import type { PriceTicker } from "../../types";
 import { calcBorrowerStatus } from "./lib";
 
 export const worker = async () => {
@@ -13,8 +14,17 @@ export const worker = async () => {
     return;
   }
 
-  const priceFeed = await fetchAndProcessPriceFeed();
   const marketState = getMarketState();
+  const tickers: PriceTicker[] = [];
+  for (const borrower of borrowers) {
+    for (const collateral of borrower.collaterals) {
+      if(tickers.indexOf(toTicker(collateral)) === -1){
+        tickers.push(toTicker(collateral));
+      }
+    }
+  }
+
+  const priceFeed =  await getPriceFeed(tickers, marketState);
 
   dbCon.transaction(() => {
     clearBorrowerStatuses();
@@ -27,12 +37,9 @@ export const worker = async () => {
       for (const collateral of borrower.collaterals) {
         const amount = getBorrowerCollateralAmount(borrower.address, collateral);
         assert(amount !== undefined, "User collateral amount is undefined");
-        const feed = priceFeed.items[toTicker(collateral)];
-        if (!feed) {
-          throw new Error(`No price feed found for ${collateral}`);
-        }
-        const price = Number(feed.price.price);
-        const decimals = -1 * feed.price.expo;
+        const feed = priceFeed.items[toTicker(collateral)]!;
+        const price = Number(feed.price);
+        const decimals = -1 * feed.expo;
         collateralsDeposited[collateral] = {
           amount, price, decimals
         };
