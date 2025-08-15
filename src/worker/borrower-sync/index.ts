@@ -14,9 +14,6 @@ const worker = async () => {
       continue;
     }
 
-    //  Turn off check flag
-    switchBorrowerSyncFlagOff(borrower.address);
-
     // Sync user position
     const userPosition = await getUserPosition(borrower.address);
     syncBorrowerPosition({ address: borrower.address, ...userPosition });
@@ -25,9 +22,12 @@ const worker = async () => {
     const collaterals = [];
     for (const col of userPosition.collaterals) {
       const amount = await getUserCollateralAmount(borrower.address, col);
-      collaterals.push({ collateral: col, amount});
+      collaterals.push({ collateral: col, amount });
     }
     syncBorrowerCollaterals(borrower.address, collaterals);
+
+    // Turn off check flag
+    switchBorrowerSyncFlagOff(borrower.address);
 
     logger.info(`Synced borrower ${borrower.address}`);
   }
