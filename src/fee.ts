@@ -5,15 +5,15 @@ const estimateTxFeeOptimistic = async (): Promise<number> => {
     const mempoolSize = (await getMempoolTransactions(1, 'mainnet')).total;
 
     if (mempoolSize > 300) {
-        return 100000; // 0,1 STX
+        return 600000; // 0.6 STX
     } else if (mempoolSize > 200) {
-        return 90000; // 0,09 STX
+        return 500000; // 0.5 STX
     } else if (mempoolSize > 100) {
-        return 65000; // 0,065 STX
+        return 400000; // 0.4 STX
     } else if (mempoolSize > 50) {
-        return 50000; //  0,05 STX
+        return 300000; //  0.3 STX
     } else {
-        return 35000; // 0,035 STX
+        return 200000; // 0.2 STX
     }
 }
 
