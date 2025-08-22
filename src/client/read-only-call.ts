@@ -278,7 +278,7 @@ export const getPythPriceFeed = async (priceId: string) => {
     }
   }).then(r => cvToJSON(r));
 
-  if (!resp?.value?.value) {
+  if (typeof resp?.value?.value !== "object") {
     return null;
   }
 
