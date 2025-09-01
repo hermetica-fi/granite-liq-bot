@@ -1,6 +1,7 @@
 import { CONTRACTS } from "../constants";
 
-import { kvStoreSet } from "../db/helper";
+import { kvStoreGet, kvStoreSet } from "../db/helper";
+import { createLogger } from "../logger";
 import { main as borrowerSync } from "./borrower-sync";
 import { main as contractSync } from "./contract-sync";
 import { main as eventSync } from "./event-sync";
@@ -12,15 +13,23 @@ import { main as usdhSync } from "./usdh-sync";
 
 const BASE_DELAY = 30_000;
 
+const logger = createLogger("event-sync");
+
 const workerInner = async () => {
+    const initialSync = !kvStoreGet("last-sync");
+
     await contractSync();
-    await eventSync();
+    await eventSync(initialSync);
     await borrowerSync();
     await marketSync();
     await usdhSync();
     await healthSync();
     await liquidate();
     await liquidationPointMapSync();
+
+    if (initialSync) {
+        logger.info("Initial sync done");
+    }
 
     kvStoreSet("last-sync", Date.now());
 }
