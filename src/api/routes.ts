@@ -108,6 +108,7 @@ export const routes = {
     },
     getBorrowers: async (_: Request) => {
         const borrowers = getBorrowerStatusList({
+            filters: [['debt', '>', 0]],
             orderBy: 'total_repay_amount DESC, risk DESC'
         });
 
