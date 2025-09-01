@@ -18,6 +18,10 @@ const logger = createLogger("event-sync");
 const workerInner = async () => {
     const initialSync = !kvStoreGet("last-sync");
 
+    if (initialSync) {
+        logger.info("Initial sync is starting. This may take some time.")
+    }
+
     await contractSync();
     await eventSync(initialSync);
     await borrowerSync();
@@ -28,7 +32,7 @@ const workerInner = async () => {
     await liquidationPointMapSync();
 
     if (initialSync) {
-        logger.info("Initial sync done");
+        logger.info("Initial sync is complete.");
     }
 
     kvStoreSet("last-sync", Date.now());
