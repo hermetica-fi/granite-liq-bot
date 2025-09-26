@@ -1,5 +1,5 @@
 import { getAssetBalance } from "../../client/read-only-call";
-import { MARKET_ASSET, USE_USDH } from "../../constants";
+import { MARKET_ASSET, USDH_RESERVE_CONTRACT, USE_USDH } from "../../constants";
 import { getContractList } from "../../dba/contract";
 import { setUsdhReserveBalanceLocal, setUsdhSafeTradeAmountLocal } from "../../dba/usdh";
 import { createLogger } from "../../logger";
@@ -8,8 +8,6 @@ import { epoch } from "../../util";
 import { findMaxSafeTradeAmount } from "./lib";
 
 const logger = createLogger("usdh-sync");
-
-const USDH_RESERVE_CONTRACT = process.env.USDH_RESERVE_CONTRACT || "SPN5AKG35QZSK2M8GAMR4AFX45659RJHDW353HSG.redeeming-reserve-v1-1";
 
 const lastSyncTs = {
     reserveBalance: 0,
