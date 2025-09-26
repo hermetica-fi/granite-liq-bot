@@ -282,6 +282,7 @@ describe("api e2e", () => {
                 liquidator: "SP26NGV9AFZBX7XBDBS2C7EC7FCPSAV9PKREQNMVS.liquidator-v1",
                 collaterals: ["SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token"],
             },
+            CONTRACT_UNLOCK_DELAY: 60,
             DRY_RUN: false,
             ENV: "test",
             GRANITE_RPC: "https://my.rpc.com",
