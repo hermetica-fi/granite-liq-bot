@@ -56,6 +56,17 @@ export const fetchFn = async (
             clearTimeout(timeoutId);
 
             if ([200, 404, 400].includes(r.status)) {
+
+                // Validate response content-type
+                const contentType = r.headers.get('content-type') || '';
+                if (contentType.indexOf('application/json') === -1) {
+                    throw new Error(`Invalid content-type: ${contentType}`);
+                }
+
+                // Validate JSON
+                const text = await r.clone().text();
+                JSON.parse(text);
+
                 return r;
             }
 

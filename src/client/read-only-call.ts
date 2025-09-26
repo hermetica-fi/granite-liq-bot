@@ -166,6 +166,11 @@ export const getUserCollateralAmount = async (address: string, collateral: strin
     }
   }).then(r => {
     const json = cvToJSON(r);
+
+    if (json.value === null) {
+      return 0;
+    };
+
     return Number(json.value.value.amount.value);
   })
 }

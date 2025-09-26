@@ -1,7 +1,7 @@
 import type { TransactionEventSmartContractLog } from "@stacks/stacks-blockchain-api-types";
 import { cvToJSON, hexToCV } from "@stacks/transactions";
 import { getContractEvents } from "../../client/hiro";
-import { CONTRACTS } from "../../constants";
+import { CONTRACTS, USE_STAGING } from "../../constants";
 import { kvStoreGet, kvStoreSet } from "../../db/helper";
 import { upsertBorrower } from "../../dba/borrower";
 import { createLogger } from "../../logger";
@@ -13,6 +13,18 @@ const TRACKED_CONTRACTS = [
   CONTRACTS.state,
   CONTRACTS.liquidator
 ]
+
+export const getContractsToTrack = (initialSync: boolean, useStaging: boolean) => {
+  if (!useStaging && initialSync) {
+    return [
+      ...TRACKED_CONTRACTS,
+      'SP3BJR4P3W2Y9G22HA595Z59VHBC9EQYRFWSKG743.borrower-v1',
+      'SP35E2BBMDT2Y1HB0NTK139YBGYV3PAPK3WA8BRNA.borrower-v1',
+    ]
+  }
+
+  return TRACKED_CONTRACTS;
+}
 
 const processEvents = (event: TransactionEventSmartContractLog) => {
   const decoded = hexToCV(event.contract_log.value.hex);
@@ -93,8 +105,8 @@ const worker = async (contract: string) => {
   }
 }
 
-export const main = async () => {
-  for (const contract of TRACKED_CONTRACTS) {
+export const main = async (initialSync: boolean) => {
+  for (const contract of getContractsToTrack(initialSync, USE_STAGING)) {
     await worker(contract);
   }
 };

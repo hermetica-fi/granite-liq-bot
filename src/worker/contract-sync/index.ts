@@ -1,7 +1,7 @@
 import type { Transaction } from "@stacks/stacks-blockchain-api-types";
 import { getAccountBalances, getTransaction } from "../../client/hiro";
 import { getAssetBalance, getLiquidatorContractInfo } from "../../client/read-only-call";
-import { ALERT_BALANCE } from "../../constants";
+import { ALERT_BALANCE, CONTRACT_UNLOCK_DELAY } from "../../constants";
 import { upsertBorrower } from "../../dba/borrower";
 import { getContractList, unlockContract, unlockContractSchedule, updateContractBalances, updateContractFlashLoanSc, updateContractUnprofitabilityThreshold, updateContractUsdhThreshold } from "../../dba/contract";
 import { finalizeLiquidation } from "../../dba/liquidation";
@@ -20,8 +20,8 @@ const handleContractLocks = async (contract: ContractEntity) => {
         const tx = await getTransaction(contract.lockTx, 'mainnet');
         if (tx.tx_status && tx.tx_status !== "pending") {
             // schedule unlock
-            unlockContractSchedule(epoch() + 60, contract.id);
-            logger.info(`transaction ${contract.lockTx} completed as ${tx.tx_status}. contract ${contract.id} will be unlocked in 60 seconds`);
+            unlockContractSchedule(epoch() + CONTRACT_UNLOCK_DELAY, contract.id);
+            logger.info(`transaction ${contract.lockTx} completed as ${tx.tx_status}. contract ${contract.id} will be unlocked in ${CONTRACT_UNLOCK_DELAY} seconds`);
 
             // finalize liquidation
             finalizeLiquidation(contract.lockTx, tx.tx_status);
