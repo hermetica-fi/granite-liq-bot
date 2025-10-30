@@ -3,8 +3,11 @@ import {
     calculateLiquidationPoint,
     calculateTotalCollateralValue, convertDebtSharesToAssets, liquidatorMaxRepayAmount
 } from "granite-math-sdk";
-import { IR_PARAMS_SCALING_FACTOR } from "../../constants";
-import type { BorrowerStatus, InterestRateParams, MarketState } from "../../types";
+import assert from "node:assert";
+import { fetchGetBorrowerPositions } from "./client/backend";
+import { IR_PARAMS_SCALING_FACTOR } from "./constants";
+import { toTicker } from "./helper";
+import type { BorrowerStatus, BorrowerStatusEntity, InterestRateParams, MarketState, PriceFeedResponseMixed } from "./types";
 
 export const calcBorrowerStatus = (borrower: {
     debtShares: number;
@@ -94,4 +97,27 @@ export const calcBorrowerStatus = (borrower: {
         totalRepayAmount,
         ltv: debtAssets / totalCollateralValue,
     }
+}
+
+export const getBorrowersToLiquidate = async (marketState: MarketState, priceFeed: PriceFeedResponseMixed): Promise<BorrowerStatusEntity[]> => {
+    return fetchGetBorrowerPositions().then(r => {
+        return r.data.map(borrower => {
+            const collateralsDeposited: Record<string, { amount: number, price: number, decimals: number }> = {};
+            for (const collateral of Object.keys(borrower.collateral_balances)) {
+                const amount = borrower.collateral_balances[collateral];
+                assert(amount !== undefined, "User collateral amount is undefined");
+                const feed = priceFeed.items[toTicker(collateral)]!;
+                const price = Number(feed.price);
+                const decimals = -1 * feed.expo;
+                collateralsDeposited[collateral] = {
+                    amount, price, decimals
+                };
+            }
+
+            return {
+                address: borrower.user,
+                ...calcBorrowerStatus({ debtShares: borrower.debt_shares, collateralsDeposited }, marketState)
+            }
+        })
+    })
 }

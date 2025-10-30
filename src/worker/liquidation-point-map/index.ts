@@ -1,18 +1,21 @@
 import assert from "assert";
+import { calcBorrowerStatus } from "../../borrower";
 import { kvStoreSet } from "../../db/helper";
-import { getBorrowerCollateralAmount, getBorrowersForHealthCheck } from "../../dba/borrower";
 import { getMarketState } from "../../dba/market";
 import { getMarket, toTicker } from "../../helper";
+import { createLogger } from "../../logger";
 import { getPriceFeed } from "../../price-feed";
 import type { PriceTicker } from "../../types";
-import { calcBorrowerStatus } from "../health-sync/lib";
-import { generateDescendingPriceBuckets } from "./lib";
+import { epoch } from "../../util";
+import { generateDescendingPriceBuckets, getBorrowers } from "./lib";
+
+const logger = createLogger("liquidation-point-map");
 
 type LiquidationPoint = { liquidationPriceUSD: number, liquidatedAmountUSD: number };
 
 export const worker = async () => {
     const marketState = getMarketState();
-    const borrowers = getBorrowersForHealthCheck();
+    const borrowers = await getBorrowers();
     const market = getMarket();
     const tickers: PriceTicker[] = market.collaterals.map(x => toTicker(x.contract.id));
     const priceFeed = await getPriceFeed(tickers, marketState);
@@ -34,7 +37,7 @@ export const worker = async () => {
                 if (borrower.debtShares === 0) {
                     continue;
                 }
-                const amount = getBorrowerCollateralAmount(borrower.address, collateral);
+                const amount = borrower.collaterals[collateral];
                 assert(amount !== undefined, "User collateral amount is undefined");
                 const collateralsDeposited = {
                     [collateral]:
@@ -59,6 +62,11 @@ export const worker = async () => {
     kvStoreSet("liquidation-map", JSON.stringify(map));
 };
 
+let lastSyncTs = 0
+
 export const main = async () => {
-    await worker();
+    if (lastSyncTs < epoch() - 300) { // 5 mins
+        await worker();
+        lastSyncTs = epoch();
+    }
 }
