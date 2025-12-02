@@ -21,7 +21,6 @@
     "@stacks/transactions": "^7.0.2",
     "@stacks/wallet-sdk": "^7.0.2",
     "assert": "^2.1.0",
-    "bignumber.js": "^9.1.2",
-    "granite-math-sdk": "^1.1.6"
+    "bignumber.js": "^9.1.2"
   }
 }
