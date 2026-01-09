@@ -1,12 +1,17 @@
-import { PRICE_FEED_IDS } from "../constants";
+import { getMarket, toTicker } from "../helper";
 import { createLogger } from "../logger";
-import type { PriceFeedResponse } from "../types";
+import type { PriceFeedResponse, PriceTicker } from "../types";
 import { withRetry } from "../util";
 
 const logger = createLogger("pyth");
 
+const market = getMarket();
+
+const priceFeedIds: { ticker: PriceTicker, feed_id: string }[] = [...market.collaterals, market.market_asset]
+  .map(a => ({ ticker: toTicker(a.display_name), feed_id: `0x${a.price_feed!}` }));
+
 export async function fetchAndProcessPriceFeedInner(): Promise<PriceFeedResponse> {
-  const feedParams = PRICE_FEED_IDS.map((t) => `ids[]=${t.feed_id}`).join('&');
+  const feedParams = priceFeedIds.map((t) => `ids[]=${t.feed_id}`).join('&');
   const url = `https://hermes.pyth.network/v2/updates/price/latest?${feedParams}&binary=true`;
 
   const data = await fetch(url).then(r => r.arrayBuffer())
@@ -19,7 +24,7 @@ export async function fetchAndProcessPriceFeedInner(): Promise<PriceFeedResponse
   const items = result.parsed.reduce(
     (acc: any, item: any, index: number) => {
       const { price, expo, publish_time } = item.price;
-      acc[PRICE_FEED_IDS[index].ticker] = { price, expo, publish_time };
+      acc[priceFeedIds[index].ticker] = { price, expo, publish_time };
       return acc;
     },
     {}

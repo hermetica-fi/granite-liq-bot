@@ -22,7 +22,7 @@ docker-compose up --build -d
 ## Environment variables
 
 - `HIRO_API_KEY`: (optional) Hiro API key for stacks api
-- `USE_STAGING`: (optional) 1 to use staging contracts on mainnet
+- `MARKET`: AEUSDC or AEUSDC_STAGING or USDCX
 - `DRY_RUN`: (optional) 1 to block liquidations
 - `MIN_TO_LIQUIDATE`: Minimum usdc amount to run liquidation transactions. Default: 4
 - `TX_TIMEOUT`: Liquidation transaction deadline value. As seconds. Default: 600

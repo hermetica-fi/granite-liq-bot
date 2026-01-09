@@ -1,4 +1,5 @@
 import config from "./conf";
+import { GRANITE_MARKETS } from "./conf/types";
 import type { PriceTicker } from "./types";
 
 export function hexToUint8Array(hexString: string): Uint8Array {
@@ -32,7 +33,15 @@ export const toTicker = (val: string): PriceTicker => {
 }
 
 export const getMarket = () => {
-  return process.env.USE_STAGING === "1" ? config.markets.MAINNET_STAGING : config.markets.MAINNET
+  if (process.env.MARKET === GRANITE_MARKETS.AEUSDC) {
+    return config.markets.AEUSDC;
+  } else if (process.env.MARKET === GRANITE_MARKETS.AEUSDC_STAGING) {
+    return config.markets.AEUSDC_STAGING;
+  } else if (process.env.MARKET === GRANITE_MARKETS.USDCX) {
+    return config.markets.USDCX;
+  } else {
+    throw new Error("Invalid market");
+  }
 }
 
 export const toCollateralAddress = (collateralId: string) => {
