@@ -1,16 +1,7 @@
-import { getMarket, toTicker } from "./helper";
-import type { PriceTicker } from "./types";
-import { assertNumericEnvVar } from "./util";
+import { GRANITE_MARKETS } from "./conf/types";
+import { assertEnvVar, assertNumericEnvVar } from "./util";
 
-export const USE_STAGING = process.env.USE_STAGING === "1";
-
-const market =  getMarket();
-
-export const IR_PARAMS_SCALING_FACTOR = market.scaling_factor.toString().match(/0/g)!.length;
-export const MARKET_ASSET_DECIMAL = market.market_asset.decimals;
-export const MARKET_ASSET = `${market.market_asset.contract.principal}.${market.market_asset.contract.name}`;
-export const PRICE_FEED_IDS: { ticker: PriceTicker, feed_id: string }[] = [...market.collaterals, market.market_asset]
-    .map(a => ({ ticker: toTicker(a.display_name), feed_id: `0x${a.price_feed!}` }));
+export const MARKET: GRANITE_MARKETS = assertEnvVar("MARKET");
 export const MIN_TO_LIQUIDATE = assertNumericEnvVar("MIN_TO_LIQUIDATE", 4);
 export const MIN_TO_LIQUIDATE_PER_USER = assertNumericEnvVar("MIN_TO_LIQUIDATE_PER_USER", 1);
 export const TX_TIMEOUT = assertNumericEnvVar("TX_TIMEOUT", 600);

@@ -1,19 +1,20 @@
-import { USE_STAGING } from "../../constants";
+import { getMarket } from "../../helper";
 import { createLogger } from "../../logger";
 import { withRetry } from "../../util";
 import type { LiquidationsResponse, MarketInfoResponse } from "./types";
 
 const logger = createLogger("backend");
 
-const baseUrl = USE_STAGING ? 'https://api-staging.granite.world' : 'https://api.granite.world';
+const market = getMarket();
+
 
 export const _fetchGetMarketInfo = async (): Promise<MarketInfoResponse> => {
-    const url = `${baseUrl}/v1/market/info`;
+    const url = `${market.apiBase}/v1/market/info`;
     return fetch(url).then(r => r.json());
 };
 
 export const _fetchGetBorrowerPositions = async (limit: number = 20, offset: number = 0): Promise<LiquidationsResponse> => {
-    const url = `${baseUrl}/v1/liquidations/account_health?limit=${limit}&offset=${offset}`;
+    const url = `${market.apiBase}/v1/liquidations/account_health?limit=${limit}&offset=${offset}`;
     return fetch(url).then(r => r.json());
 };
 

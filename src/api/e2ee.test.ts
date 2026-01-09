@@ -192,31 +192,18 @@ describe("api e2e", () => {
             DRY_RUN: false,
             ENV: "test",
             HAS_HIRO_API_KEY: true,
-            IR_PARAMS_SCALING_FACTOR: 12,
             LIQUIDATON_CAP: 500000,
             LIQUIDATON_POS_COUNT_MAX: 20,
             LIQUIDATON_POS_COUNT_MIN: 3,
-            MARKET_ASSET_DECIMAL: 6,
-            MARKET_ASSET: "SP3Y2ZSH8P7D50B0VBTSX11S7XSG24M1VB9YFQA4K.token-aeusdc",
+            MARKET: 'AEUSDC',
             MIN_TO_LIQUIDATE: 4,
             MIN_TO_LIQUIDATE_PER_USER: 1,
             PRICE_FEED_FRESHNESS_BUFFER: 60,
             PRICE_FEED_FRESHNESS_THRESHOLD: 300,
-            PRICE_FEED_IDS: [
-                {
-                    ticker: "btc",
-                    feed_id: "0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43",
-                },
-                {
-                    ticker: "usdc",
-                    feed_id: "0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a",
-                }
-            ],
             RBF_THRESHOLD: 15,
             SKIP_SWAP_CHECK: false,
             SWAP_THRESHOLD: 4,
             TX_TIMEOUT: 600,
-            USE_STAGING: false,
             USE_FLASH_LOAN: false
         })
     });

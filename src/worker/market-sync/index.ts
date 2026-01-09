@@ -1,6 +1,5 @@
 import { fetchGetMarketInfo } from "../../client/backend";
 import { getIrParams, getPythPriceFeed } from "../../client/read-only-call";
-import { MARKET_ASSET } from "../../constants";
 import {
     setAccrueInterestParamsLocal, setCollateralParamsLocal,
     setDebtParamsLocal, setFlashLoanCapacityLocal, setIrParamsLocal, setLpParamsLocal,
@@ -27,6 +26,7 @@ const syncMarketState = async () => {
         lastSyncTs.irParams = now;
     }
 
+    const market = getMarket();
     const marketInfo = await fetchGetMarketInfo();
 
     setLpParamsLocal({
@@ -54,7 +54,8 @@ const syncMarketState = async () => {
     }
     setCollateralParamsLocal(collateralParams);
 
-    setFlashLoanCapacityLocal({ [MARKET_ASSET]: marketInfo. market_token_balance});
+    const marketAsset = `${market.market_asset.contract.principal}.${market.market_asset.contract.name}`;
+    setFlashLoanCapacityLocal({ [marketAsset]: marketInfo. market_token_balance});
 
     const onChainPriceFeed: Partial<Record<PriceTicker, PriceFeedItem>> = {};
     for (let coll of getMarket().collaterals) {

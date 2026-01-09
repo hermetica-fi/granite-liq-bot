@@ -1,7 +1,7 @@
 import assert from "node:assert";
 import { fetchGetBorrowerPositions } from "./client/backend";
-import { IR_PARAMS_SCALING_FACTOR } from "./constants";
-import { toTicker } from "./helper";
+
+import { getMarket, toTicker } from "./helper";
 import {
     calculateAccountHealth, calculateAccountLiqLTV,
     calculateLiquidationPoint,
@@ -9,15 +9,19 @@ import {
 } from "./math";
 import type { BorrowerStatus, BorrowerStatusEntity, InterestRateParams, MarketState, PriceFeedResponseMixed } from "./types";
 
+const market = getMarket();
+
+const irParamsScalingFactor = market.scaling_factor.toString().match(/0/g)!.length;
+
 export const calcBorrowerStatus = (borrower: {
     debtShares: number;
     collateralsDeposited: Record<string, { amount: number, price: number, decimals: number }>;
 }, marketState: MarketState): BorrowerStatus => {
     const irParams: InterestRateParams = {
-        urKink: marketState.irParams.urKink / 10 ** IR_PARAMS_SCALING_FACTOR,
-        baseIR: marketState.irParams.baseIR / 10 ** IR_PARAMS_SCALING_FACTOR,
-        slope1: marketState.irParams.slope1 / 10 ** IR_PARAMS_SCALING_FACTOR,
-        slope2: marketState.irParams.slope2 / 10 ** IR_PARAMS_SCALING_FACTOR,
+        urKink: marketState.irParams.urKink / 10 ** irParamsScalingFactor,
+        baseIR: marketState.irParams.baseIR / 10 ** irParamsScalingFactor,
+        slope1: marketState.irParams.slope1 / 10 ** irParamsScalingFactor,
+        slope2: marketState.irParams.slope2 / 10 ** irParamsScalingFactor,
     };
 
     const now = Date.now();
@@ -37,7 +41,7 @@ export const calcBorrowerStatus = (borrower: {
 
     const collaterals = Object.keys(borrower.collateralsDeposited).map(key => {
         const { liquidationLTV, maxLTV, liquidationPremium } = marketState.collateralParams[key];
-        const {amount, price, decimals} = borrower.collateralsDeposited[key];
+        const { amount, price, decimals } = borrower.collateralsDeposited[key];
 
         return {
             id: key,

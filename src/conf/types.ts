@@ -1,17 +1,7 @@
-declare const StacksNetworks: readonly [
-  'mainnet',
-];
-type StacksNetworkName = (typeof StacksNetworks)[number];
-
 export enum GRANITE_MARKETS {
-  MAINNET = 'MAINNET',
-  MAINNET_STAGING = 'MAINNET_STAGING',
-}
-
-export interface Chain {
-  id: GRANITE_MARKETS;
-  name: string;
-  network: StacksNetworkName;
+  AEUSDC = 'AEUSDC',
+  AEUSDC_STAGING = 'AEUSDC_STAGING',
+  USDCX = 'USDCX'
 }
 
 export interface Contract {
@@ -43,11 +33,12 @@ export enum GraniteContracts {
 }
 
 export interface Market {
-  chain_id: GRANITE_MARKETS;
+  market_id: GRANITE_MARKETS;
   market_asset: Token;
   collaterals: CollateralToken[];
   contracts: Record<GraniteContracts, Contract>;
   scaling_factor: number;
+  apiBase: string;
 }
 
 export interface Config {

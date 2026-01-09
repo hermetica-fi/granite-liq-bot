@@ -14,14 +14,20 @@ describe("helper", () => {
         expect(() => toTicker("link")).toThrow(Error('Invalid symbol: link'));
     });
 
-    test("getMarket mainnet", () => {
-        expect(getMarket().chain_id).toBe(GRANITE_MARKETS.MAINNET);
+    test("getMarket aeusdc", () => {
+        expect(getMarket().market_id).toBe(GRANITE_MARKETS.AEUSDC);
     });
 
-    test("getMarket mainnet staging", () => {
-        process.env.USE_STAGING = "1";
-        expect(getMarket().chain_id).toBe(GRANITE_MARKETS.MAINNET_STAGING);
-        process.env.USE_STAGING = "";
+    test("getMarket aeusdc staging", () => {
+        process.env.MARKET = "AEUSDC_STAGING";
+        expect(getMarket().market_id).toBe(GRANITE_MARKETS.AEUSDC_STAGING);
+        process.env.MARKET = "AEUSDC";
+    });
+
+    test("getMarket usdcx", () => {
+        process.env.MARKET = "USDCX";
+        expect(getMarket().market_id).toBe(GRANITE_MARKETS.USDCX);
+        process.env.MARKET = "AEUSDC";
     });
 
     test("toCollateralAddress", () => {

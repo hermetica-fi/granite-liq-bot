@@ -1,6 +1,6 @@
 import assert from "assert";
-import { MARKET_ASSET_DECIMAL } from "../constants";
 import { kvStoreGet, kvStoreSet } from "../db/helper";
+import { getMarket } from "../helper";
 import type {
     AccrueInterestParams,
     CollateralParams, DebtParams, InterestRateParams, LpParams,
@@ -88,6 +88,7 @@ export const getMarketState = (): MarketState => {
     assert(flashLoanCapacity, 'flashLoanCapacity not found');
     const onChainPriceFeed = getOnChainPriceFeed();
     assert(onChainPriceFeed!==null, 'onChainPriceFeed not found');
+    const market = getMarket();
 
     return {
         irParams,
@@ -96,7 +97,7 @@ export const getMarketState = (): MarketState => {
         debtParams,
         collateralParams,
         marketAssetParams: {
-            decimals: MARKET_ASSET_DECIMAL
+            decimals: market.market_asset.decimals
         },
         flashLoanCapacity,
         onChainPriceFeed
